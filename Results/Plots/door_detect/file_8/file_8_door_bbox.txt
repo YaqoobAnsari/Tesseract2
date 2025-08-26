@@ -1,0 +1,15 @@
+Detection 1:
+  Bounding Box: [114, 144, 176, 206]
+  Confidence Score: 0.92
+  Label: 1
+
+Detection 2:
+  Bounding Box: [305, 101, 349, 153]
+  Confidence Score: 1.00
+  Label: 1
+
+Detection 3:
+  Bounding Box: [365, 157, 410, 204]
+  Confidence Score: 0.98
+  Label: 1
+

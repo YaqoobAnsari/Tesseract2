@@ -1,0 +1,30 @@
+Detection 1:
+  Bounding Box: [220, 85, 261, 134]
+  Confidence Score: 1.00
+  Label: 1
+
+Detection 2:
+  Bounding Box: [472, 193, 521, 235]
+  Confidence Score: 1.00
+  Label: 1
+
+Detection 3:
+  Bounding Box: [362, 238, 402, 285]
+  Confidence Score: 1.00
+  Label: 1
+
+Detection 4:
+  Bounding Box: [414, 156, 456, 203]
+  Confidence Score: 1.00
+  Label: 1
+
+Detection 5:
+  Bounding Box: [473, 193, 521, 235]
+  Confidence Score: 1.00
+  Label: 1
+
+Detection 6:
+  Bounding Box: [361, 240, 402, 291]
+  Confidence Score: 1.00
+  Label: 1
+

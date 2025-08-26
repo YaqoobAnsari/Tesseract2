@@ -1,0 +1,494 @@
+{
+    "nodes": [
+        {
+            "id": "room_1",
+            "type": "room",
+            "position": [
+                178,
+                102
+            ]
+        },
+        {
+            "id": "room_2",
+            "type": "room",
+            "position": [
+                399,
+                101
+            ]
+        },
+        {
+            "id": "room_3",
+            "type": "room",
+            "position": [
+                331,
+                397
+            ]
+        },
+        {
+            "id": "exit_door_1",
+            "type": "door",
+            "position": [
+                612,
+                297
+            ]
+        },
+        {
+            "id": "r2c_door_1",
+            "type": "door",
+            "position": [
+                266,
+                184
+            ]
+        },
+        {
+            "id": "r2c_door_2",
+            "type": "door",
+            "position": [
+                391,
+                185
+            ]
+        },
+        {
+            "id": "r2c_door_3",
+            "type": "door",
+            "position": [
+                292,
+                298
+            ]
+        },
+        {
+            "id": "corridor_connect_83",
+            "type": "corridor",
+            "position": [
+                280,
+                180
+            ]
+        },
+        {
+            "id": "corridor_connect_84",
+            "type": "corridor",
+            "position": [
+                400,
+                180
+            ]
+        },
+        {
+            "id": "corridor_connect_107",
+            "type": "corridor",
+            "position": [
+                280,
+                200
+            ]
+        },
+        {
+            "id": "corridor_connect_108",
+            "type": "corridor",
+            "position": [
+                380,
+                200
+            ]
+        },
+        {
+            "id": "corridor_connect_109",
+            "type": "corridor",
+            "position": [
+                400,
+                200
+            ]
+        },
+        {
+            "id": "corridor_connect_110",
+            "type": "corridor",
+            "position": [
+                560,
+                200
+            ]
+        },
+        {
+            "id": "corridor_connect_138",
+            "type": "corridor",
+            "position": [
+                260,
+                220
+            ]
+        },
+        {
+            "id": "corridor_connect_140",
+            "type": "corridor",
+            "position": [
+                300,
+                220
+            ]
+        },
+        {
+            "id": "corridor_connect_141",
+            "type": "corridor",
+            "position": [
+                320,
+                220
+            ]
+        },
+        {
+            "id": "corridor_connect_142",
+            "type": "corridor",
+            "position": [
+                340,
+                220
+            ]
+        },
+        {
+            "id": "corridor_connect_143",
+            "type": "corridor",
+            "position": [
+                360,
+                220
+            ]
+        },
+        {
+            "id": "corridor_connect_146",
+            "type": "corridor",
+            "position": [
+                420,
+                220
+            ]
+        },
+        {
+            "id": "corridor_connect_147",
+            "type": "corridor",
+            "position": [
+                440,
+                220
+            ]
+        },
+        {
+            "id": "corridor_connect_148",
+            "type": "corridor",
+            "position": [
+                460,
+                220
+            ]
+        },
+        {
+            "id": "corridor_connect_149",
+            "type": "corridor",
+            "position": [
+                480,
+                220
+            ]
+        },
+        {
+            "id": "corridor_connect_150",
+            "type": "corridor",
+            "position": [
+                500,
+                220
+            ]
+        },
+        {
+            "id": "corridor_connect_151",
+            "type": "corridor",
+            "position": [
+                520,
+                220
+            ]
+        },
+        {
+            "id": "corridor_connect_152",
+            "type": "corridor",
+            "position": [
+                540,
+                220
+            ]
+        },
+        {
+            "id": "corridor_connect_154",
+            "type": "corridor",
+            "position": [
+                580,
+                220
+            ]
+        },
+        {
+            "id": "corridor_connect_181",
+            "type": "corridor",
+            "position": [
+                240,
+                240
+            ]
+        },
+        {
+            "id": "corridor_connect_186",
+            "type": "corridor",
+            "position": [
+                340,
+                240
+            ]
+        },
+        {
+            "id": "corridor_connect_199",
+            "type": "corridor",
+            "position": [
+                600,
+                240
+            ]
+        },
+        {
+            "id": "corridor_connect_226",
+            "type": "corridor",
+            "position": [
+                260,
+                260
+            ]
+        },
+        {
+            "id": "corridor_connect_229",
+            "type": "corridor",
+            "position": [
+                320,
+                260
+            ]
+        },
+        {
+            "id": "corridor_connect_244",
+            "type": "corridor",
+            "position": [
+                620,
+                260
+            ]
+        },
+        {
+            "id": "corridor_connect_274",
+            "type": "corridor",
+            "position": [
+                280,
+                280
+            ]
+        },
+        {
+            "id": "corridor_connect_275",
+            "type": "corridor",
+            "position": [
+                300,
+                280
+            ]
+        },
+        {
+            "id": "corridor_connect_277",
+            "type": "corridor",
+            "position": [
+                640,
+                280
+            ]
+        },
+        {
+            "id": "corridor_connect_293",
+            "type": "corridor",
+            "position": [
+                280,
+                300
+            ]
+        }
+    ],
+    "edges": [
+        {
+            "source": "room_1",
+            "target": "r2c_door_1",
+            "weight": 1
+        },
+        {
+            "source": "room_2",
+            "target": "r2c_door_2",
+            "weight": 1
+        },
+        {
+            "source": "room_3",
+            "target": "r2c_door_3",
+            "weight": 1
+        },
+        {
+            "source": "exit_door_1",
+            "target": "corridor_connect_277",
+            "weight": 1
+        },
+        {
+            "source": "r2c_door_1",
+            "target": "corridor_connect_83",
+            "weight": 1
+        },
+        {
+            "source": "r2c_door_2",
+            "target": "corridor_connect_84",
+            "weight": 1
+        },
+        {
+            "source": "r2c_door_3",
+            "target": "corridor_connect_293",
+            "weight": 1
+        },
+        {
+            "source": "corridor_connect_83",
+            "target": "corridor_connect_107",
+            "weight": 1
+        },
+        {
+            "source": "corridor_connect_84",
+            "target": "corridor_connect_109",
+            "weight": 1
+        },
+        {
+            "source": "corridor_connect_84",
+            "target": "corridor_connect_108",
+            "weight": 1
+        },
+        {
+            "source": "corridor_connect_107",
+            "target": "corridor_connect_140",
+            "weight": 1
+        },
+        {
+            "source": "corridor_connect_107",
+            "target": "corridor_connect_138",
+            "weight": 1
+        },
+        {
+            "source": "corridor_connect_108",
+            "target": "corridor_connect_109",
+            "weight": 1
+        },
+        {
+            "source": "corridor_connect_108",
+            "target": "corridor_connect_143",
+            "weight": 1
+        },
+        {
+            "source": "corridor_connect_109",
+            "target": "corridor_connect_146",
+            "weight": 1
+        },
+        {
+            "source": "corridor_connect_110",
+            "target": "corridor_connect_154",
+            "weight": 1
+        },
+        {
+            "source": "corridor_connect_110",
+            "target": "corridor_connect_152",
+            "weight": 1
+        },
+        {
+            "source": "corridor_connect_138",
+            "target": "corridor_connect_181",
+            "weight": 1
+        },
+        {
+            "source": "corridor_connect_140",
+            "target": "corridor_connect_141",
+            "weight": 1
+        },
+        {
+            "source": "corridor_connect_141",
+            "target": "corridor_connect_142",
+            "weight": 1
+        },
+        {
+            "source": "corridor_connect_141",
+            "target": "corridor_connect_186",
+            "weight": 1
+        },
+        {
+            "source": "corridor_connect_142",
+            "target": "corridor_connect_186",
+            "weight": 1
+        },
+        {
+            "source": "corridor_connect_142",
+            "target": "corridor_connect_143",
+            "weight": 1
+        },
+        {
+            "source": "corridor_connect_143",
+            "target": "corridor_connect_186",
+            "weight": 1
+        },
+        {
+            "source": "corridor_connect_146",
+            "target": "corridor_connect_147",
+            "weight": 1
+        },
+        {
+            "source": "corridor_connect_147",
+            "target": "corridor_connect_148",
+            "weight": 1
+        },
+        {
+            "source": "corridor_connect_148",
+            "target": "corridor_connect_149",
+            "weight": 1
+        },
+        {
+            "source": "corridor_connect_149",
+            "target": "corridor_connect_150",
+            "weight": 1
+        },
+        {
+            "source": "corridor_connect_150",
+            "target": "corridor_connect_151",
+            "weight": 1
+        },
+        {
+            "source": "corridor_connect_151",
+            "target": "corridor_connect_152",
+            "weight": 1
+        },
+        {
+            "source": "corridor_connect_154",
+            "target": "corridor_connect_199",
+            "weight": 1
+        },
+        {
+            "source": "corridor_connect_181",
+            "target": "corridor_connect_226",
+            "weight": 1
+        },
+        {
+            "source": "corridor_connect_186",
+            "target": "corridor_connect_229",
+            "weight": 1
+        },
+        {
+            "source": "corridor_connect_199",
+            "target": "corridor_connect_244",
+            "weight": 1
+        },
+        {
+            "source": "corridor_connect_226",
+            "target": "corridor_connect_274",
+            "weight": 1
+        },
+        {
+            "source": "corridor_connect_229",
+            "target": "corridor_connect_275",
+            "weight": 1
+        },
+        {
+            "source": "corridor_connect_244",
+            "target": "corridor_connect_277",
+            "weight": 1
+        },
+        {
+            "source": "corridor_connect_274",
+            "target": "corridor_connect_293",
+            "weight": 1
+        },
+        {
+            "source": "corridor_connect_274",
+            "target": "corridor_connect_275",
+            "weight": 1
+        },
+        {
+            "source": "corridor_connect_275",
+            "target": "corridor_connect_293",
+            "weight": 1
+        }
+    ]
+}

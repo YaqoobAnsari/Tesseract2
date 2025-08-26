@@ -1,0 +1,181 @@
+{
+    "nodes": [
+        {
+            "id": "room_1",
+            "type": "room",
+            "position": [
+                813,
+                98
+            ]
+        },
+        {
+            "id": "room_2",
+            "type": "room",
+            "position": [
+                578,
+                102
+            ]
+        },
+        {
+            "id": "room_3",
+            "type": "room",
+            "position": [
+                226,
+                176
+            ]
+        },
+        {
+            "id": "room_4",
+            "type": "room",
+            "position": [
+                795,
+                313
+            ]
+        },
+        {
+            "id": "room_5",
+            "type": "room",
+            "position": [
+                573,
+                314
+            ]
+        },
+        {
+            "id": "room_6",
+            "type": "room",
+            "position": [
+                365,
+                370
+            ]
+        },
+        {
+            "id": "room_7",
+            "type": "room",
+            "position": [
+                153,
+                416
+            ]
+        },
+        {
+            "id": "room_8",
+            "type": "room",
+            "position": [
+                862,
+                492
+            ]
+        },
+        {
+            "id": "room_9",
+            "type": "room",
+            "position": [
+                892,
+                594
+            ]
+        },
+        {
+            "id": "room_10",
+            "type": "room",
+            "position": [
+                920,
+                686
+            ]
+        },
+        {
+            "id": "room_12",
+            "type": "room",
+            "position": [
+                979,
+                773
+            ]
+        },
+        {
+            "id": "room_13",
+            "type": "room",
+            "position": [
+                1031,
+                865
+            ]
+        },
+        {
+            "id": "room_14",
+            "type": "room",
+            "position": [
+                400,
+                873
+            ]
+        },
+        {
+            "id": "room_15",
+            "type": "room",
+            "position": [
+                1092,
+                947
+            ]
+        },
+        {
+            "id": "room_16",
+            "type": "room",
+            "position": [
+                1147,
+                1036
+            ]
+        },
+        {
+            "id": "room_18",
+            "type": "room",
+            "position": [
+                1225,
+                1108
+            ]
+        },
+        {
+            "id": "corridor_main_1",
+            "type": "corridor",
+            "position": [
+                417,
+                254
+            ]
+        },
+        {
+            "id": "corridor_main_2",
+            "type": "corridor",
+            "position": [
+                1152,
+                294
+            ]
+        },
+        {
+            "id": "corridor_main_3",
+            "type": "corridor",
+            "position": [
+                154,
+                362
+            ]
+        },
+        {
+            "id": "corridor_main_4",
+            "type": "corridor",
+            "position": [
+                283,
+                552
+            ]
+        },
+        {
+            "id": "corridor_main_5",
+            "type": "corridor",
+            "position": [
+                791,
+                888
+            ]
+        },
+        {
+            "id": "outside_main_1",
+            "type": "outside",
+            "position": [
+                108,
+                1063
+            ]
+        }
+    ],
+    "edges": []
+}

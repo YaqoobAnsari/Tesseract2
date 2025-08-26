@@ -1,0 +1,215 @@
+Detection 1:
+  Bounding Box: [398, 203, 438, 228]
+  Confidence Score: 1.00
+  Label: 1
+
+Detection 2:
+  Bounding Box: [399, 277, 445, 300]
+  Confidence Score: 1.00
+  Label: 1
+
+Detection 3:
+  Bounding Box: [614, 198, 642, 221]
+  Confidence Score: 1.00
+  Label: 1
+
+Detection 4:
+  Bounding Box: [636, 32, 664, 57]
+  Confidence Score: 1.00
+  Label: 1
+
+Detection 5:
+  Bounding Box: [517, 116, 543, 145]
+  Confidence Score: 1.00
+  Label: 1
+
+Detection 6:
+  Bounding Box: [557, 139, 579, 166]
+  Confidence Score: 1.00
+  Label: 1
+
+Detection 7:
+  Bounding Box: [708, 115, 738, 140]
+  Confidence Score: 1.00
+  Label: 1
+
+Detection 8:
+  Bounding Box: [524, 267, 548, 296]
+  Confidence Score: 1.00
+  Label: 1
+
+Detection 9:
+  Bounding Box: [712, 268, 740, 292]
+  Confidence Score: 1.00
+  Label: 1
+
+Detection 10:
+  Bounding Box: [709, 115, 738, 140]
+  Confidence Score: 1.00
+  Label: 1
+
+Detection 11:
+  Bounding Box: [744, 88, 765, 107]
+  Confidence Score: 1.00
+  Label: 1
+
+Detection 12:
+  Bounding Box: [987, 237, 1007, 257]
+  Confidence Score: 1.00
+  Label: 1
+
+Detection 13:
+  Bounding Box: [17, 337, 48, 387]
+  Confidence Score: 0.99
+  Label: 1
+
+Detection 14:
+  Bounding Box: [401, 279, 442, 305]
+  Confidence Score: 1.00
+  Label: 1
+
+Detection 15:
+  Bounding Box: [373, 405, 406, 433]
+  Confidence Score: 1.00
+  Label: 1
+
+Detection 16:
+  Bounding Box: [290, 419, 320, 445]
+  Confidence Score: 1.00
+  Label: 1
+
+Detection 17:
+  Bounding Box: [477, 361, 501, 387]
+  Confidence Score: 1.00
+  Label: 1
+
+Detection 18:
+  Bounding Box: [316, 413, 343, 441]
+  Confidence Score: 0.98
+  Label: 1
+
+Detection 19:
+  Bounding Box: [713, 269, 741, 292]
+  Confidence Score: 1.00
+  Label: 1
+
+Detection 20:
+  Bounding Box: [653, 357, 683, 382]
+  Confidence Score: 1.00
+  Label: 1
+
+Detection 21:
+  Bounding Box: [478, 361, 501, 385]
+  Confidence Score: 1.00
+  Label: 1
+
+Detection 22:
+  Bounding Box: [571, 340, 594, 367]
+  Confidence Score: 1.00
+  Label: 1
+
+Detection 23:
+  Bounding Box: [524, 268, 548, 296]
+  Confidence Score: 1.00
+  Label: 1
+
+Detection 24:
+  Bounding Box: [561, 243, 583, 270]
+  Confidence Score: 1.00
+  Label: 1
+
+Detection 25:
+  Bounding Box: [508, 352, 533, 383]
+  Confidence Score: 1.00
+  Label: 1
+
+Detection 26:
+  Bounding Box: [540, 345, 565, 375]
+  Confidence Score: 0.96
+  Label: 1
+
+Detection 27:
+  Bounding Box: [713, 269, 742, 293]
+  Confidence Score: 1.00
+  Label: 1
+
+Detection 28:
+  Bounding Box: [834, 281, 864, 310]
+  Confidence Score: 1.00
+  Label: 1
+
+Detection 29:
+  Bounding Box: [841, 334, 868, 361]
+  Confidence Score: 0.99
+  Label: 1
+
+Detection 30:
+  Bounding Box: [990, 238, 1006, 257]
+  Confidence Score: 1.00
+  Label: 1
+
+Detection 31:
+  Bounding Box: [1147, 290, 1165, 308]
+  Confidence Score: 0.95
+  Label: 1
+
+Detection 32:
+  Bounding Box: [491, 639, 518, 672]
+  Confidence Score: 0.99
+  Label: 1
+
+Detection 33:
+  Bounding Box: [429, 684, 455, 707]
+  Confidence Score: 0.97
+  Label: 1
+
+Detection 34:
+  Bounding Box: [555, 549, 581, 580]
+  Confidence Score: 1.00
+  Label: 1
+
+Detection 35:
+  Bounding Box: [493, 640, 518, 669]
+  Confidence Score: 1.00
+  Label: 1
+
+Detection 36:
+  Bounding Box: [497, 542, 524, 562]
+  Confidence Score: 0.98
+  Label: 1
+
+Detection 37:
+  Bounding Box: [952, 580, 985, 615]
+  Confidence Score: 0.99
+  Label: 1
+
+Detection 38:
+  Bounding Box: [995, 666, 1025, 706]
+  Confidence Score: 0.96
+  Label: 1
+
+Detection 39:
+  Bounding Box: [1150, 907, 1183, 948]
+  Confidence Score: 0.98
+  Label: 1
+
+Detection 40:
+  Bounding Box: [1148, 906, 1181, 952]
+  Confidence Score: 0.98
+  Label: 1
+
+Detection 41:
+  Bounding Box: [708, 1090, 739, 1127]
+  Confidence Score: 0.97
+  Label: 1
+
+Detection 42:
+  Bounding Box: [1149, 907, 1177, 952]
+  Confidence Score: 0.95
+  Label: 1
+
+Detection 43:
+  Bounding Box: [1213, 981, 1242, 1024]
+  Confidence Score: 0.95
+  Label: 1
+

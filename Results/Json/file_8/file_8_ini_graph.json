@@ -1,0 +1,45 @@
+{
+    "nodes": [
+        {
+            "id": "room_1",
+            "type": "room",
+            "position": [
+                346,
+                77
+            ]
+        },
+        {
+            "id": "room_2",
+            "type": "room",
+            "position": [
+                109,
+                84
+            ]
+        },
+        {
+            "id": "room_3",
+            "type": "room",
+            "position": [
+                407,
+                271
+            ]
+        },
+        {
+            "id": "corridor_main_1",
+            "type": "corridor",
+            "position": [
+                160,
+                298
+            ]
+        },
+        {
+            "id": "outside_main_1",
+            "type": "outside",
+            "position": [
+                424,
+                509
+            ]
+        }
+    ],
+    "edges": []
+}

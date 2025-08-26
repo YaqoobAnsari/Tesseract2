@@ -1,0 +1,213 @@
+{
+    "nodes": [
+        {
+            "id": "room_1",
+            "type": "room",
+            "position": [
+                1584,
+                168
+            ]
+        },
+        {
+            "id": "room_2",
+            "type": "room",
+            "position": [
+                970,
+                182
+            ]
+        },
+        {
+            "id": "room_3",
+            "type": "room",
+            "position": [
+                414,
+                188
+            ]
+        },
+        {
+            "id": "room_4",
+            "type": "room",
+            "position": [
+                1222,
+                193
+            ]
+        },
+        {
+            "id": "room_5",
+            "type": "room",
+            "position": [
+                639,
+                200
+            ]
+        },
+        {
+            "id": "room_6",
+            "type": "room",
+            "position": [
+                1407,
+                208
+            ]
+        },
+        {
+            "id": "room_7",
+            "type": "room",
+            "position": [
+                1222,
+                292
+            ]
+        },
+        {
+            "id": "room_8",
+            "type": "room",
+            "position": [
+                1586,
+                308
+            ]
+        },
+        {
+            "id": "room_9",
+            "type": "room",
+            "position": [
+                410,
+                408
+            ]
+        },
+        {
+            "id": "room_10",
+            "type": "room",
+            "position": [
+                639,
+                411
+            ]
+        },
+        {
+            "id": "room_11",
+            "type": "room",
+            "position": [
+                1583,
+                426
+            ]
+        },
+        {
+            "id": "room_12",
+            "type": "room",
+            "position": [
+                1591,
+                544
+            ]
+        },
+        {
+            "id": "room_13",
+            "type": "room",
+            "position": [
+                1562,
+                545
+            ]
+        },
+        {
+            "id": "room_14",
+            "type": "room",
+            "position": [
+                1591,
+                633
+            ]
+        },
+        {
+            "id": "room_15",
+            "type": "room",
+            "position": [
+                308,
+                728
+            ]
+        },
+        {
+            "id": "room_16",
+            "type": "room",
+            "position": [
+                279,
+                729
+            ]
+        },
+        {
+            "id": "room_17",
+            "type": "room",
+            "position": [
+                237,
+                873
+            ]
+        },
+        {
+            "id": "room_18",
+            "type": "room",
+            "position": [
+                730,
+                940
+            ]
+        },
+        {
+            "id": "room_19",
+            "type": "room",
+            "position": [
+                188,
+                967
+            ]
+        },
+        {
+            "id": "room_20",
+            "type": "room",
+            "position": [
+                374,
+                1017
+            ]
+        },
+        {
+            "id": "room_21",
+            "type": "room",
+            "position": [
+                1240,
+                1034
+            ]
+        },
+        {
+            "id": "room_22",
+            "type": "room",
+            "position": [
+                1440,
+                1052
+            ]
+        },
+        {
+            "id": "corridor_main_1",
+            "type": "corridor",
+            "position": [
+                1346,
+                150
+            ]
+        },
+        {
+            "id": "corridor_main_2",
+            "type": "corridor",
+            "position": [
+                83,
+                452
+            ]
+        },
+        {
+            "id": "corridor_main_3",
+            "type": "corridor",
+            "position": [
+                897,
+                689
+            ]
+        },
+        {
+            "id": "outside_main_1",
+            "type": "outside",
+            "position": [
+                633,
+                61
+            ]
+        }
+    ],
+    "edges": []
+}
