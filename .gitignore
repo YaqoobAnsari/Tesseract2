@@ -1,0 +1,6 @@
+
+# large artifacts
+Model_weights/
+*.pth
+*.ckpt
+
