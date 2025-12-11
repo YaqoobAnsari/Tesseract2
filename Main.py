@@ -12,17 +12,18 @@ from PIL import Image
 
 
 # Add the required paths to the Python path
-sys.path.append("/data1/yansari/cad2map/Yaqoob_CAD2MAP/Models/Text_Models")
+sys.path.append("/data1/yansari/cad2map/Tesseract++/Models/Text_Models")
 sys.path.append("./utils")  # Add the utils folder to the Python path
-sys.path.append("/data1/yansari/cad2map/Yaqoob_CAD2MAP/Models/Interpreter")
-sys.path.append("/data1/yansari/cad2map/Yaqoob_CAD2MAP/Models/Door_Models") 
-from text_interpreter import interpret_bboxes
+sys.path.append("/data1/yansari/cad2map/Tesseract++/Models/Interpreter")
+sys.path.append("/data1/yansari/cad2map/Tesseract++/Models/Door_Models") 
+from text_interpreter import interpret_bboxes, parse_transition_labels
 from door_bboxer import*
 
 # Import functions and classes
-from text_bboxer import get_Textboxes
+from text_bboxer import*
 from utils.graph import BuildingGraph
-from utils.floodfill import process_fill_rooms 
+from utils.floodfill import* 
+from utils.floodfill import get_room_subnode_candidates
 from utils.connectivity import*
 from utils.Improve import*
 from utils.compute_time_eval import*
@@ -54,10 +55,8 @@ def make_graph(image_name):
     Args:
         image_name (str): Name of the image with the extension.
     """
-    
-
     # Define base paths
-    base_path = "/data1/yansari/cad2map/Yaqoob_CAD2MAP"
+    base_path = os.getcwd()
     input_images_dir = os.path.join(base_path, "Input_Images")
     model_weights_dir = os.path.join(base_path, "Model_weights")
     results_dir = os.path.join(base_path, "Results")
@@ -129,19 +128,20 @@ def make_graph(image_name):
 
     start_step = time.time()
     print("\nInterpreting bboxes...")
-    room_bboxes, hallway_bboxes, outside_bboxes, result_file_path = interpret_bboxes(image_path, text_file_path, plots_dir)
+    room_bboxes, hallway_bboxes, outside_bboxes, transition_bboxes, result_file_path = interpret_bboxes(image_path, text_file_path, plots_dir)
     log_time("Interpreting bboxes check", start_step)
      
     # Initialize the graph
     print("\nInitializing Graph")
-    graph = BuildingGraph()
+    graph = BuildingGraph(default_floor="Ground_Floor")
     
     # Calculate bounding box centers
     start_step = time.time()
     bbox_centers = graph.calculate_bbox_centers(room_bboxes)
     hallway_bbox_centers = graph.calculate_bbox_centers(hallway_bboxes)
     outside_bbox_centers = graph.calculate_bbox_centers(outside_bboxes)
- 
+    transition_bbox_centers = graph.calculate_bbox_centers(transition_bboxes)
+
     # Add nodes to the graph
     for i, (x, y) in enumerate(bbox_centers):
         node_id = f"room_{i + 1}"
@@ -156,9 +156,34 @@ def make_graph(image_name):
     for i, (x, y) in enumerate(outside_bbox_centers):
         node_id = f"outside_main_{i + 1}"
         graph.add_node(node_id, node_type="outside", position=(x, y))
-    print(f"Added {len(outside_bbox_centers)} outside nodes to the graph\n")
-    log_time("graph initialization check", start_step)
+    print(f"Added {len(outside_bbox_centers)} outside nodes to the graph")
 
+    transition_label_by_bbox = parse_transition_labels(result_file_path)
+    stairs_count = 0
+    elevator_count = 0
+    
+    for i, ((x, y), bbox) in enumerate(zip(transition_bbox_centers, transition_bboxes), start=1):
+        key = tuple(bbox)
+        label = transition_label_by_bbox.get(key)
+
+        if label == "stairs":
+            stairs_count += 1
+            node_id = f"stairs_{stairs_count}"
+        elif label == "elevator":
+            elevator_count += 1
+            node_id = f"elevator_{elevator_count}"
+        else:
+            node_id = f"transition_{i}"
+
+        graph.add_node(
+            node_id,
+            node_type="transition",
+            position=(x, y),
+            floor_id=graph.default_floor,  
+        )
+    print(f"Added {stairs_count} stair nodes and {elevator_count} elevator nodes to the graph\n")
+    
+    log_time("graph initialization check", start_step)
     json_output_path = os.path.join(json_img_dir, f"{image_name_no_ext}_ini_graph.json")
     graph.save_to_json(json_output_path) 
 
@@ -188,6 +213,33 @@ def make_graph(image_name):
     print("\nFinding Pixelwise areas")
     room_pixels, outdoor_pixels, corridor_pixels, unmarked_pixels, wall_pixels, thr_img_path = pixelwise_areas(flood_output_img_pth, graph, connect_img_dir,print_tag=False)   
 
+    candidates, overlay_path, room_props, area_map_path = get_room_subnode_candidates(
+        image_path,
+        graph,
+        results_dir=results_dir,
+        segmented_map_path=thr_img_path,   # <<< new (strongly recommended)
+        spacing_px=60, wall_pad_px=10, jitter_px=4,
+        fill_mode="flood", point_radius=10, point_step=10, flood_threshold=30,
+        radius_threshold=70, save_overlay=True
+    )
+
+    # When adding subnodes (unchanged), also copy room_props onto MAIN room node only:
+    for room_id, pts in candidates.items():
+        floor = graph.graph.nodes[room_id].get("floor", graph.default_floor)
+        # attach properties to the main room node
+        if room_id in room_props:
+            graph.graph.nodes[room_id]["room_area_px"]   = room_props[room_id]["area_px"]
+            graph.graph.nodes[room_id]["room_eq_radius"] = room_props[room_id]["eq_radius_px"]
+            graph.graph.nodes[room_id]["room_inradius"]  = room_props[room_id]["inradius_px"]
+            graph.graph.nodes[room_id]["room_num_subnode_candidates"] = room_props[room_id]["num_candidates"]
+            graph.graph.nodes[room_id]["room_centroid_xy"] = room_props[room_id]["centroid_xy"]
+
+        for i, (x, y) in enumerate(pts, start=1):
+            sub_id = f"{room_id}_subnode_{i}"
+            graph.add_node(sub_id, node_type="room", position=(x, y), floor_id=floor)
+            graph.graph.nodes[sub_id]["is_subnode"] = True
+            graph.graph.nodes[sub_id]["parent_room_id"] = room_id
+        
     print("\nDetecting doors")
     start_step = time.time()
     door_bbox = detect_doors(image_path,threshold=0.9, chunk_size=300, overlap=75, results_dir=plots_dir)
@@ -226,6 +278,10 @@ def make_graph(image_name):
         graph.add_node(node_id, node_type=node_type, position=(x, y))
     graph.add_outdoor_edges(outdoor_pixels, distance=outside_distance)
     log_time("Updating graph nodes check", start_step)
+
+    print("\nFunneling room families to doors (grid lattice -> shortest paths)...")
+    kept = graph.connect_all_families_funnel(spacing_px=60, door_selector="nearest")
+    print(f"Kept {kept} intra-room edges across all rooms.")
 
     start_step = time.time()
     graph.connect_hallways()

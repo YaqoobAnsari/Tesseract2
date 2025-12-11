@@ -195,7 +195,15 @@ from natsort import natsorted
 from PIL import Image
 import numpy as np
 from torch.utils.data import Dataset, ConcatDataset, Subset
-from torch._utils import _accumulate
+# torch 2.9+ no longer exposes torch._utils._accumulate; provide a fallback.
+try:  # pragma: no cover
+    from torch._utils import _accumulate  # type: ignore
+except ImportError:  # pragma: no cover
+    from itertools import accumulate as _it_accumulate
+
+    def _accumulate(iterable):
+        for x in _it_accumulate(iterable):
+            yield x
 import torchvision.transforms as transforms
 
 
@@ -810,7 +818,7 @@ def interpret_labels(opt, input_image):
     model = torch.nn.DataParallel(model).to(device)
 
     # load model
-    model.load_state_dict(torch.load(opt.saved_model, map_location=device))
+    model.load_state_dict(torch.load(opt.saved_model, map_location=device, weights_only=False))
 
     # predict
     model.eval()
@@ -980,9 +988,20 @@ def normalize_numeric_text(text):
 
     return ''.join(substitutions.get(char, char) for char in text)
 
-def validate_bounding_boxes(bboxes, results, valid_room_labels, confidence_threshold=0.85, fuzzy_threshold=75):
+def validate_bounding_boxes(
+    bboxes,
+    results,
+    valid_room_labels,
+    confidence_threshold=0.85,
+    fuzzy_threshold=75,
+    extra_valid_words=None,
+):
     """
     Validate bounding boxes based on confidence scores and predicted text with proper checks.
+
+    Upgrades:
+    - `extra_valid_words` lets you whitelist non-room semantic tokens (e.g., 'stairs', 'elev').
+      These will be accepted without fuzzy matching against `valid_room_labels`.
 
     Args:
         bboxes (list[list[int]]): List of bounding box coordinates.
@@ -990,11 +1009,19 @@ def validate_bounding_boxes(bboxes, results, valid_room_labels, confidence_thres
         valid_room_labels (list[str]): List of valid room labels.
         confidence_threshold (float): Minimum confidence score to accept a bounding box.
         fuzzy_threshold (int): Minimum fuzzy matching score to accept a text as valid.
+        extra_valid_words (list[str] or None): Additional words to accept verbatim (e.g., transitions).
 
     Returns:
-        list[list[int]]: Valid bounding boxes.
-        list[dict]: Valid results.
+        list[list[int]]: Valid bounding boxes (same order as valid_results).
+        list[dict]: Valid results (subset of `results`, aligned with returned bboxes).
     """
+    from fuzzywuzzy import fuzz  # local import to avoid issues if not used elsewhere
+
+    if extra_valid_words is None:
+        extra_valid_words = []
+    # Normalize whitelist to lowercase for robust checks
+    extra_valid_words_norm = {w.strip().lower() for w in extra_valid_words if isinstance(w, str)}
+
     valid_bboxes = []
     valid_results = []
     print(f"Verifying {len(results)} labels... ")
@@ -1003,14 +1030,19 @@ def validate_bounding_boxes(bboxes, results, valid_room_labels, confidence_thres
         raw_text = result['text']
         confidence = result['confidence']
 
-        # Check confidence score
         if confidence < confidence_threshold:
-            print(f"Failed (Low Confidence): {i}/{len(results)}: bbox: {bbox} with text: '{raw_text}' has confidence: {confidence:.2f} < {confidence_threshold}")
+            print(f"Failed (Low Confidence): {i}/{len(results)}: bbox: {bbox} "
+                  f"with text: '{raw_text}' has confidence: {confidence:.2f} < {confidence_threshold}")
             continue
 
         # Case 1: Numeric text (valid as-is)
         if raw_text.isdigit():
-            #print(f"Success (Numeric): {i}/{len(results)}: Numeric text '{raw_text}' with bbox: {bbox} is valid.")
+            valid_bboxes.append(bbox)
+            valid_results.append(result)
+            continue
+
+        # Case 1.5: Explicitly whitelisted words (e.g., stairs/elev)
+        if raw_text.lower() in extra_valid_words_norm:
             valid_bboxes.append(bbox)
             valid_results.append(result)
             continue
@@ -1019,59 +1051,67 @@ def validate_bounding_boxes(bboxes, results, valid_room_labels, confidence_thres
         if len(raw_text) == 1:
             normalized_text = normalize_numeric_text(raw_text)
             if normalized_text.isdigit():
-                #print(f"Success (Single Character): {i}/{len(results)}: Single character '{raw_text}' normalized to '{normalized_text}' is valid.")
-                result['text'] = normalized_text  # Update the result with normalized text
+                result['text'] = normalized_text
                 valid_bboxes.append(bbox)
                 valid_results.append(result)
             else:
-                print(f"Failed (Invalid Single Character): {i}/{len(results)}: Single character '{raw_text}' is invalid.")
+                print(f"Failed (Invalid Single Character): {i}/{len(results)}: "
+                      f"Single character '{raw_text}' is invalid.")
             continue
 
         # Case 3: Mixed alphanumeric text
         if any(char.isdigit() for char in raw_text) and any(char.isalpha() for char in raw_text):
             normalized_text = normalize_numeric_text(raw_text)
             if normalized_text.isdigit():
-                #print(f"Success (Mixed Alphanumeric): {i}/{len(results)}: Mixed text '{raw_text}' normalized to '{normalized_text}' is valid.")
-                result['text'] = normalized_text  # Update the result with normalized text
+                result['text'] = normalized_text
                 valid_bboxes.append(bbox)
                 valid_results.append(result)
             else:
-                print(f"Failed (Invalid Mixed): {i}/{len(results)}: Mixed text '{raw_text}' (normalized: '{normalized_text}') did not become valid.")
+                print(f"Failed (Invalid Mixed): {i}/{len(results)}: Mixed text "
+                      f"'{raw_text}' (normalized: '{normalized_text}') did not become valid.")
             continue
 
-        # Case 4: Purely alphabetical text (fuzzy matching)
+        # Case 4: Purely alphabetical text (fuzzy matching against room labels OR exact in whitelist)
         if raw_text.isalpha():
+            raw_lower = raw_text.lower()
+            if raw_lower in extra_valid_words_norm:
+                valid_bboxes.append(bbox)
+                valid_results.append(result)
+                continue
+
             is_valid = False
             for label in valid_room_labels:
-                match_score = fuzz.ratio(raw_text.lower(), label.lower())
+                match_score = fuzz.ratio(raw_lower, label.lower())
                 if match_score >= fuzzy_threshold:
                     is_valid = True
                     break
 
             if is_valid:
-                #print(f"Success (Fuzzy Match): {i}/{len(results)}: Word '{raw_text}' matched valid room label with fuzzy score >= {fuzzy_threshold}.")
                 valid_bboxes.append(bbox)
                 valid_results.append(result)
             else:
-                print(f"Failed (Invalid Word): {i}/{len(results)}: Word '{raw_text}' did not match any valid room labels (fuzzy score < {fuzzy_threshold}).")
+                print(f"Failed (Invalid Word): {i}/{len(results)}: Word '{raw_text}' "
+                      f"did not match any valid room labels (fuzzy score < {fuzzy_threshold}).")
             continue
 
         # Default: Invalid
-        print(f"Failed (Invalid Category): {i}/{len(results)}: '{raw_text}' with bbox: {bbox} does not fit any valid category.")
+        print(f"Failed (Invalid Category): {i}/{len(results)}: '{raw_text}' with bbox: {bbox} "
+              f"does not fit any valid category.")
 
     return valid_bboxes, valid_results
 
 def interpret_bboxes(image_path, bbox_text_file, results_dir):
     """
-    Interpret text within bounding boxes, validate results, and save the valid ones.
+    Interpret text within bounding boxes, validate results (rooms + transitions), and save the valid ones.
 
-    Args:
-        image_path (str): Path to the input image.
-        bbox_text_file (str): Path to the text file containing bounding box information.
-        results_dir (str): Base results directory.
+    Upgrades:
+    - Accept 'stairs' and 'elev' (plus common variants) as valid **transition** nodes.
+    - Return a new list `transition_bboxes` (in addition to room/hallway/outside).
+      NOTE: The *text* of each transition bbox remains in the saved results file for downstream
+      naming like 'stairs_X' or 'elevator_X'.
 
     Returns:
-        tuple: (room_bboxes, hallway_bboxes, outside_bboxes, result_file_path)
+        tuple: (room_bboxes, hallway_bboxes, outside_bboxes, transition_bboxes, result_file_path)
     """
     import os
 
@@ -1095,10 +1135,12 @@ def interpret_bboxes(image_path, bbox_text_file, results_dir):
     except Exception as e:
         raise ValueError(f"Error reading bounding boxes from {bbox_text_file}: {e}")
 
-    interp_model = prep_read_labels("None", "VGG", "BiLSTM", "CTC",
-                                    "/data1/yansari/cad2map/Yaqoob_CAD2MAP/Model_weights/None-VGG-BiLSTM-CTC.pth")
+    interp_model = prep_read_labels(
+        "None", "VGG", "BiLSTM", "CTC",
+        "/data1/yansari/cad2map/Tesseract++/Model_weights/None-VGG-BiLSTM-CTC.pth"
+    )
 
-    # Process each bounding box
+    # OCR each bbox
     results = []
     failed_labels = []
     for i, bbox in enumerate(bboxes):
@@ -1112,18 +1154,38 @@ def interpret_bboxes(image_path, bbox_text_file, results_dir):
         pred, score = interpret_labels(interp_model, cropped_patch)
         results.append({'bbox': bbox, 'text': pred, 'confidence': score})
 
-    # Validate bounding boxes and results
+    # Valid label sets
     valid_room_labels = [
         'kitchen', 'bedroom', 'living room', 'bathroom', 'dining room', 'family room',
         'guest room', 'study', 'office', 'den', 'lounge', 'playroom', 'media room', 'hall', 'NA'
     ]
+    # NEW: transitions whitelist (accepted verbatim in validation)
+    valid_transition_words = [
+        'stairs', 'stair', 'staircase',
+        'elev', 'elevator', 'lift'
+    ]
 
-    bboxes, results = validate_bounding_boxes(bboxes, results, valid_room_labels)
+    # Validate (now keeps transitions too)
+    bboxes, results = validate_bounding_boxes(
+        bboxes,
+        results,
+        valid_room_labels,
+        confidence_threshold=0.85,
+        fuzzy_threshold=75,
+        extra_valid_words=valid_transition_words
+    )
 
-    # Separate bounding boxes for specific categories
+    # Separate by semantic class
     room_bboxes = []
     hallway_bboxes = []
     outside_bboxes = []
+    transition_bboxes = []  # NEW
+
+    # Normalize helper for transitions to standard keys (optional, kept as-is for now)
+    transition_aliases = {
+        'stairs': 'stairs', 'stair': 'stairs', 'staircase': 'stairs',
+        'elev': 'elevator', 'elevator': 'elevator', 'lift': 'elevator'
+    }
 
     for result in results:
         bbox = result['bbox']
@@ -1133,15 +1195,17 @@ def interpret_bboxes(image_path, bbox_text_file, results_dir):
             hallway_bboxes.append(bbox)
         elif text == 'na':
             outside_bboxes.append(bbox)
+        elif text in transition_aliases:
+            transition_bboxes.append(bbox)  # we keep just bboxes here; the label remains in results file
         else:
             room_bboxes.append(bbox)
 
-    # Save valid bounding boxes to bbox_text_file
+    # Overwrite bbox file with only valid bboxes (unchanged behavior)
     with open(bbox_text_file, "w") as bbox_file:
         for bbox in bboxes:
             bbox_file.write(",".join(map(str, bbox)) + "\n")
 
-    # Save valid results to result_file_path
+    # Save detailed results (includes transition words for later node naming)
     with open(result_file_path, "w") as result_file:
         for i, result in enumerate(results):
             bbox = result['bbox']
@@ -1150,4 +1214,41 @@ def interpret_bboxes(image_path, bbox_text_file, results_dir):
             result_file.write(f"BBox {i}: {bbox}, Text: {text}, Confidence: {confidence:.4f}\n")
 
     print(f"{len(results)} Valid bounding boxes interpreted, verified and saved to {result_file_path}")
-    return room_bboxes, hallway_bboxes, outside_bboxes, result_file_path
+    # NOTE: Return now includes `transition_bboxes` (new 4th element)
+    return room_bboxes, hallway_bboxes, outside_bboxes, transition_bboxes, result_file_path
+
+def parse_transition_labels(results_txt_path):
+    """
+    Parse lines like:
+      BBox i: [x1, y1, x2, y2, ...], Text: <word>, Confidence: 0.9876
+    Return: { (bbox_tuple): 'stairs'|'elevator' }
+    """
+    alias_map = {
+        "stairs": "stairs", "stair": "stairs", "staircase": "stairs",
+        "elev": "elevator", "elevator": "elevator", "lift": "elevator",
+    }
+    out = {}
+    if not os.path.exists(results_txt_path):
+        return out
+
+    # pattern to capture the bbox list and the text token
+    pat = re.compile(r"^BBox\s+\d+:\s*\[([^\]]+)\]\s*,\s*Text:\s*([^\s,]+)", re.IGNORECASE)
+
+    with open(results_txt_path, "r") as f:
+        for line in f:
+            m = pat.search(line)
+            if not m:
+                continue
+            bbox_str = m.group(1)
+            text = m.group(2).strip().lower()
+            norm = alias_map.get(text)
+            if norm is None:
+                continue  # ignore non-transition words here
+
+            # parse the bbox numbers into a tuple so it matches list->tuple comparisons
+            try:
+                nums = [int(x.strip()) for x in bbox_str.split(",")]
+                out[tuple(nums)] = norm
+            except Exception:
+                continue
+    return out

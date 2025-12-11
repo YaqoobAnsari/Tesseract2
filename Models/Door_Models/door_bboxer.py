@@ -5,7 +5,7 @@ import numpy as np
 import cv2
 import os
 from datetime import datetime
-sys.path.append("/data1/yansari/cad2map/Yaqoob_CAD2MAP/utils")  # Add the utils folder to the Python path
+sys.path.append("/data1/yansari/cad2map/Tesseract++/utils")  # Add the utils folder to the Python path
  
 from PIL import Image
 
@@ -148,7 +148,7 @@ def detection_model(weights_pth):
     model.to(device)
 
     # load pretrained weights
-    checkpoint = torch.load(weights_pth, map_location=device)
+    checkpoint = torch.load(weights_pth, map_location=device, weights_only=False)
     model.load_state_dict(checkpoint['model_state_dict'])
 
     return model
@@ -165,7 +165,7 @@ def detect_doors(
     threshold=0.8,
     chunk_size=300,
     overlap=50,
-    results_dir="/data1/yansari/cad2map/Yaqoob_CAD2MAP/Results/Plots", 
+    results_dir="/data1/yansari/cad2map/Tesseract++/Results/Plots", 
 ):
     """
     Detects doors in a large image by chunking it into smaller patches for Faster R-CNN inference,
@@ -205,7 +205,7 @@ def detect_doors(
 
     #print(f"       Number of chunks created: {len(chunks)}")
 
-    door_model_path = "/data1/yansari/cad2map/Yaqoob_CAD2MAP/Model_weights/door_mdl_32.pth"
+    door_model_path = "/data1/yansari/cad2map/Tesseract++/Model_weights/door_mdl_32.pth"
     door_model = detection_model(door_model_path)
 
     # Step 3: Run inference on each chunk

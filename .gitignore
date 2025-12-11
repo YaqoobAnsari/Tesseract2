@@ -4,3 +4,15 @@ Model_weights/
 *.pth
 *.ckpt
 
+# run artifacts & caches
+Results/
+Input_Images/
+__pycache__/
+*.pyc
+*.pyo
+*.png
+*.jpg
+*.jpeg
+*.bmp
+tess/
+

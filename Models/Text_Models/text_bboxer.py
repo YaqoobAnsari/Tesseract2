@@ -6,7 +6,7 @@ from torch.autograd import Variable
 from collections import OrderedDict
 import sys
 
-sys.path.append("/data1/yansari/cad2map/Yaqoob_CAD2MAP/Models/Text_Models")
+sys.path.append("/data1/yansari/cad2map/Tesseract++/Models/Text_Models")
 # Import utility modules (ensure these are available in your PYTHONPATH or adjust imports)
 import craft_utils
 import imgproc
