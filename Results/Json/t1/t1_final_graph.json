@@ -1,0 +1,45 @@
+{
+    "nodes": [
+        {
+            "id": "room_1",
+            "type": "room",
+            "position": [
+                536,
+                36
+            ]
+        },
+        {
+            "id": "room_2",
+            "type": "room",
+            "position": [
+                229,
+                115
+            ]
+        },
+        {
+            "id": "room_3",
+            "type": "room",
+            "position": [
+                561,
+                121
+            ]
+        },
+        {
+            "id": "room_4",
+            "type": "room",
+            "position": [
+                229,
+                230
+            ]
+        },
+        {
+            "id": "room_5",
+            "type": "room",
+            "position": [
+                537,
+                326
+            ]
+        }
+    ],
+    "edges": []
+}

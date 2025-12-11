@@ -1,0 +1,383 @@
+{
+    "nodes": [
+        {
+            "id": "room_1",
+            "type": "room",
+            "position": [
+                379,
+                107
+            ],
+            "floor": "Ground_Floor"
+        },
+        {
+            "id": "room_2",
+            "type": "room",
+            "position": [
+                530,
+                291
+            ],
+            "floor": "Ground_Floor"
+        },
+        {
+            "id": "room_3",
+            "type": "room",
+            "position": [
+                238,
+                335
+            ],
+            "floor": "Ground_Floor"
+        },
+        {
+            "id": "room_4",
+            "type": "room",
+            "position": [
+                1424,
+                387
+            ],
+            "floor": "Ground_Floor"
+        },
+        {
+            "id": "room_5",
+            "type": "room",
+            "position": [
+                531,
+                405
+            ],
+            "floor": "Ground_Floor"
+        },
+        {
+            "id": "room_6",
+            "type": "room",
+            "position": [
+                1106,
+                426
+            ],
+            "floor": "Ground_Floor"
+        },
+        {
+            "id": "room_7",
+            "type": "room",
+            "position": [
+                1741,
+                429
+            ],
+            "floor": "Ground_Floor"
+        },
+        {
+            "id": "room_8",
+            "type": "room",
+            "position": [
+                206,
+                505
+            ],
+            "floor": "Ground_Floor"
+        },
+        {
+            "id": "room_9",
+            "type": "room",
+            "position": [
+                534,
+                507
+            ],
+            "floor": "Ground_Floor"
+        },
+        {
+            "id": "room_10",
+            "type": "room",
+            "position": [
+                206,
+                610
+            ],
+            "floor": "Ground_Floor"
+        },
+        {
+            "id": "room_11",
+            "type": "room",
+            "position": [
+                533,
+                612
+            ],
+            "floor": "Ground_Floor"
+        },
+        {
+            "id": "room_12",
+            "type": "room",
+            "position": [
+                206,
+                712
+            ],
+            "floor": "Ground_Floor"
+        },
+        {
+            "id": "room_13",
+            "type": "room",
+            "position": [
+                531,
+                712
+            ],
+            "floor": "Ground_Floor"
+        },
+        {
+            "id": "room_14",
+            "type": "room",
+            "position": [
+                1613,
+                807
+            ],
+            "floor": "Ground_Floor"
+        },
+        {
+            "id": "room_15",
+            "type": "room",
+            "position": [
+                1802,
+                807
+            ],
+            "floor": "Ground_Floor"
+        },
+        {
+            "id": "room_16",
+            "type": "room",
+            "position": [
+                206,
+                813
+            ],
+            "floor": "Ground_Floor"
+        },
+        {
+            "id": "room_17",
+            "type": "room",
+            "position": [
+                533,
+                813
+            ],
+            "floor": "Ground_Floor"
+        },
+        {
+            "id": "room_18",
+            "type": "room",
+            "position": [
+                1173,
+                828
+            ],
+            "floor": "Ground_Floor"
+        },
+        {
+            "id": "room_19",
+            "type": "room",
+            "position": [
+                206,
+                919
+            ],
+            "floor": "Ground_Floor"
+        },
+        {
+            "id": "room_20",
+            "type": "room",
+            "position": [
+                531,
+                919
+            ],
+            "floor": "Ground_Floor"
+        },
+        {
+            "id": "room_21",
+            "type": "room",
+            "position": [
+                1629,
+                949
+            ],
+            "floor": "Ground_Floor"
+        },
+        {
+            "id": "room_22",
+            "type": "room",
+            "position": [
+                533,
+                1024
+            ],
+            "floor": "Ground_Floor"
+        },
+        {
+            "id": "room_23",
+            "type": "room",
+            "position": [
+                206,
+                1024
+            ],
+            "floor": "Ground_Floor"
+        },
+        {
+            "id": "room_24",
+            "type": "room",
+            "position": [
+                1631,
+                1050
+            ],
+            "floor": "Ground_Floor"
+        },
+        {
+            "id": "room_25",
+            "type": "room",
+            "position": [
+                1270,
+                1077
+            ],
+            "floor": "Ground_Floor"
+        },
+        {
+            "id": "room_26",
+            "type": "room",
+            "position": [
+                530,
+                1120
+            ],
+            "floor": "Ground_Floor"
+        },
+        {
+            "id": "room_27",
+            "type": "room",
+            "position": [
+                206,
+                1132
+            ],
+            "floor": "Ground_Floor"
+        },
+        {
+            "id": "room_28",
+            "type": "room",
+            "position": [
+                1632,
+                1150
+            ],
+            "floor": "Ground_Floor"
+        },
+        {
+            "id": "room_29",
+            "type": "room",
+            "position": [
+                1634,
+                1252
+            ],
+            "floor": "Ground_Floor"
+        },
+        {
+            "id": "room_30",
+            "type": "room",
+            "position": [
+                548,
+                1263
+            ],
+            "floor": "Ground_Floor"
+        },
+        {
+            "id": "room_31",
+            "type": "room",
+            "position": [
+                205,
+                1299
+            ],
+            "floor": "Ground_Floor"
+        },
+        {
+            "id": "room_32",
+            "type": "room",
+            "position": [
+                680,
+                1299
+            ],
+            "floor": "Ground_Floor"
+        },
+        {
+            "id": "room_33",
+            "type": "room",
+            "position": [
+                793,
+                1299
+            ],
+            "floor": "Ground_Floor"
+        },
+        {
+            "id": "room_34",
+            "type": "room",
+            "position": [
+                890,
+                1299
+            ],
+            "floor": "Ground_Floor"
+        },
+        {
+            "id": "room_35",
+            "type": "room",
+            "position": [
+                1038,
+                1299
+            ],
+            "floor": "Ground_Floor"
+        },
+        {
+            "id": "room_36",
+            "type": "room",
+            "position": [
+                543,
+                1361
+            ],
+            "floor": "Ground_Floor"
+        },
+        {
+            "id": "corridor_main_1",
+            "type": "corridor",
+            "position": [
+                469,
+                223
+            ],
+            "floor": "Ground_Floor"
+        },
+        {
+            "id": "corridor_main_2",
+            "type": "corridor",
+            "position": [
+                177,
+                405
+            ],
+            "floor": "Ground_Floor"
+        },
+        {
+            "id": "corridor_main_3",
+            "type": "corridor",
+            "position": [
+                1427,
+                680
+            ],
+            "floor": "Ground_Floor"
+        },
+        {
+            "id": "corridor_main_4",
+            "type": "corridor",
+            "position": [
+                1220,
+                735
+            ],
+            "floor": "Ground_Floor"
+        },
+        {
+            "id": "corridor_main_5",
+            "type": "corridor",
+            "position": [
+                1757,
+                737
+            ],
+            "floor": "Ground_Floor"
+        },
+        {
+            "id": "outside_main_1",
+            "type": "outside",
+            "position": [
+                771,
+                542
+            ],
+            "floor": "NA"
+        }
+    ],
+    "edges": []
+}

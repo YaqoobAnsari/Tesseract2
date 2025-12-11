@@ -1,18 +1,11 @@
 
-# large artifacts
+# large artifacts (keep weights out of repo)
 Model_weights/
 *.pth
 *.ckpt
 
-# run artifacts & caches
-Results/
-Input_Images/
+# runtime caches and env
 __pycache__/
 *.pyc
 *.pyo
-*.png
-*.jpg
-*.jpeg
-*.bmp
 tess/
-

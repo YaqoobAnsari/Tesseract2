@@ -1,0 +1,19 @@
+Timer & Metadata Information
+=================
+File Size: 575.29 KB
+Image Dimensions: 1946 x 1574 pixels
+text detection check: 3.05 seconds
+Interpreting bboxes check: 2.74 seconds
+graph initialization check: 0.00 seconds
+Merging nodes check: 0.00 seconds
+Flood Filling check: 3.12 seconds
+Detecting doors check: 18.96 seconds
+Classifying doors check: 3.27 seconds
+Updating graph nodes check: 6.33 seconds
+Edge creation check: 0.07 seconds
+Graph pruning check: 1.56 seconds
+Total Time: 43.79 seconds
+Total graph nodes (before pruning): 2105
+JSON File Size (before pruning): 1273.96 KB
+Total graph nodes (after pruning): 778
+JSON File Size (after pruning): 345.68 KB

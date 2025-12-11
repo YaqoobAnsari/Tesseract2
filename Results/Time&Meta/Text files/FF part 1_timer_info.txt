@@ -1,0 +1,10 @@
+Timer & Metadata Information
+=================
+File Size: 567.72 KB
+Image Dimensions: 1946 x 1574 pixels
+text detection check: 2.96 seconds
+Interpreting bboxes check: 2.44 seconds
+graph initialization check: 0.00 seconds
+Merging nodes check: 0.00 seconds
+Flood Filling check: 2.76 seconds
+Detecting doors check: 18.86 seconds

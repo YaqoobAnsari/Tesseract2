@@ -1,0 +1,6 @@
+Node_ID	Position	Filled_Area
+outside_main_1	(501.5, 463.0)	8871
+corridor_main_1	(306.5, 198.5)	14975
+room_1	(651.0, 337.5)	4705
+room_2	(535.5, 381.0)	4663
+room_3	(391.5, 390.0)	2859

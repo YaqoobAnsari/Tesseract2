@@ -1,0 +1,346 @@
+{
+    "nodes": [
+        {
+            "id": "room_1",
+            "type": "room",
+            "position": [
+                195,
+                86
+            ]
+        },
+        {
+            "id": "room_2",
+            "type": "room",
+            "position": [
+                555,
+                190
+            ]
+        },
+        {
+            "id": "room_3",
+            "type": "room",
+            "position": [
+                403,
+                334
+            ]
+        },
+        {
+            "id": "exit_door_1",
+            "type": "door",
+            "position": [
+                435,
+                179
+            ]
+        },
+        {
+            "id": "r2c_door_1",
+            "type": "door",
+            "position": [
+                240,
+                109
+            ]
+        },
+        {
+            "id": "r2c_door_2",
+            "type": "door",
+            "position": [
+                496,
+                214
+            ]
+        },
+        {
+            "id": "r2c_door_3",
+            "type": "door",
+            "position": [
+                381,
+                264
+            ]
+        },
+        {
+            "id": "corridor_connect_1",
+            "type": "corridor",
+            "position": [
+                240,
+                120
+            ]
+        },
+        {
+            "id": "corridor_connect_2",
+            "type": "corridor",
+            "position": [
+                240,
+                140
+            ]
+        },
+        {
+            "id": "corridor_connect_13",
+            "type": "corridor",
+            "position": [
+                260,
+                160
+            ]
+        },
+        {
+            "id": "corridor_connect_14",
+            "type": "corridor",
+            "position": [
+                280,
+                160
+            ]
+        },
+        {
+            "id": "corridor_connect_30",
+            "type": "corridor",
+            "position": [
+                300,
+                180
+            ]
+        },
+        {
+            "id": "corridor_connect_45",
+            "type": "corridor",
+            "position": [
+                320,
+                200
+            ]
+        },
+        {
+            "id": "corridor_connect_46",
+            "type": "corridor",
+            "position": [
+                400,
+                200
+            ]
+        },
+        {
+            "id": "corridor_connect_47",
+            "type": "corridor",
+            "position": [
+                460,
+                200
+            ]
+        },
+        {
+            "id": "corridor_connect_65",
+            "type": "corridor",
+            "position": [
+                340,
+                220
+            ]
+        },
+        {
+            "id": "corridor_connect_66",
+            "type": "corridor",
+            "position": [
+                360,
+                220
+            ]
+        },
+        {
+            "id": "corridor_connect_67",
+            "type": "corridor",
+            "position": [
+                380,
+                220
+            ]
+        },
+        {
+            "id": "corridor_connect_68",
+            "type": "corridor",
+            "position": [
+                400,
+                220
+            ]
+        },
+        {
+            "id": "corridor_connect_69",
+            "type": "corridor",
+            "position": [
+                420,
+                220
+            ]
+        },
+        {
+            "id": "corridor_connect_70",
+            "type": "corridor",
+            "position": [
+                440,
+                220
+            ]
+        },
+        {
+            "id": "corridor_connect_72",
+            "type": "corridor",
+            "position": [
+                480,
+                220
+            ]
+        },
+        {
+            "id": "corridor_connect_73",
+            "type": "corridor",
+            "position": [
+                500,
+                220
+            ]
+        },
+        {
+            "id": "corridor_connect_96",
+            "type": "corridor",
+            "position": [
+                380,
+                240
+            ]
+        },
+        {
+            "id": "corridor_connect_125",
+            "type": "corridor",
+            "position": [
+                380,
+                260
+            ]
+        }
+    ],
+    "edges": [
+        {
+            "source": "room_1",
+            "target": "r2c_door_1",
+            "weight": 1
+        },
+        {
+            "source": "room_2",
+            "target": "r2c_door_2",
+            "weight": 1
+        },
+        {
+            "source": "room_3",
+            "target": "r2c_door_3",
+            "weight": 1
+        },
+        {
+            "source": "exit_door_1",
+            "target": "corridor_connect_47",
+            "weight": 1
+        },
+        {
+            "source": "r2c_door_1",
+            "target": "corridor_connect_1",
+            "weight": 1
+        },
+        {
+            "source": "r2c_door_2",
+            "target": "corridor_connect_73",
+            "weight": 1
+        },
+        {
+            "source": "r2c_door_3",
+            "target": "corridor_connect_125",
+            "weight": 1
+        },
+        {
+            "source": "corridor_connect_1",
+            "target": "corridor_connect_2",
+            "weight": 1
+        },
+        {
+            "source": "corridor_connect_2",
+            "target": "corridor_connect_13",
+            "weight": 1
+        },
+        {
+            "source": "corridor_connect_13",
+            "target": "corridor_connect_14",
+            "weight": 1
+        },
+        {
+            "source": "corridor_connect_14",
+            "target": "corridor_connect_30",
+            "weight": 1
+        },
+        {
+            "source": "corridor_connect_30",
+            "target": "corridor_connect_45",
+            "weight": 1
+        },
+        {
+            "source": "corridor_connect_45",
+            "target": "corridor_connect_65",
+            "weight": 1
+        },
+        {
+            "source": "corridor_connect_46",
+            "target": "corridor_connect_68",
+            "weight": 1
+        },
+        {
+            "source": "corridor_connect_46",
+            "target": "corridor_connect_69",
+            "weight": 1
+        },
+        {
+            "source": "corridor_connect_46",
+            "target": "corridor_connect_67",
+            "weight": 1
+        },
+        {
+            "source": "corridor_connect_47",
+            "target": "corridor_connect_72",
+            "weight": 1
+        },
+        {
+            "source": "corridor_connect_47",
+            "target": "corridor_connect_70",
+            "weight": 1
+        },
+        {
+            "source": "corridor_connect_65",
+            "target": "corridor_connect_66",
+            "weight": 1
+        },
+        {
+            "source": "corridor_connect_66",
+            "target": "corridor_connect_67",
+            "weight": 1
+        },
+        {
+            "source": "corridor_connect_66",
+            "target": "corridor_connect_96",
+            "weight": 1
+        },
+        {
+            "source": "corridor_connect_67",
+            "target": "corridor_connect_96",
+            "weight": 1
+        },
+        {
+            "source": "corridor_connect_67",
+            "target": "corridor_connect_68",
+            "weight": 1
+        },
+        {
+            "source": "corridor_connect_68",
+            "target": "corridor_connect_69",
+            "weight": 1
+        },
+        {
+            "source": "corridor_connect_68",
+            "target": "corridor_connect_96",
+            "weight": 1
+        },
+        {
+            "source": "corridor_connect_69",
+            "target": "corridor_connect_70",
+            "weight": 1
+        },
+        {
+            "source": "corridor_connect_72",
+            "target": "corridor_connect_73",
+            "weight": 1
+        },
+        {
+            "source": "corridor_connect_96",
+            "target": "corridor_connect_125",
+            "weight": 1
+        }
+    ]
+}

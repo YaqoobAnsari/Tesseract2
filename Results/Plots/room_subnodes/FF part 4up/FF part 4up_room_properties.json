@@ -1,0 +1,162 @@
+{
+  "room_1": {
+    "area_px": 14676,
+    "centroid_xy": [
+      792.4487598800763,
+      103.37544289997274
+    ],
+    "eq_radius_px": 68.34848856875558,
+    "inradius_px": 31.550098419189453,
+    "num_candidates": 2
+  },
+  "room_2": {
+    "area_px": 17036,
+    "centroid_xy": [
+      562.263794317915,
+      104.0422047428974
+    ],
+    "eq_radius_px": 73.63916906801066,
+    "inradius_px": 28.846599578857422,
+    "num_candidates": 3
+  },
+  "room_3": {
+    "area_px": 112710,
+    "centroid_xy": [
+      230.7759382486026,
+      170.68654067962026
+    ],
+    "eq_radius_px": 189.41147608256225,
+    "inradius_px": 84.30682373046875,
+    "num_candidates": 26
+  },
+  "room_4": {
+    "area_px": 13758,
+    "centroid_xy": [
+      790.8749818287541,
+      318.29313853757816
+    ],
+    "eq_radius_px": 66.17633575619455,
+    "inradius_px": 29.604999542236328,
+    "num_candidates": 1
+  },
+  "room_5": {
+    "area_px": 22112,
+    "centroid_xy": [
+      557.2103382778582,
+      307.6188947178003
+    ],
+    "eq_radius_px": 83.8955791641966,
+    "inradius_px": 32.5753059387207,
+    "num_candidates": 2
+  },
+  "room_6": {
+    "area_px": 4574,
+    "centroid_xy": [
+      367.16703104503716,
+      391.14473108876257
+    ],
+    "eq_radius_px": 38.156905265032414,
+    "inradius_px": 20.05500030517578,
+    "num_candidates": 0
+  },
+  "room_7": {
+    "area_px": 2940,
+    "centroid_xy": [
+      151.65952380952382,
+      416.28333333333336
+    ],
+    "eq_radius_px": 30.591356056578213,
+    "inradius_px": 12.414999961853027,
+    "num_candidates": 0
+  },
+  "room_8": {
+    "area_px": 16377,
+    "centroid_xy": [
+      850.5085791048422,
+      509.78689625694574
+    ],
+    "eq_radius_px": 72.2008379870479,
+    "inradius_px": 39.154998779296875,
+    "num_candidates": 3
+  },
+  "room_9": {
+    "area_px": 15195,
+    "centroid_xy": [
+      883.2060546232314,
+      610.0285620269825
+    ],
+    "eq_radius_px": 69.54652198753507,
+    "inradius_px": 38.01740264892578,
+    "num_candidates": 2
+  },
+  "room_10": {
+    "area_px": 15064,
+    "centroid_xy": [
+      922.3343733404142,
+      704.6951009028146
+    ],
+    "eq_radius_px": 69.24608382769831,
+    "inradius_px": 39.35160446166992,
+    "num_candidates": 3
+  },
+  "room_12": {
+    "area_px": 14993,
+    "centroid_xy": [
+      968.4116587740946,
+      796.0126725805376
+    ],
+    "eq_radius_px": 69.0827049524957,
+    "inradius_px": 41.619712829589844,
+    "num_candidates": 3
+  },
+  "room_13": {
+    "area_px": 15173,
+    "centroid_xy": [
+      1022.1134251631187,
+      882.7623410004613
+    ],
+    "eq_radius_px": 69.49615746979582,
+    "inradius_px": 39.709712982177734,
+    "num_candidates": 3
+  },
+  "room_14": {
+    "area_px": 136454,
+    "centroid_xy": [
+      388.2480323039266,
+      891.3983466955897
+    ],
+    "eq_radius_px": 208.40982992489336,
+    "inradius_px": 65.35430145263672,
+    "num_candidates": 19
+  },
+  "room_15": {
+    "area_px": 15031,
+    "centroid_xy": [
+      1081.9305435433437,
+      965.6085423458186
+    ],
+    "eq_radius_px": 69.17019516546529,
+    "inradius_px": 39.709712982177734,
+    "num_candidates": 3
+  },
+  "room_16": {
+    "area_px": 15143,
+    "centroid_xy": [
+      1148.5364194677409,
+      1042.9056329657267
+    ],
+    "eq_radius_px": 69.42741970202509,
+    "inradius_px": 35.49650192260742,
+    "num_candidates": 2
+  },
+  "room_18": {
+    "area_px": 10318,
+    "centroid_xy": [
+      1204.6565225818956,
+      1118.2014925373135
+    ],
+    "eq_radius_px": 57.30899934254961,
+    "inradius_px": 38.77580261230469,
+    "num_candidates": 2
+  }
+}
