@@ -1,0 +1,10 @@
+Multi-Floor Processing Timing Report
+==================================================
+Generated: 2026-01-19 00:40:02
+Floor Sequence: FF_SF
+
+parse_mapping: 0.00 seconds
+validation: 0.00 seconds
+ensure_graphs: 0.00 seconds
+merge_graphs: 0.00 seconds
+connect_transitions: 0.00 seconds

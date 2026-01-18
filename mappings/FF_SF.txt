@@ -1,0 +1,31 @@
+# Multi-Floor Transition Mapping File
+# ====================================
+# 
+# Format: (floor_num, image_name, node_id):(floor_num, image_name, node_id)
+#
+# Rules:
+#   - floor_num: Integer floor number (can be negative for basements)
+#   - image_name: Exact filename of the floorplan image
+#   - node_id: Exact ID of the transition node (stairs_X or elevator_X)
+#   - Floors must be adjacent (N can only connect to N±1)
+#   - Each transition node can only connect to one node per floor pair
+#
+# Floor naming convention:
+#   B2 = -2 (Basement 2)
+#   B1 = -1 (Basement 1)
+#   GF = 0  (Ground Floor)
+#   FF = 1  (First Floor)
+#   SF = 2  (Second Floor)
+#   TF = 3  (Third Floor)
+#   4, 5, 6... = Numeric floors
+#
+# ====================================
+
+# Connect stairs_1 from Floor 1 (FF) to Floor 2 (SF)
+(1, FF part 1upE.png, stairs_1):(2, SF part 1upE.png, stairs_1)
+
+# Connect stairs_2 from Floor 1 (FF) to Floor 2 (SF)
+(1, FF part 1upE.png, stairs_2):(2, SF part 1upE.png, stairs_2)
+
+# Connect elevator_1 from Floor 1 (FF) to Floor 2 (SF)
+(1, FF part 1upE.png, elevator_1):(2, SF part 1upE.png, elevator_1)

@@ -1,0 +1,435 @@
+{
+  "nodes": [
+    {
+      "id": "room_1",
+      "type": "room",
+      "position": [
+        379.5,
+        107.5
+      ],
+      "floor": "2",
+      "pixels": []
+    },
+    {
+      "id": "room_2",
+      "type": "room",
+      "position": [
+        530.0,
+        291.5
+      ],
+      "floor": "2",
+      "pixels": []
+    },
+    {
+      "id": "room_3",
+      "type": "room",
+      "position": [
+        1424.0,
+        387.0
+      ],
+      "floor": "2",
+      "pixels": []
+    },
+    {
+      "id": "room_4",
+      "type": "room",
+      "position": [
+        531.5,
+        405.5
+      ],
+      "floor": "2",
+      "pixels": []
+    },
+    {
+      "id": "room_5",
+      "type": "room",
+      "position": [
+        1106.5,
+        426.5
+      ],
+      "floor": "2",
+      "pixels": []
+    },
+    {
+      "id": "room_6",
+      "type": "room",
+      "position": [
+        1741.75,
+        429.25
+      ],
+      "floor": "2",
+      "pixels": []
+    },
+    {
+      "id": "room_7",
+      "type": "room",
+      "position": [
+        206.5,
+        505.5
+      ],
+      "floor": "2",
+      "pixels": []
+    },
+    {
+      "id": "room_8",
+      "type": "room",
+      "position": [
+        534.5,
+        507.5
+      ],
+      "floor": "2",
+      "pixels": []
+    },
+    {
+      "id": "room_9",
+      "type": "room",
+      "position": [
+        206.5,
+        610.5
+      ],
+      "floor": "2",
+      "pixels": []
+    },
+    {
+      "id": "room_10",
+      "type": "room",
+      "position": [
+        533.0,
+        612.0
+      ],
+      "floor": "2",
+      "pixels": []
+    },
+    {
+      "id": "room_11",
+      "type": "room",
+      "position": [
+        206.5,
+        712.5
+      ],
+      "floor": "2",
+      "pixels": []
+    },
+    {
+      "id": "room_12",
+      "type": "room",
+      "position": [
+        531.5,
+        712.5
+      ],
+      "floor": "2",
+      "pixels": []
+    },
+    {
+      "id": "room_13",
+      "type": "room",
+      "position": [
+        1616.0,
+        808.5
+      ],
+      "floor": "2",
+      "pixels": []
+    },
+    {
+      "id": "room_14",
+      "type": "room",
+      "position": [
+        206.5,
+        813.0
+      ],
+      "floor": "2",
+      "pixels": []
+    },
+    {
+      "id": "room_15",
+      "type": "room",
+      "position": [
+        533.0,
+        813.0
+      ],
+      "floor": "2",
+      "pixels": []
+    },
+    {
+      "id": "room_16",
+      "type": "room",
+      "position": [
+        1173.5,
+        828.0
+      ],
+      "floor": "2",
+      "pixels": []
+    },
+    {
+      "id": "room_17",
+      "type": "room",
+      "position": [
+        206.5,
+        919.5
+      ],
+      "floor": "2",
+      "pixels": []
+    },
+    {
+      "id": "room_18",
+      "type": "room",
+      "position": [
+        531.5,
+        919.5
+      ],
+      "floor": "2",
+      "pixels": []
+    },
+    {
+      "id": "room_19",
+      "type": "room",
+      "position": [
+        1629.5,
+        949.5
+      ],
+      "floor": "2",
+      "pixels": []
+    },
+    {
+      "id": "room_20",
+      "type": "room",
+      "position": [
+        533.0,
+        1024.0
+      ],
+      "floor": "2",
+      "pixels": []
+    },
+    {
+      "id": "room_21",
+      "type": "room",
+      "position": [
+        206.5,
+        1024.0
+      ],
+      "floor": "2",
+      "pixels": []
+    },
+    {
+      "id": "room_22",
+      "type": "room",
+      "position": [
+        1631.0,
+        1050.0
+      ],
+      "floor": "2",
+      "pixels": []
+    },
+    {
+      "id": "room_23",
+      "type": "room",
+      "position": [
+        1270.5,
+        1077.5
+      ],
+      "floor": "2",
+      "pixels": []
+    },
+    {
+      "id": "room_24",
+      "type": "room",
+      "position": [
+        530.0,
+        1120.0
+      ],
+      "floor": "2",
+      "pixels": []
+    },
+    {
+      "id": "room_25",
+      "type": "room",
+      "position": [
+        206.5,
+        1132.0
+      ],
+      "floor": "2",
+      "pixels": []
+    },
+    {
+      "id": "room_26",
+      "type": "room",
+      "position": [
+        1632.5,
+        1150.5
+      ],
+      "floor": "2",
+      "pixels": []
+    },
+    {
+      "id": "room_27",
+      "type": "room",
+      "position": [
+        1634.0,
+        1252.0
+      ],
+      "floor": "2",
+      "pixels": []
+    },
+    {
+      "id": "room_28",
+      "type": "room",
+      "position": [
+        548.0,
+        1263.0
+      ],
+      "floor": "2",
+      "pixels": []
+    },
+    {
+      "id": "room_29",
+      "type": "room",
+      "position": [
+        205.0,
+        1299.5
+      ],
+      "floor": "2",
+      "pixels": []
+    },
+    {
+      "id": "room_30",
+      "type": "room",
+      "position": [
+        680.5,
+        1299.5
+      ],
+      "floor": "2",
+      "pixels": []
+    },
+    {
+      "id": "room_31",
+      "type": "room",
+      "position": [
+        793.5,
+        1299.5
+      ],
+      "floor": "2",
+      "pixels": []
+    },
+    {
+      "id": "room_32",
+      "type": "room",
+      "position": [
+        890.5,
+        1299.5
+      ],
+      "floor": "2",
+      "pixels": []
+    },
+    {
+      "id": "room_33",
+      "type": "room",
+      "position": [
+        1038.0,
+        1299.5
+      ],
+      "floor": "2",
+      "pixels": []
+    },
+    {
+      "id": "room_34",
+      "type": "room",
+      "position": [
+        543.5,
+        1361.5
+      ],
+      "floor": "2",
+      "pixels": []
+    },
+    {
+      "id": "corridor_main_1",
+      "type": "corridor",
+      "position": [
+        469.0,
+        223.0
+      ],
+      "floor": "2",
+      "pixels": []
+    },
+    {
+      "id": "corridor_main_2",
+      "type": "corridor",
+      "position": [
+        177.5,
+        405.5
+      ],
+      "floor": "2",
+      "pixels": []
+    },
+    {
+      "id": "corridor_main_3",
+      "type": "corridor",
+      "position": [
+        1427.0,
+        680.5
+      ],
+      "floor": "2",
+      "pixels": []
+    },
+    {
+      "id": "corridor_main_4",
+      "type": "corridor",
+      "position": [
+        1220.0,
+        735.0
+      ],
+      "floor": "2",
+      "pixels": []
+    },
+    {
+      "id": "corridor_main_5",
+      "type": "corridor",
+      "position": [
+        1757.0,
+        737.0
+      ],
+      "floor": "2",
+      "pixels": []
+    },
+    {
+      "id": "outside_main_1",
+      "type": "outside",
+      "position": [
+        771.5,
+        542.0
+      ],
+      "floor": "NA",
+      "pixels": []
+    },
+    {
+      "id": "stairs_1",
+      "type": "transition",
+      "position": [
+        233.5,
+        338.5
+      ],
+      "floor": "2",
+      "pixels": []
+    },
+    {
+      "id": "stairs_2",
+      "type": "transition",
+      "position": [
+        1804.0,
+        802.0
+      ],
+      "floor": "2",
+      "pixels": []
+    },
+    {
+      "id": "elevator_1",
+      "type": "transition",
+      "position": [
+        1579.0,
+        1377.0
+      ],
+      "floor": "2",
+      "pixels": []
+    }
+  ],
+  "edges": []
+}

@@ -25,13 +25,16 @@ This project converts annotated building floorplans into navigable graphs by com
 - **Outputs**: JSON graph exports and multiple plot variants (initial, thresholded, pre/post-pruning, blank overlays), plus timing/metadata summaries.
 
 ### Repository Layout
-- `Main.py` — orchestrates the full pipeline end-to-end.
+- `Main.py` — orchestrates the single-floor pipeline end-to-end.
+- `MultiFloor.py` — standalone module for multi-floor connectivity processing.
+- `mappings/` — contains transition mapping files for multi-floor connections.
 - `Models/Text_Models/` — text detection (CRAFT) and helpers.
 - `Models/Interpreter/` — text interpretation and label parsing.
 - `Models/Door_Models/` — door detection/classification models.
 - `utils/` — graph utilities, connectivity, flood fill, timing analysis.
 - `Input_Images/` — sample/input floorplan images (included).
-- `Results/` — generated plots, JSONs, and timing reports (included).
+- `Results/` — single-floor generated plots, JSONs, and timing reports.
+- `Multifloor_Results/` — multi-floor outputs (Jsons, Plots, Time&Meta per floor sequence).
 - `Model_weights/` — **not tracked**; place model checkpoints here (`*.pth`, `*.ckpt`).
 
 ### Environment & Dependencies
@@ -64,45 +67,69 @@ The script expects the image name to exist under `Input_Images/`. Outputs are wr
 - `Results/Time&Meta/...` — timing logs and correlation plots.
 
 #### Multi-Floor Processing
-Multi-floor connectivity is implemented and ready for use. To process multiple floors:
+Multi-floor connectivity is handled by the standalone `MultiFloor.py` module.
 
-1. **Prepare your images**: Place all floorplan images in `Input_Images/` with floor indicators in filenames:
-   - `FF part 1upE.png` → Floor 1 (First Floor)
-   - `SF part 1upE.png` → Floor 2 (Second Floor)
-   - `TF part 1upE.png` → Floor 3 (Third Floor)
-   - `4 part 1upE.png` → Floor 4 (numeric floors)
+**Step 1: Prepare your images**
 
-2. **Define transition mapping**: Create a mapping dictionary specifying which transition nodes connect across floors:
-   ```python
-   transition_mapping = {
-       (1, "FF part 1upE.png", "stairs_1"): [
-           (2, "SF part 1upE.png", "stairs_1"),
-           (3, "TF part 1upE.png", "stairs_1")
-       ]
-   }
-   ```
+Place all floorplan images in `Input_Images/` with floor indicators in filenames:
+- `FF part 1upE.png` → Floor 1 (First Floor)
+- `SF part 1upE.png` → Floor 2 (Second Floor)
+- `TF part 1upE.png` → Floor 3 (Third Floor)
+- `B1 part 1upE.png` → Floor -1 (Basement 1)
+- `4 part 1upE.png` → Floor 4 (numeric floors)
 
-3. **Uncomment and run**: In `Main.py`, uncomment the multi-floor example usage block and provide your mapping. The system will:
-   - Validate the mapping (image existence, node types, floor constraints)
-   - Auto-process any missing floor graphs
-   - Merge all floor graphs into a unified graph
-   - Connect transitions across floors with spatial alignment checks
-   - Save the merged graph to `Results/Json/MULTI_FLOOR/merged_multi_floor_graph.json`
+**Step 2: Create a mapping file**
 
-**Validation Features**:
+Create a `.txt` file in the `mappings/` folder with transition connections:
+
+```
+# Mapping format: (floor_num, image_name, node_id):(floor_num, image_name, node_id)
+
+# Connect stairs_1 from Floor 1 to Floor 2
+(1, FF part 1upE.png, stairs_1):(2, SF part 1upE.png, stairs_1)
+
+# Connect elevator_1 from Floor 1 to Floor 2
+(1, FF part 1upE.png, elevator_1):(2, SF part 1upE.png, elevator_1)
+```
+
+**Step 3: Run multi-floor processing**
+
+```bash
+source tess/bin/activate
+python MultiFloor.py --mapping-file mappings/FF_SF.txt
+```
+
+Or use inline mapping:
+```bash
+python MultiFloor.py --mapping "(1, FF part 1upE.png, stairs_1):(2, SF part 1upE.png, stairs_1)"
+```
+
+**Output Structure:**
+- `Multifloor_Results/Jsons/FF_SF/` — merged graph and floor backups
+- `Multifloor_Results/Plots/FF_SF/` — visualization plots
+- `Multifloor_Results/Time&Meta/FF_SF/` — timing and validation reports
+
+**Validation Features:**
 - ✅ Ensures all images exist before processing
 - ✅ Validates that only transition nodes (stairs/elevators) are mapped
 - ✅ Enforces one-to-one constraint (one transition per floor pair)
-- ✅ Checks floor order (warns on non-adjacent connections)
-- ✅ Verifies spatial alignment of transitions across floors
+- ✅ **Enforces floor adjacency** (Floor N can only connect to N±1) — ERROR on violation
+- ✅ Supports negative floors (basements: B1=-1, B2=-2)
+- ✅ Auto-generates missing floor graphs before merging
 - ✅ Provides detailed error messages for debugging
 
 ### Recent Improvements
 - **Enhanced door connectivity**: Type-aware door-to-room edge creation ensures all door types (r2c, r2r, exit) are properly connected while maintaining optimal pathfinding structure
 - **Transition node integration**: Stairs and elevators are now automatically connected to corridor networks, enabling multi-floor pathfinding
 - **Robust room family funneling**: Improved algorithm guarantees connectivity for all room subnodes while preserving optimal door placement
-- **Multi-floor support**: Complete implementation of multi-floor graph processing with validation, auto-processing, and inter-floor transition connectivity (ready for use, currently commented out in `Main.py` pending multi-floor test images)
-- **Improved flood fill robustness**: Enhanced seed finding algorithm prevents text annotation interference, ensuring accurate room area calculations
+- **Multi-floor module (`MultiFloor.py`)**: Complete standalone module for multi-floor connectivity with:
+  - Text-based mapping file format
+  - Comprehensive validation (floor adjacency, one-to-one constraints)
+  - Auto-generation of missing floor graphs
+  - Organized output structure under `Multifloor_Results/`
+  - Visualization plots for merged graphs and inter-floor connections
+- **OCR text in results**: Text detection results now include inferred text alongside bounding box coordinates
+- **Improved flood fill robustness**: Enhanced seed finding algorithm prevents text annotation interference
 
 ### Notes and Good Practices
 - Keep weights out of version control; `.gitignore` already excludes `Model_weights/` and `*.pth/*.ckpt`.

@@ -1129,9 +1129,22 @@ def interpret_bboxes(image_path, bbox_text_file, results_dir):
     result_file_path = os.path.join(interpret_img_dir, "room_labels.txt")
 
     # Load bounding boxes from the text file
+    # Format can be: "x1,y1,x2,y2,x3,y3,x4,y4" (old) or "x1,y1,x2,y2,x3,y3,x4,y4 | text" (new)
     try:
+        bboxes = []
         with open(bbox_text_file, "r") as bbox_file:
-            bboxes = [list(map(int, line.strip().split(","))) for line in bbox_file]
+            for line in bbox_file:
+                line = line.strip()
+                if not line:
+                    continue
+                # Split by " | " to separate coordinates from text (if present)
+                if " | " in line:
+                    coord_part = line.split(" | ")[0]
+                else:
+                    coord_part = line
+                # Parse coordinates
+                bbox = list(map(int, coord_part.split(",")))
+                bboxes.append(bbox)
     except Exception as e:
         raise ValueError(f"Error reading bounding boxes from {bbox_text_file}: {e}")
 
@@ -1200,10 +1213,16 @@ def interpret_bboxes(image_path, bbox_text_file, results_dir):
         else:
             room_bboxes.append(bbox)
 
-    # Overwrite bbox file with only valid bboxes (unchanged behavior)
+    # Overwrite bbox file with valid bboxes AND inferred text
+    # Create a mapping from bbox tuple to text for easy lookup
+    bbox_to_text = {tuple(result['bbox']): result['text'] for result in results}
+    
     with open(bbox_text_file, "w") as bbox_file:
         for bbox in bboxes:
-            bbox_file.write(",".join(map(str, bbox)) + "\n")
+            bbox_tuple = tuple(bbox)
+            inferred_text = bbox_to_text.get(bbox_tuple, "")
+            # Format: x1,y1,x2,y2,x3,y3,x4,y4 | inferred_text
+            bbox_file.write(",".join(map(str, bbox)) + f" | {inferred_text}\n")
 
     # Save detailed results (includes transition words for later node naming)
     with open(result_file_path, "w") as result_file:

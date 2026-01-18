@@ -1,0 +1,14 @@
+Multi-Floor Connection Summary
+==================================================
+Total inter-floor connections: 3
+
+Connections:
+  1_stairs_1 ↔ 2_stairs_1
+    Floors: 1 → 2
+
+  1_stairs_2 ↔ 2_stairs_2
+    Floors: 1 → 2
+
+  1_elevator_1 ↔ 2_elevator_1
+    Floors: 1 → 2
+
