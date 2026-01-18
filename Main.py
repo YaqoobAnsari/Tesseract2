@@ -287,6 +287,7 @@ def make_graph(image_name):
     graph.connect_hallways()
     graph.connect_doors()
     graph.connect_rooms()
+    graph.connect_transitions()
     log_time("Edge creation check", start_step)
 
     graph_plot_output_path = os.path.join(graph_img_dir, f"{image_name_no_ext}_pre_pruning_wothr_connect_graph.png")

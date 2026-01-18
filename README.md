@@ -6,7 +6,11 @@ This project converts annotated building floorplans into navigable graphs by com
 - **Text detection & interpretation**: CRAFT-based text detection (`Models/Text_Models`) followed by semantic parsing (`Models/Interpreter`) to label rooms, corridors, outdoors, and transition elements (stairs/elevators).
 - **Graph construction**: Builds a multi-type `BuildingGraph` (`utils/graph.py`) with typed nodes (rooms, corridors, outside, doors, transitions) and geometric attributes.
 - **Spatial refinement**: Flood/smart fill segmentation, subnode proposal, corridor/outdoor expansion, and edge creation/pruning for a well-conditioned graph.
-- **Door pipeline**: Faster R-CNN–based door detection/refinement/classification (`Models/Door_Models`), with room-to-door connectivity and corridor/outdoor integration.
+- **Door pipeline**: Faster R-CNN–based door detection/refinement/classification (`Models/Door_Models`), with intelligent room-to-door connectivity:
+  - **Type-aware door connections**: Different strategies for room-to-corridor (r2c), room-to-room (r2r), and exit doors
+  - **Room family funneling**: Optimal pathfinding from subnodes through main room to doors
+  - **Guaranteed connectivity**: Ensures all room subnodes can reach corridor doors via main room
+- **Transition handling**: Automatic connection of stairs/elevators to corridor networks for multi-floor navigation support
 - **Outputs**: JSON graph exports and multiple plot variants (initial, thresholded, pre/post-pruning, blank overlays), plus timing/metadata summaries.
 
 ### Repository Layout
@@ -45,6 +49,11 @@ The script expects the image name to exist under `Input_Images/`. Outputs are wr
 - `Results/Plots/...` — overlays for detection, graphs, doors, fills.
 - `Results/Json/...` — graph JSONs (initial, pre-pruning, post-pruning).
 - `Results/Time&Meta/...` — timing logs and correlation plots.
+
+### Recent Improvements
+- **Enhanced door connectivity**: Type-aware door-to-room edge creation ensures all door types (r2c, r2r, exit) are properly connected while maintaining optimal pathfinding structure
+- **Transition node integration**: Stairs and elevators are now automatically connected to corridor networks, enabling multi-floor pathfinding
+- **Robust room family funneling**: Improved algorithm guarantees connectivity for all room subnodes while preserving optimal door placement
 
 ### Notes and Good Practices
 - Keep weights out of version control; `.gitignore` already excludes `Model_weights/` and `*.pth/*.ckpt`.

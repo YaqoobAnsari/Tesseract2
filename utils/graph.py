@@ -521,41 +521,88 @@ class BuildingGraph:
                 for did in dids:
                     room_to_doors[rid].add(did)
 
-        # ---- for each room: pick ONE anchor door, connect that door to CLOSEST family node only ----
+        # ---- for each room: pick ONE r2c anchor door, connect to ALL r2r doors ----
         for rid, _ in main_rooms:
             dids = list(room_to_doors.get(rid, []))
             if not dids:
                 continue
 
-            # choose nearest door to main room
-            rx, ry = _pos(rid)
-            best_door, best_d = None, float("inf")
-            for did in dids:
-                dx, dy = _pos(did)
-                d = math.hypot(rx - dx, ry - dy)
-                if d < best_d: best_d, best_door = d, did
-            if best_door is None: 
-                continue
+            # Separate doors by type (check node ID prefix)
+            r2c_doors = [did for did in dids if str(did).startswith("r2c_door_")]
+            r2r_doors = [did for did in dids if str(did).startswith("r2r_door_")]
+            exit_doors = [did for did in dids if str(did).startswith("exit_door_")]
 
-            # find the CLOSEST node in the whole family to that door (main or any sub)
+            # Get family nodes (main + all subnodes)
             family = [rid] + [n for n, d in self.graph.nodes(data=True)
                             if _is_sub(n, d) and _parent(n, d) == rid and "position" in d]
-            dx, dy = _pos(best_door)
-            nearest_node, nearest_dist = None, float("inf")
-            for nid in family:
-                sx, sy = _pos(nid)
-                d = math.hypot(sx - dx, sy - dy)
-                if d < nearest_dist:
-                    nearest_dist, nearest_node = d, nid
 
-            # create exactly ONE edge: door <-> nearest family node (if missing)
-            if nearest_node is not None and not self.graph.has_edge(nearest_node, best_door):
-                self.graph.add_edge(nearest_node, best_door, weight=float(nearest_dist))
+            # (1) Pick the nearest r2c door as anchor (exactly ONE)
+            # Connect r2c door to the CLOSEST family node (main or subnode)
+            # The funneling will ensure all subnodes go through main room to reach the door
+            anchor_door = None
+            if r2c_doors:
+                rx, ry = _pos(rid)
+                best_door, best_d = None, float("inf")
+                for did in r2c_doors:
+                    dx, dy = _pos(did)
+                    d = math.hypot(rx - dx, ry - dy)
+                    if d < best_d: best_d, best_door = d, did
+                anchor_door = best_door
 
-            # store anchor for downstream
-            self.graph.nodes[rid]["anchor_door"] = best_door
+                # Connect r2c door to the CLOSEST family node (optimal connection point)
+                # Funneling will create paths from all subnodes through main room to reach the door
+                if anchor_door is not None:
+                    dx, dy = _pos(anchor_door)
+                    nearest_node, nearest_dist = None, float("inf")
+                    for nid in family:
+                        sx, sy = _pos(nid)
+                        d = math.hypot(sx - dx, sy - dy)
+                        if d < nearest_dist:
+                            nearest_dist, nearest_node = d, nid
 
-        print("Doors associated: each room has at most one door edge to its closest family node.")
+                    if nearest_node is not None:
+                        # Remove any existing edges from other family nodes to this door
+                        for other_node in family:
+                            if other_node != nearest_node and self.graph.has_edge(other_node, anchor_door):
+                                self.graph.remove_edge(other_node, anchor_door)
+                        
+                        # Connect door to closest family node
+                        if not self.graph.has_edge(nearest_node, anchor_door):
+                            self.graph.add_edge(nearest_node, anchor_door, weight=float(nearest_dist))
+                        
+                        # Store which family node is closest to this door (for reference in funneling)
+                        self.graph.nodes[anchor_door]["closest_family_node"] = nearest_node
+
+            # (2) Connect to ALL r2r doors associated with this room
+            for r2r_door in r2r_doors:
+                dx, dy = _pos(r2r_door)
+                nearest_node, nearest_dist = None, float("inf")
+                for nid in family:
+                    sx, sy = _pos(nid)
+                    d = math.hypot(sx - dx, sy - dy)
+                    if d < nearest_dist:
+                        nearest_dist, nearest_node = d, nid
+
+                if nearest_node is not None and not self.graph.has_edge(nearest_node, r2r_door):
+                    self.graph.add_edge(nearest_node, r2r_door, weight=float(nearest_dist))
+
+            # (3) Also handle exit doors (connect to closest family node)
+            for exit_door in exit_doors:
+                dx, dy = _pos(exit_door)
+                nearest_node, nearest_dist = None, float("inf")
+                for nid in family:
+                    sx, sy = _pos(nid)
+                    d = math.hypot(sx - dx, sy - dy)
+                    if d < nearest_dist:
+                        nearest_dist, nearest_node = d, nid
+
+                if nearest_node is not None and not self.graph.has_edge(nearest_node, exit_door):
+                    self.graph.add_edge(nearest_node, exit_door, weight=float(nearest_dist))
+
+            # Store anchor for downstream (r2c door if available, otherwise None)
+            self.graph.nodes[rid]["anchor_door"] = anchor_door
+
+        print("Doors associated: each room has exactly one r2c door edge, plus all associated r2r door edges.")
         return bbox_to_room
 
 
@@ -937,6 +984,66 @@ class BuildingGraph:
 
         print(f"Total disconnected main room nodes: {disconnected_room_count}")
 
+    def connect_transitions(self):
+        """
+        Connect transition nodes (stairs/elevators) to the graph by connecting them
+        to nearby corridors or rooms. This ensures transitions appear in pre-pruning plots.
+        """
+        print("\nConnecting transitions...")
+        
+        # Get all transition nodes
+        transition_nodes = [
+            node for node, data in self.graph.nodes(data=True)
+            if data.get('type') == 'transition'
+        ]
+        
+        if not transition_nodes:
+            print("No transition nodes found.")
+            return
+        
+        # Get corridor nodes (both main and connect types)
+        corridor_main_nodes = {
+            node for node, data in self.graph.nodes(data=True)
+            if data.get('type') == 'corridor' and str(node).startswith("corridor_main")
+        }
+        corridor_connect_nodes = {
+            node for node, data in self.graph.nodes(data=True)
+            if data.get('type') == 'corridor' and str(node).startswith("corridor_connect")
+        }
+        
+        def euclidean_distance(node_1, node_2):
+            pos_1 = self.graph.nodes[node_1].get('position', [0, 0])
+            pos_2 = self.graph.nodes[node_2].get('position', [0, 0])
+            return math.sqrt((pos_1[0] - pos_2[0]) ** 2 + (pos_1[1] - pos_2[1]) ** 2)
+        
+        radius = 400
+        connected_count = 0
+        
+        for transition in transition_nodes:
+            # Check if already connected
+            if len(list(self.graph.neighbors(transition))) > 0:
+                continue
+            
+            # Find nearby corridors
+            nearby = []
+            for cn in corridor_main_nodes:
+                dist = euclidean_distance(transition, cn)
+                if dist <= radius:
+                    nearby.append((dist, cn))
+            for cn in corridor_connect_nodes:
+                dist = euclidean_distance(transition, cn)
+                if dist <= radius:
+                    nearby.append((dist, cn))
+            
+            if nearby:
+                dist, closest = min(nearby, key=lambda x: x[0])
+                if not self.graph.has_edge(transition, closest):
+                    self.add_edge(transition, closest, weight=dist)
+                    connected_count += 1
+            else:
+                print(f"No corridor nodes found within radius of {transition}")
+        
+        print(f"Connected {connected_count} transition nodes to the graph.")
 
     def merge_nearby_nodes(self, threshold_room=50, threshold_door=30):
         """
@@ -1366,12 +1473,19 @@ class BuildingGraph:
         for nid in family:
             for nbr in self.graph.neighbors(nid):
                 if self.graph.nodes[nbr].get("type") == "door":
-                    # choose nearest family node to this door as anchor
-                    dp = self.graph.nodes[nbr].get("position")
-                    if dp is None:
-                        continue
-                    dx, dy = float(dp[0]), float(dp[1])
-                    anchor = min(family, key=lambda n: math.hypot(pos[n][0] - dx, pos[n][1] - dy))
+                    # For r2c doors, always use main room as anchor (paths must go through main room)
+                    # For other doors, use nearest family node
+                    door_id = str(nbr)
+                    if door_id.startswith("r2c_door_") or door_id.startswith("exit_door_"):
+                        # r2c and exit doors: anchor is always the main room
+                        anchor = room_id
+                    else:
+                        # r2r and other doors: use nearest family node to this door
+                        dp = self.graph.nodes[nbr].get("position")
+                        if dp is None:
+                            continue
+                        dx, dy = float(dp[0]), float(dp[1])
+                        anchor = min(family, key=lambda n: math.hypot(pos[n][0] - dx, pos[n][1] - dy))
                     ext_to_anchor.append((nbr, anchor))
 
         # -------- FALLBACK: nearest CORRIDOR node if no doors --------
@@ -1482,6 +1596,42 @@ class BuildingGraph:
                 else:
                     ed.pop("_temp_family_edge", None)
                     ed.pop("_family_owner", None)
+
+        # -------- For r2c doors: ensure ALL family nodes within radius are connected to main room --------
+        # This guarantees all subnodes can reach r2c doors through the main room
+        has_r2c_door = any(str(ext).startswith("r2c_door_") for ext, _ in ext_to_anchor)
+        if has_r2c_door and room_id in family:
+            # Ensure main room is connected to all subnodes within lattice radius
+            for nid in family:
+                if nid == room_id:
+                    continue
+                if nid not in pos:
+                    continue
+                dist = _eudist(room_id, nid)
+                if dist <= r:  # Within lattice radius
+                    if not self.graph.has_edge(room_id, nid):
+                        # Add direct connection to main room to ensure connectivity
+                        self.graph.add_edge(room_id, nid, weight=float(dist))
+            
+            # For r2c doors: keep connection to closest family node (optimal placement)
+            # The funneling uses main room as anchor, so it adds main room -> door edge
+            # We keep BOTH connections:
+            # - closest family node -> door (optimal connection point, as user requested)
+            # - main room -> door (funneling anchor)
+            # This allows optimal door placement while maintaining funneling structure
+            # Note: If closest is a subnode, it will have a direct path to door
+            # Other subnodes will go through main room to reach the door
+            for ext, _ in ext_to_anchor:
+                if str(ext).startswith("r2c_door_"):
+                    # Get the closest family node (stored when door was initially connected)
+                    closest_node = self.graph.nodes[ext].get("closest_family_node")
+                    
+                    # Remove connections from subnodes that are NOT the closest one
+                    # Keep the connection to closest node (optimal placement)
+                    # Keep the connection to main room (funneling anchor)
+                    for nid in family:
+                        if nid != room_id and nid != closest_node and self.graph.has_edge(nid, ext):
+                            self.graph.remove_edge(nid, ext)
 
         kept = len([e for e in keep_edges if e in temp_edges])
         return kept
