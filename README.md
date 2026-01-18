@@ -11,6 +11,17 @@ This project converts annotated building floorplans into navigable graphs by com
   - **Room family funneling**: Optimal pathfinding from subnodes through main room to doors
   - **Guaranteed connectivity**: Ensures all room subnodes can reach corridor doors via main room
 - **Transition handling**: Automatic connection of stairs/elevators to corridor networks for multi-floor navigation support
+- **Multi-floor connectivity**: Comprehensive support for processing multiple floorplan images and connecting them via transition nodes:
+  - **Dynamic floor detection**: Automatically extracts floor numbers from image filenames (FF→1, SF→2, TF→3, numeric→N)
+  - **Graph merging**: Combines individual floor graphs into a unified multi-floor graph with prefixed node IDs
+  - **Inter-floor transition mapping**: Manual mapping system with comprehensive validation:
+    - Image existence checks (all images must exist in `Input_Images/`)
+    - Node type validation (only transition nodes can connect across floors)
+    - One-to-one constraint enforcement (one transition per floor pair)
+    - Floor order validation (warns on non-adjacent floor connections)
+    - Spatial alignment verification (ensures vertical alignment of transitions)
+  - **Auto-processing**: Automatically processes missing floor graphs before merging
+  - **Robust error handling**: Detailed error messages and validation at every step
 - **Outputs**: JSON graph exports and multiple plot variants (initial, thresholded, pre/post-pruning, blank overlays), plus timing/metadata summaries.
 
 ### Repository Layout
@@ -40,6 +51,8 @@ Weights are not committed. Place required checkpoints under `Model_weights/`, e.
 - Interpreter/text recognition weights as expected by `Models/Interpreter/text_interpreter.py`
 
 ### Running the Pipeline
+
+#### Single Floor Processing
 From the repo root:
 ```bash
 source tess/bin/activate  # or your environment
@@ -50,10 +63,46 @@ The script expects the image name to exist under `Input_Images/`. Outputs are wr
 - `Results/Json/...` — graph JSONs (initial, pre-pruning, post-pruning).
 - `Results/Time&Meta/...` — timing logs and correlation plots.
 
+#### Multi-Floor Processing
+Multi-floor connectivity is implemented and ready for use. To process multiple floors:
+
+1. **Prepare your images**: Place all floorplan images in `Input_Images/` with floor indicators in filenames:
+   - `FF part 1upE.png` → Floor 1 (First Floor)
+   - `SF part 1upE.png` → Floor 2 (Second Floor)
+   - `TF part 1upE.png` → Floor 3 (Third Floor)
+   - `4 part 1upE.png` → Floor 4 (numeric floors)
+
+2. **Define transition mapping**: Create a mapping dictionary specifying which transition nodes connect across floors:
+   ```python
+   transition_mapping = {
+       (1, "FF part 1upE.png", "stairs_1"): [
+           (2, "SF part 1upE.png", "stairs_1"),
+           (3, "TF part 1upE.png", "stairs_1")
+       ]
+   }
+   ```
+
+3. **Uncomment and run**: In `Main.py`, uncomment the multi-floor example usage block and provide your mapping. The system will:
+   - Validate the mapping (image existence, node types, floor constraints)
+   - Auto-process any missing floor graphs
+   - Merge all floor graphs into a unified graph
+   - Connect transitions across floors with spatial alignment checks
+   - Save the merged graph to `Results/Json/MULTI_FLOOR/merged_multi_floor_graph.json`
+
+**Validation Features**:
+- ✅ Ensures all images exist before processing
+- ✅ Validates that only transition nodes (stairs/elevators) are mapped
+- ✅ Enforces one-to-one constraint (one transition per floor pair)
+- ✅ Checks floor order (warns on non-adjacent connections)
+- ✅ Verifies spatial alignment of transitions across floors
+- ✅ Provides detailed error messages for debugging
+
 ### Recent Improvements
 - **Enhanced door connectivity**: Type-aware door-to-room edge creation ensures all door types (r2c, r2r, exit) are properly connected while maintaining optimal pathfinding structure
 - **Transition node integration**: Stairs and elevators are now automatically connected to corridor networks, enabling multi-floor pathfinding
 - **Robust room family funneling**: Improved algorithm guarantees connectivity for all room subnodes while preserving optimal door placement
+- **Multi-floor support**: Complete implementation of multi-floor graph processing with validation, auto-processing, and inter-floor transition connectivity (ready for use, currently commented out in `Main.py` pending multi-floor test images)
+- **Improved flood fill robustness**: Enhanced seed finding algorithm prevents text annotation interference, ensuring accurate room area calculations
 
 ### Notes and Good Practices
 - Keep weights out of version control; `.gitignore` already excludes `Model_weights/` and `*.pth/*.ckpt`.
