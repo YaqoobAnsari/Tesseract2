@@ -128,6 +128,106 @@ def process_fill_rooms(
     with open(area_file_path, "w") as area_file:
         area_file.write("Node_ID\tPosition\tFilled_Area\n")
 
+    def is_valid_room_seed(seed_x, seed_y, min_area_threshold=200):
+        """
+        Test if a seed point is in a valid room area (not text annotation).
+        Performs a small test flood fill to check if the region is large enough.
+        
+        Args:
+            seed_x, seed_y: Seed coordinates to test
+            min_area_threshold: Minimum area (pixels) required to consider seed valid
+            
+        Returns:
+            True if seed is in a valid room area, False otherwise
+        """
+        if not (0 <= seed_x < W and 0 <= seed_y < H):
+            return False
+        
+        # Must be white
+        if not _is_white(floorplan[seed_y, seed_x]):
+            return False
+        
+        # Perform a small test flood fill to check if this is a large enough region
+        test_image = floorplan.copy()
+        test_mask = np.zeros((H + 2, W + 2), np.uint8)
+        try:
+            _, _, _, rect = cv2.floodFill(
+                test_image, test_mask, (seed_x, seed_y), (128, 128, 128),
+                loDiff=(10, 10, 10), upDiff=(10, 10, 10),
+                flags=cv2.FLOODFILL_MASK_ONLY
+            )
+            # Check the filled area
+            filled_area = int(test_mask[1:-1, 1:-1].astype(bool).sum())
+            # If filled area is large enough, this is likely a room, not text
+            return filled_area >= min_area_threshold
+        except Exception:
+            return False
+
+    def find_valid_seeds(center_x, center_y, max_radius=150, min_radius=20, step_radius=10, angle_step=30):
+        """
+        Find valid seed points in concentric circles around the center.
+        Skips the center if it's on text/wall, and finds nearby valid room pixels.
+        Uses area-based validation to avoid text annotations.
+        
+        Args:
+            center_x, center_y: Center coordinates (node position)
+            max_radius: Maximum radius to search (pixels) - increased to avoid text
+            min_radius: Minimum radius to start search (pixels) - start further out
+            step_radius: Radius increment between circles
+            angle_step: Angle step for sampling points on each circle
+            
+        Returns:
+            List of valid (x, y) seed points
+        """
+        valid_seeds = []
+        cx = max(0, min(int(center_x), W - 1))
+        cy = max(0, min(int(center_y), H - 1))
+        
+        # Check center first, but validate it's in a room area (not text)
+        if is_valid_room_seed(cx, cy):
+            valid_seeds.append((cx, cy))
+        
+        # Search in concentric circles, starting from min_radius (further from center)
+        # This helps avoid text annotations that are typically near the node position
+        for radius in range(min_radius, max_radius + 1, step_radius):
+            if len(valid_seeds) >= 12:  # Collect more seeds for better coverage
+                break
+            for angle in range(0, 360, angle_step):
+                radian = np.radians(angle)
+                px = int(cx + radius * np.cos(radian))
+                py = int(cy + radius * np.sin(radian))
+                if 0 <= px < W and 0 <= py < H:
+                    # Validate that this seed is in a room area, not text
+                    if is_valid_room_seed(px, py):
+                        if (px, py) not in valid_seeds:
+                            valid_seeds.append((px, py))
+                            if len(valid_seeds) >= 12:
+                                break
+            if len(valid_seeds) >= 12:
+                break
+        
+        # If no valid seeds found, try a more aggressive search with lower threshold
+        if not valid_seeds:
+            for radius in range(min_radius, max_radius + 1, step_radius):
+                for angle in range(0, 360, angle_step):
+                    radian = np.radians(angle)
+                    px = int(cx + radius * np.cos(radian))
+                    py = int(cy + radius * np.sin(radian))
+                    if 0 <= px < W and 0 <= py < H:
+                        if _is_white(floorplan[py, px]):
+                            if is_valid_room_seed(px, py, min_area_threshold=50):  # Lower threshold
+                                valid_seeds.append((px, py))
+                                if len(valid_seeds) >= 4:
+                                    break
+                if len(valid_seeds) >= 4:
+                    break
+        
+        # Last resort: return center if nothing found (but this should be rare)
+        if not valid_seeds:
+            valid_seeds = [(cx, cy)]
+        
+        return valid_seeds
+
     def fill_node(node_id, node_data, fill_color):
         nonlocal floorplan
         x, y = node_data["position"]
@@ -137,14 +237,19 @@ def process_fill_rooms(
 
         if fill_mode == "smart":
             visited = np.zeros((H, W), dtype=bool)
-            # Generate starting points
-            starts = [(x, y)]
+            # Generate starting points using radius-based search to avoid text annotations
+            # Use larger radius to avoid text, and validate seeds are in room areas
+            starts = find_valid_seeds(x, y, max_radius=max(150, point_radius * 5), 
+                                     min_radius=max(20, point_radius), step_radius=10, angle_step=point_step)
+            # Also validate and add points at point_radius distance if they're valid room seeds
             for angle in range(0, 360, point_step):
                 radian = np.radians(angle)
                 px = int(x + point_radius * np.cos(radian))
                 py = int(y + point_radius * np.sin(radian))
-                if 0 <= px < W and 0 <= py < H and not _is_wall(floorplan[py, px]):
-                    starts.append((px, py))
+                if 0 <= px < W and 0 <= py < H:
+                    if is_valid_room_seed(px, py):
+                        if (px, py) not in starts:
+                            starts.append((px, py))
 
             # BFS
             for sx, sy in starts:
@@ -167,10 +272,22 @@ def process_fill_rooms(
                             q.append((nx, ny))
 
         else:  # "flood"
+            # Use radius-based seed finding to avoid text annotations
+            # Use larger radius and validate seeds are in room areas
+            flood_seeds = find_valid_seeds(x, y, max_radius=max(150, flood_threshold * 5),
+                                          min_radius=max(20, flood_threshold), step_radius=10, angle_step=10)
+            # Also validate and add original flood_threshold points if they're valid room seeds
             for angle in range(0, 360, 10):
                 rad = np.radians(angle)
                 fx = int(x + flood_threshold * np.cos(rad))
                 fy = int(y + flood_threshold * np.sin(rad))
+                if 0 <= fx < W and 0 <= fy < H:
+                    if is_valid_room_seed(fx, fy):
+                        if (fx, fy) not in flood_seeds:
+                            flood_seeds.append((fx, fy))
+            
+            # Perform flood fill from all valid seeds
+            for fx, fy in flood_seeds:
                 if 0 <= fx < W and 0 <= fy < H and not _is_wall(floorplan[fy, fx]):
                     mask = np.zeros((H + 2, W + 2), np.uint8)
                     cv2.floodFill(
@@ -350,23 +467,100 @@ def _build_room_masks_by_flood(image_bgr, main_rooms, point_step=10, flood_thres
     """
     Legacy: flood-fill around each room seed independently (can leak through doors!).
     Returns dict: room_id -> mask (H x W uint8 0/255).
+    Uses radius-based seed finding to avoid text annotations.
     """
     H, W = image_bgr.shape[:2]
     base = image_bgr.copy()
     masks = {}
+
+    def is_valid_room_seed_flood(seed_x, seed_y, min_area_threshold=200):
+        """Test if a seed point is in a valid room area (not text annotation)."""
+        if not (0 <= seed_x < W and 0 <= seed_y < H):
+            return False
+        
+        if not _is_white(base[seed_y, seed_x]):
+            return False
+        
+        # Perform a small test flood fill to check if this is a large enough region
+        test_image = base.copy()
+        test_mask = np.zeros((H + 2, W + 2), np.uint8)
+        try:
+            _, _, _, rect = cv2.floodFill(
+                test_image, test_mask, (seed_x, seed_y), (128, 128, 128),
+                loDiff=(10, 10, 10), upDiff=(10, 10, 10),
+                flags=cv2.FLOODFILL_MASK_ONLY
+            )
+            filled_area = int(test_mask[1:-1, 1:-1].astype(bool).sum())
+            return filled_area >= min_area_threshold
+        except Exception:
+            return False
+
+    def find_valid_seeds_flood(center_x, center_y, max_radius=150, min_radius=20, step_radius=10, angle_step=30):
+        """Helper to find valid seeds avoiding text annotations with area-based validation."""
+        valid_seeds = []
+        cx = max(0, min(int(center_x), W - 1))
+        cy = max(0, min(int(center_y), H - 1))
+        
+        # Check center first, but validate it's in a room area
+        if is_valid_room_seed_flood(cx, cy):
+            valid_seeds.append((cx, cy))
+        
+        # Search in concentric circles, starting further out to avoid text
+        for radius in range(min_radius, max_radius + 1, step_radius):
+            if len(valid_seeds) >= 12:
+                break
+            for angle in range(0, 360, angle_step):
+                radian = np.radians(angle)
+                px = int(cx + radius * np.cos(radian))
+                py = int(cy + radius * np.sin(radian))
+                if 0 <= px < W and 0 <= py < H:
+                    if is_valid_room_seed_flood(px, py):
+                        if (px, py) not in valid_seeds:
+                            valid_seeds.append((px, py))
+                            if len(valid_seeds) >= 12:
+                                break
+            if len(valid_seeds) >= 12:
+                break
+        
+        # Fallback with lower threshold
+        if not valid_seeds:
+            for radius in range(min_radius, max_radius + 1, step_radius):
+                for angle in range(0, 360, angle_step):
+                    radian = np.radians(angle)
+                    px = int(cx + radius * np.cos(radian))
+                    py = int(cy + radius * np.sin(radian))
+                    if 0 <= px < W and 0 <= py < H:
+                        if _is_white(base[py, px]):
+                            if is_valid_room_seed_flood(px, py, min_area_threshold=50):
+                                valid_seeds.append((px, py))
+                                if len(valid_seeds) >= 4:
+                                    break
+                if len(valid_seeds) >= 4:
+                    break
+        
+        # Last resort
+        if not valid_seeds:
+            valid_seeds = [(cx, cy)]
+        
+        return valid_seeds
 
     for room_id, (x, y) in main_rooms:
         x = max(0, min(x, W - 1))
         y = max(0, min(y, H - 1))
 
         visited = np.zeros((H, W), dtype=np.uint8)
-        seeds = [(x, y)]
+        # Use radius-based seed finding with area validation to avoid text annotations
+        seeds = find_valid_seeds_flood(x, y, max_radius=max(150, flood_threshold * 5),
+                                      min_radius=max(20, flood_threshold), step_radius=10, angle_step=point_step)
+        # Also validate and add original flood_threshold points if they're valid room seeds
         for ang in range(0, 360, point_step):
             rad = np.deg2rad(ang)
             sx = int(x + flood_threshold * np.cos(rad))
             sy = int(y + flood_threshold * np.sin(rad))
-            if 0 <= sx < W and 0 <= sy < H and _is_white(base[sy, sx]):
-                seeds.append((sx, sy))
+            if 0 <= sx < W and 0 <= sy < H:
+                if is_valid_room_seed_flood(sx, sy):
+                    if (sx, sy) not in seeds:
+                        seeds.append((sx, sy))
 
         for sx, sy in seeds:
             if visited[sy, sx] == 255:
