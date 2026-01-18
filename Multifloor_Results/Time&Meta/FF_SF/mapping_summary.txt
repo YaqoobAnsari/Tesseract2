@@ -5,10 +5,13 @@ Total inter-floor connections: 3
 Connections:
   1_stairs_1 ↔ 2_stairs_1
     Floors: 1 → 2
+    Positions: (233.5, 338.5) → (233.5, 338.5)
 
   1_stairs_2 ↔ 2_stairs_2
     Floors: 1 → 2
+    Positions: (1804.0, 802.0) → (1804.0, 802.0)
 
   1_elevator_1 ↔ 2_elevator_1
     Floors: 1 → 2
+    Positions: (1579.0, 1377.0) → (1579.0, 1377.0)
 

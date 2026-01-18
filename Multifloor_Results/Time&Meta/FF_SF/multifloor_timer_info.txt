@@ -1,10 +1,38 @@
 Multi-Floor Processing Timing Report
-==================================================
-Generated: 2026-01-19 00:40:02
+============================================================
+Generated: 2026-01-19 00:58:11
 Floor Sequence: FF_SF
 
-parse_mapping: 0.00 seconds
-validation: 0.00 seconds
-ensure_graphs: 0.00 seconds
-merge_graphs: 0.00 seconds
-connect_transitions: 0.00 seconds
+MULTI-FLOOR PROCESSING STEPS:
+----------------------------------------
+  Parse Mapping: 0.000 seconds
+  Validation: 0.000 seconds
+  Ensure Graphs: 0.015 seconds
+  Merge Graphs: 0.006 seconds
+  Connect Transitions: 0.000 seconds
+  Connectivity Check: 0.016 seconds
+
+PER-FLOOR PROCESSING TIMES:
+----------------------------------------
+
+  Floor 2 (SF part 1upE.png):
+    Total: 65.16 seconds
+    text detection check: 4.67 seconds
+    Interpreting bboxes check: 2.55 seconds
+    Flood Filling check: 8.44 seconds
+    Detecting doors check: 33.14 seconds
+    Graph pruning check: 1.97 seconds
+
+  Floor 1 (FF part 1upE.png):
+    Total: 77.60 seconds
+    text detection check: 4.59 seconds
+    Interpreting bboxes check: 4.10 seconds
+    Flood Filling check: 8.53 seconds
+    Detecting doors check: 43.85 seconds
+    Graph pruning check: 1.98 seconds
+
+============================================================
+TOTAL PROCESSING TIME: 0.00 seconds
+
+Plot Generation: 20.32 seconds
+FINAL TOTAL: 20.47 seconds
