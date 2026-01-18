@@ -461,15 +461,36 @@ def parse_timer_file(timer_path):
     with open(timer_path, 'r') as f:
         for line in f:
             line = line.strip()
-            if ':' in line and 'seconds' in line.lower():
-                parts = line.split(':')
+            if not line or '=' in line:  # Skip separator lines
+                continue
+            
+            if ':' in line:
+                parts = line.split(':', 1)  # Split only on first colon
                 if len(parts) >= 2:
                     key = parts[0].strip()
-                    value_str = parts[1].strip().replace('seconds', '').strip()
-                    try:
-                        timing[key] = float(value_str)
-                    except ValueError:
-                        pass
+                    value_str = parts[1].strip()
+                    
+                    # Handle timing values (with "seconds")
+                    if 'seconds' in value_str.lower():
+                        try:
+                            timing[key] = float(value_str.replace('seconds', '').strip())
+                        except ValueError:
+                            pass
+                    # Handle node counts and other numeric values
+                    else:
+                        try:
+                            # Extract first number found
+                            import re
+                            match = re.search(r'(\d+(?:\.\d+)?)', value_str)
+                            if match:
+                                val = match.group(1)
+                                # Try int first, then float
+                                try:
+                                    timing[key] = int(val)
+                                except ValueError:
+                                    timing[key] = float(val)
+                        except:
+                            pass
     
     return timing
 
@@ -1323,39 +1344,88 @@ def plot_pre_post_pruning_comparison(graph_info, floor_image_map, output_path):
         info = graph_info.get(img, {})
         timer = info.get('timer', {})
         
+        # Debug: Check what we have
+        if not timer:
+            print(f"  ⚠ Warning: No timer data for {img}")
+        
+        # Try multiple key variations
+        pre_val = 0
+        post_val = 0
+        
+        # Check for node counts in timer
         if 'Total graph nodes (before pruning)' in timer:
-            pre_nodes.append(timer['Total graph nodes (before pruning)'])
-        else:
-            pre_nodes.append(0)
+            pre_val = timer['Total graph nodes (before pruning)']
+        elif 'Total graph nodes (before pruning)' in str(timer):
+            # Try to extract from string representation
+            import re
+            match = re.search(r'Total graph nodes \(before pruning\)[:\s]+(\d+)', str(timer))
+            if match:
+                pre_val = int(match.group(1))
         
         if 'Total graph nodes (after pruning)' in timer:
-            post_nodes.append(timer['Total graph nodes (after pruning)'])
-        else:
-            post_nodes.append(0)
+            post_val = timer['Total graph nodes (after pruning)']
+        elif 'Total graph nodes (after pruning)' in str(timer):
+            import re
+            match = re.search(r'Total graph nodes \(after pruning\)[:\s]+(\d+)', str(timer))
+            if match:
+                post_val = int(match.group(1))
+        
+        # If still zero, try loading from JSON files directly
+        if pre_val == 0 or post_val == 0:
+            paths = info.get('paths', {})
+            if paths.get('pre_pruning') and os.path.exists(paths['pre_pruning']):
+                try:
+                    with open(paths['pre_pruning']) as f:
+                        data = json.load(f)
+                    if pre_val == 0:
+                        pre_val = len(data.get('nodes', []))
+                except:
+                    pass
+            
+            if paths.get('post_pruning') and os.path.exists(paths['post_pruning']):
+                try:
+                    with open(paths['post_pruning']) as f:
+                        data = json.load(f)
+                    if post_val == 0:
+                        post_val = len(data.get('nodes', []))
+                except:
+                    pass
+        
+        pre_nodes.append(pre_val)
+        post_nodes.append(post_val)
         
         # Load pre/post graphs to get edge counts
         paths = info.get('paths', {})
-        if paths.get('pre_pruning'):
+        pre_edge_count = 0
+        post_edge_count = 0
+        
+        if paths.get('pre_pruning') and os.path.exists(paths['pre_pruning']):
             try:
                 with open(paths['pre_pruning']) as f:
                     data = json.load(f)
-                pre_edges.append(len(data.get('edges', [])))
-            except:
-                pre_edges.append(0)
-        else:
-            pre_edges.append(0)
+                pre_edge_count = len(data.get('edges', []))
+            except Exception as e:
+                print(f"  ⚠ Warning: Could not load pre_pruning edges for {img}: {e}")
         
-        if paths.get('post_pruning'):
+        if paths.get('post_pruning') and os.path.exists(paths['post_pruning']):
             try:
                 with open(paths['post_pruning']) as f:
                     data = json.load(f)
-                post_edges.append(len(data.get('edges', [])))
-            except:
-                post_edges.append(0)
-        else:
-            post_edges.append(0)
+                post_edge_count = len(data.get('edges', []))
+            except Exception as e:
+                print(f"  ⚠ Warning: Could not load post_pruning edges for {img}: {e}")
+        
+        pre_edges.append(pre_edge_count)
+        post_edges.append(post_edge_count)
         
         floor_labels.append(f'Floor {floor_num}\n({get_floor_display_name(floor_num)})')
+    
+    # Debug output
+    print(f"  Pruning comparison data:")
+    print(f"    pre_nodes: {pre_nodes}")
+    print(f"    post_nodes: {post_nodes}")
+    print(f"    pre_edges: {pre_edges}")
+    print(f"    post_edges: {post_edges}")
     
     # Create figure with 2 subplots
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 6))
@@ -1364,10 +1434,23 @@ def plot_pre_post_pruning_comparison(graph_info, floor_image_map, output_path):
     width = 0.35
     
     # Nodes comparison
-    bars1 = ax1.bar(x - width/2, pre_nodes, width, label='Before Pruning', 
-                    color=ACADEMIC_COLORS['floor_1'], alpha=0.85, edgecolor='black')
-    bars2 = ax1.bar(x + width/2, post_nodes, width, label='After Pruning',
-                    color=ACADEMIC_COLORS['floor_2'], alpha=0.85, edgecolor='black')
+    if not pre_nodes or all(v == 0 for v in pre_nodes):
+        print(f"  ⚠ Warning: All pre_nodes are zero, cannot plot node comparison")
+        ax1.text(0.5, 0.5, 'No node data available', ha='center', va='center', 
+                transform=ax1.transAxes, fontsize=14)
+    else:
+        bars1 = ax1.bar(x - width/2, pre_nodes, width, label='Before Pruning', 
+                        color=ACADEMIC_COLORS['floor_1'], alpha=0.85, edgecolor='black', linewidth=1)
+        bars2 = ax1.bar(x + width/2, post_nodes, width, label='After Pruning',
+                        color=ACADEMIC_COLORS['floor_2'], alpha=0.85, edgecolor='black', linewidth=1)
+        
+        # Add value labels on bars
+        for bars in [bars1, bars2]:
+            for bar in bars:
+                height = bar.get_height()
+                if height > 0:
+                    ax1.text(bar.get_x() + bar.get_width()/2, height,
+                            f'{int(height)}', ha='center', va='bottom', fontsize=9, fontweight='bold')
     
     ax1.set_xlabel('Floor', fontsize=12, fontweight='bold')
     ax1.set_ylabel('Number of Nodes', fontsize=12, fontweight='bold')
@@ -1377,18 +1460,37 @@ def plot_pre_post_pruning_comparison(graph_info, floor_image_map, output_path):
     ax1.legend(fontsize=10)
     ax1.grid(axis='y', alpha=0.3)
     
+    # Set y-axis to show all data
+    if pre_nodes or post_nodes:
+        max_val = max(max(pre_nodes) if pre_nodes else 0, max(post_nodes) if post_nodes else 0)
+        ax1.set_ylim(0, max_val * 1.15)
+    
     # Add reduction percentage
     for i, (pre, post) in enumerate(zip(pre_nodes, post_nodes)):
         if pre > 0:
             reduction = (pre - post) / pre * 100
-            ax1.text(i, max(pre, post) + 50, f'-{reduction:.0f}%', 
+            max_height = max(pre, post)
+            ax1.text(i, max_height + max_height * 0.05, f'-{reduction:.0f}%', 
                     ha='center', fontsize=9, color='red', fontweight='bold')
     
     # Edges comparison
-    bars3 = ax2.bar(x - width/2, pre_edges, width, label='Before Pruning',
-                    color=ACADEMIC_COLORS['floor_1'], alpha=0.85, edgecolor='black')
-    bars4 = ax2.bar(x + width/2, post_edges, width, label='After Pruning',
-                    color=ACADEMIC_COLORS['floor_2'], alpha=0.85, edgecolor='black')
+    if not pre_edges or all(v == 0 for v in pre_edges):
+        print(f"  ⚠ Warning: All pre_edges are zero, cannot plot edge comparison")
+        ax2.text(0.5, 0.5, 'No edge data available', ha='center', va='center', 
+                transform=ax2.transAxes, fontsize=14)
+    else:
+        bars3 = ax2.bar(x - width/2, pre_edges, width, label='Before Pruning',
+                        color=ACADEMIC_COLORS['floor_1'], alpha=0.85, edgecolor='black', linewidth=1)
+        bars4 = ax2.bar(x + width/2, post_edges, width, label='After Pruning',
+                        color=ACADEMIC_COLORS['floor_2'], alpha=0.85, edgecolor='black', linewidth=1)
+        
+        # Add value labels on bars
+        for bars in [bars3, bars4]:
+            for bar in bars:
+                height = bar.get_height()
+                if height > 0:
+                    ax2.text(bar.get_x() + bar.get_width()/2, height,
+                            f'{int(height)}', ha='center', va='bottom', fontsize=9, fontweight='bold')
     
     ax2.set_xlabel('Floor', fontsize=12, fontweight='bold')
     ax2.set_ylabel('Number of Edges', fontsize=12, fontweight='bold')
@@ -1398,11 +1500,17 @@ def plot_pre_post_pruning_comparison(graph_info, floor_image_map, output_path):
     ax2.legend(fontsize=10)
     ax2.grid(axis='y', alpha=0.3)
     
+    # Set y-axis to show all data
+    if pre_edges or post_edges:
+        max_val = max(max(pre_edges) if pre_edges else 0, max(post_edges) if post_edges else 0)
+        ax2.set_ylim(0, max_val * 1.15)
+    
     # Add reduction percentage
     for i, (pre, post) in enumerate(zip(pre_edges, post_edges)):
         if pre > 0:
             reduction = (pre - post) / pre * 100
-            ax2.text(i, max(pre, post) + 200, f'-{reduction:.0f}%',
+            max_height = max(pre, post)
+            ax2.text(i, max_height + max_height * 0.05, f'-{reduction:.0f}%',
                     ha='center', fontsize=9, color='red', fontweight='bold')
     
     plt.suptitle('Graph Pruning Impact Analysis', fontsize=15, fontweight='bold', y=1.02)
