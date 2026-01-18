@@ -37,6 +37,7 @@ from collections import defaultdict
 import numpy as np
 import cv2
 import matplotlib.pyplot as plt
+import matplotlib.colors as mcolors
 import matplotlib.patches as mpatches
 from matplotlib.lines import Line2D
 from mpl_toolkits.mplot3d import Axes3D
@@ -965,9 +966,21 @@ def plot_stacked_floors(merged_graph, floor_graphs, floor_image_map, connection_
                        input_images_dir, output_path):
     """
     Create a stacked floor visualization showing all floors vertically aligned.
+    Each transition pair gets a unique color for easy identification.
     """
     floors = sorted(set(floor_image_map.values()))
     n_floors = len(floors)
+    
+    # Assign unique colors to each transition pair
+    n_pairs = len(connection_details)
+    # Use a vibrant color palette (Set3 for distinct colors)
+    pair_colors = plt.cm.Set3(np.linspace(0, 1, max(n_pairs, 1)))
+    # Convert to hex for consistency
+    pair_color_map = {}
+    for i, conn in enumerate(connection_details):
+        # Create a unique key for this pair
+        pair_key = (conn['src'], conn['tgt'])
+        pair_color_map[pair_key] = mcolors.rgb2hex(pair_colors[i])
     
     # Load floor images
     floor_images = {}
@@ -1024,20 +1037,28 @@ def plot_stacked_floors(merged_graph, floor_graphs, floor_image_map, connection_
                     ax.plot([pos_u[0], pos_v[0]], [pos_u[1], pos_v[1]], 
                            color='gray', alpha=0.3, linewidth=0.5)
         
-        # Highlight transition nodes
+        # Highlight transition nodes with unique colors per pair
         for conn in connection_details:
             if conn['src_floor'] == floor_num or conn['tgt_floor'] == floor_num:
                 pos = conn['src_pos'] if conn['src_floor'] == floor_num else conn['tgt_pos']
+                pair_key = (conn['src'], conn['tgt'])
+                pair_color = pair_color_map.get(pair_key, ACADEMIC_COLORS['inter_floor'])
+                
                 if pos:
-                    ax.scatter(pos[0], pos[1], c=ACADEMIC_COLORS['inter_floor'], 
+                    # Extract node name for label
+                    node_name = conn['src'] if conn['src_floor'] == floor_num else conn['tgt']
+                    # Remove floor prefix for cleaner label
+                    node_label = node_name.split('_', 1)[1] if '_' in node_name else node_name
+                    
+                    ax.scatter(pos[0], pos[1], c=pair_color, 
                               s=300, marker='*', edgecolors='black', linewidths=1.5,
-                              zorder=10, label='Inter-floor Connection' if idx == 0 else '')
+                              zorder=10)
         
         floor_name = get_floor_display_name(floor_num)
         ax.set_title(f'Floor {floor_num} ({floor_name})', fontsize=14, fontweight='bold')
         ax.axis('off')
     
-    # Add legend to first subplot
+    # Add legend to first subplot with transition pair colors
     legend_elements = [
         Line2D([0], [0], marker='o', color='w', markerfacecolor=ACADEMIC_COLORS['room'], 
                markersize=10, label='Room'),
@@ -1045,12 +1066,24 @@ def plot_stacked_floors(merged_graph, floor_graphs, floor_image_map, connection_
                markersize=10, label='Corridor'),
         Line2D([0], [0], marker='^', color='w', markerfacecolor=ACADEMIC_COLORS['transition'], 
                markersize=12, label='Transition (Stairs/Elevator)'),
-        Line2D([0], [0], marker='*', color='w', markerfacecolor=ACADEMIC_COLORS['inter_floor'], 
-               markersize=15, label='Inter-floor Connection'),
     ]
-    axes[0].legend(handles=legend_elements, loc='upper right', fontsize=10, framealpha=0.9)
     
-    plt.suptitle('Multi-Floor Building Graph - Stacked View', fontsize=16, fontweight='bold', y=1.02)
+    # Add legend entries for each transition pair
+    for i, conn in enumerate(connection_details):
+        pair_key = (conn['src'], conn['tgt'])
+        pair_color = pair_color_map.get(pair_key, ACADEMIC_COLORS['inter_floor'])
+        src_name = conn['src'].split('_', 1)[1] if '_' in conn['src'] else conn['src']
+        tgt_name = conn['tgt'].split('_', 1)[1] if '_' in conn['tgt'] else conn['tgt']
+        label = f'{src_name} ↔ {tgt_name}'
+        legend_elements.append(
+            Line2D([0], [0], marker='*', color='w', markerfacecolor=pair_color, 
+                   markersize=15, label=label)
+        )
+    
+    axes[0].legend(handles=legend_elements, loc='upper right', fontsize=9, framealpha=0.9)
+    
+    plt.suptitle('Multi-Floor Building Graph - Stacked View\n(Color-coded Transition Pairs)', 
+                 fontsize=16, fontweight='bold', y=1.02)
     plt.tight_layout()
     plt.savefig(output_path, dpi=200, bbox_inches='tight', facecolor='white')
     plt.close()
@@ -1061,12 +1094,28 @@ def plot_stacked_floors(merged_graph, floor_graphs, floor_image_map, connection_
 def plot_3d_building(merged_graph, floor_image_map, connection_details, output_path):
     """
     Create a 3D visualization of the multi-floor building.
+    Each transition pair gets a unique color for both markers and edges.
     """
     fig = plt.figure(figsize=(14, 12))
     ax = fig.add_subplot(111, projection='3d')
     
     floors = sorted(set(floor_image_map.values()))
     floor_height = 100  # Vertical spacing between floors
+    
+    # Assign unique colors to each transition pair
+    n_pairs = len(connection_details)
+    # Use a vibrant color palette (Set3 for distinct colors)
+    pair_colors = plt.cm.Set3(np.linspace(0, 1, max(n_pairs, 1)))
+    pair_color_map = {}
+    transition_node_colors = {}  # Map node_id to pair color
+    
+    for i, conn in enumerate(connection_details):
+        pair_key = (conn['src'], conn['tgt'])
+        pair_color = mcolors.rgb2hex(pair_colors[i])
+        pair_color_map[pair_key] = pair_color
+        # Map both source and target nodes to this color
+        transition_node_colors[conn['src']] = pair_color
+        transition_node_colors[conn['tgt']] = pair_color
     
     # Color map for floors
     floor_colors = plt.cm.viridis(np.linspace(0.2, 0.8, len(floors)))
@@ -1090,9 +1139,10 @@ def plot_3d_building(merged_graph, floor_image_map, connection_details, output_p
             
             # Size and marker based on type
             if node_type == 'transition':
-                size = 100
+                size = 150  # Larger for visibility
                 marker = '^'
-                color = ACADEMIC_COLORS['transition']
+                # Use pair-specific color if available
+                color = transition_node_colors.get(node_id, ACADEMIC_COLORS['transition'])
             elif node_type == 'room':
                 size = 30
                 marker = 'o'
@@ -1106,7 +1156,8 @@ def plot_3d_building(merged_graph, floor_image_map, connection_details, output_p
                 marker = '.'
                 color = 'gray'
             
-            ax.scatter(x, y, z, c=[color], s=size, marker=marker, alpha=0.7)
+            ax.scatter(x, y, z, c=[color], s=size, marker=marker, alpha=0.8, 
+                      edgecolors='black', linewidths=0.5)
     
     # Plot intra-floor edges (sample to avoid clutter)
     edge_sample_rate = 0.1  # Plot 10% of edges
@@ -1129,7 +1180,7 @@ def plot_3d_building(merged_graph, floor_image_map, connection_details, output_p
             ax.plot([pos_u[0], pos_v[0]], [pos_u[1], pos_v[1]], [z, z],
                    color='gray', alpha=0.1, linewidth=0.3)
     
-    # Plot inter-floor connections (highlighted)
+    # Plot inter-floor connections with unique colors per pair
     for conn in connection_details:
         src_pos = conn['src_pos']
         tgt_pos = conn['tgt_pos']
@@ -1140,10 +1191,14 @@ def plot_3d_building(merged_graph, floor_image_map, connection_details, output_p
             z_src = src_floor * floor_height
             z_tgt = tgt_floor * floor_height
             
-            # Draw vertical connection line
+            # Get unique color for this pair
+            pair_key = (conn['src'], conn['tgt'])
+            pair_color = pair_color_map.get(pair_key, ACADEMIC_COLORS['inter_floor'])
+            
+            # Draw vertical connection line with pair-specific color
             ax.plot([src_pos[0], tgt_pos[0]], [src_pos[1], tgt_pos[1]], [z_src, z_tgt],
-                   color=ACADEMIC_COLORS['inter_floor'], linewidth=3, alpha=0.9,
-                   linestyle='-', marker='o', markersize=8)
+                   color=pair_color, linewidth=4, alpha=0.95,
+                   linestyle='-', marker='o', markersize=10)
     
     # Labels and styling
     ax.set_xlabel('X (pixels)', fontsize=11, labelpad=10)
@@ -1155,18 +1210,29 @@ def plot_3d_building(merged_graph, floor_image_map, connection_details, output_p
     ax.set_zticks(z_ticks)
     ax.set_zticklabels([f'Floor {f}' for f in floors])
     
-    ax.set_title('3D Multi-Floor Building Graph\nInter-floor Connections Highlighted', 
+    ax.set_title('3D Multi-Floor Building Graph\n(Color-coded Transition Pairs)', 
                 fontsize=14, fontweight='bold', pad=20)
     
-    # Legend
+    # Legend with transition pair colors
     legend_elements = [
         Line2D([0], [0], marker='^', color='w', markerfacecolor=ACADEMIC_COLORS['transition'], 
-               markersize=12, label='Transition Node'),
-        Line2D([0], [0], color=ACADEMIC_COLORS['inter_floor'], linewidth=3, 
-               label='Inter-floor Connection'),
+               markersize=12, label='Transition Node (unpaired)'),
         Line2D([0], [0], color='gray', linewidth=1, alpha=0.5, label='Intra-floor Edge'),
     ]
-    ax.legend(handles=legend_elements, loc='upper left', fontsize=10)
+    
+    # Add legend entries for each transition pair
+    for i, conn in enumerate(connection_details):
+        pair_key = (conn['src'], conn['tgt'])
+        pair_color = pair_color_map.get(pair_key, ACADEMIC_COLORS['inter_floor'])
+        src_name = conn['src'].split('_', 1)[1] if '_' in conn['src'] else conn['src']
+        tgt_name = conn['tgt'].split('_', 1)[1] if '_' in conn['tgt'] else conn['tgt']
+        label = f'{src_name} ↔ {tgt_name}'
+        legend_elements.append(
+            Line2D([0], [0], color=pair_color, linewidth=4, marker='^', 
+                   markerfacecolor=pair_color, markersize=10, label=label)
+        )
+    
+    ax.legend(handles=legend_elements, loc='upper left', fontsize=9, framealpha=0.9)
     
     # Adjust view angle
     ax.view_init(elev=25, azim=45)
