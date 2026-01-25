@@ -27,15 +27,19 @@ This project converts annotated building floorplans into navigable graphs by com
 ### Repository Layout
 - `Main.py` — orchestrates the single-floor pipeline end-to-end.
 - `MultiFloor.py` — standalone module for multi-floor connectivity processing.
+- `app.py` — FastAPI web application entry point.
 - `mappings/` — contains transition mapping files for multi-floor connections.
 - `Models/Text_Models/` — text detection (CRAFT) and helpers.
 - `Models/Interpreter/` — text interpretation and label parsing.
 - `Models/Door_Models/` — door detection/classification models.
 - `utils/` — graph utilities, connectivity, flood fill, timing analysis.
+- `utils/app_utils/` — web application backend (API, visualization, graph conversion).
+- `utils/app_utils/frontend/` — React + TypeScript frontend (Vite build).
 - `Input_Images/` — sample/input floorplan images (included).
 - `Results/` — single-floor generated plots, JSONs, and timing reports.
 - `Multifloor_Results/` — multi-floor outputs (Jsons, Plots, Time&Meta per floor sequence).
 - `Model_weights/` — **not tracked**; place model checkpoints here (`*.pth`, `*.ckpt`).
+- `Dockerfile` / `docker-compose.yml` — container support for deployment and Hugging Face Spaces.
 
 ### Environment & Dependencies
 Tested with Python 3.12 and CPU PyTorch 2.9.1. Minimal setup:
@@ -44,7 +48,7 @@ python -m venv tess
 source tess/bin/activate
 pip install --upgrade pip setuptools wheel
 pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
-pip install opencv-python-headless numpy pandas pillow matplotlib networkx lmdb natsort six scikit-image scipy tqdm fuzzywuzzy python-Levenshtein
+pip install -r requirements.txt
 ```
 
 ### Model Weights
@@ -117,6 +121,54 @@ python MultiFloor.py --mapping "(1, FF part 1upE.png, stairs_1):(2, SF part 1upE
 - ✅ Supports negative floors (basements: B1=-1, B2=-2)
 - ✅ Auto-generates missing floor graphs before merging
 - ✅ Provides detailed error messages for debugging
+
+### Web Application
+
+Tesseract++ includes an interactive web interface for uploading floorplans and exploring the generated graphs visually.
+
+**Stack:** FastAPI backend + React/TypeScript frontend with Cytoscape.js for interactive graph rendering.
+
+**Features:**
+- Drag-and-drop image upload (PNG, max 10 MB)
+- 4 pre-cached example floorplans for instant demos
+- Interactive graph canvas with pan, zoom, and node hover tooltips
+- Node type filtering (room, door, corridor, outside, floor transition)
+- Toggleable floorplan background overlay behind the graph
+- Statistics panel (node/edge counts, type breakdown, pruning reduction)
+- Export to PNG (high-res) or JSON
+
+#### Running the Web App
+
+**Development (with hot reload):**
+```bash
+# Terminal 1: Backend
+pip install -r requirements.txt
+python app.py
+
+# Terminal 2: Frontend
+cd utils/app_utils/frontend
+npm install
+npm run dev
+```
+Frontend dev server runs at `http://localhost:3000` and proxies API calls to the backend at `http://localhost:8000`.
+
+**Production (single server):**
+```bash
+cd utils/app_utils/frontend && npm install && npm run build && cd ../../..
+python app.py
+```
+Open `http://localhost:8000` — FastAPI serves the built frontend and API from the same port.
+
+#### Docker
+
+```bash
+docker-compose up --build
+```
+Requires `Model_weights/` and `Input_Images/` to be present locally (mounted as volumes). The app runs at `http://localhost:8000`.
+
+#### Hugging Face Spaces
+
+The Dockerfile supports deployment as a Docker Space on Hugging Face. Set the Space SDK to **Docker** and ensure model weights and input images are included in the repository or configured as persistent storage.
 
 ### Recent Improvements
 - **Enhanced door connectivity**: Type-aware door-to-room edge creation ensures all door types (r2c, r2r, exit) are properly connected while maintaining optimal pathfinding structure

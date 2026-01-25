@@ -1,0 +1,20 @@
+version: "3.8"
+
+services:
+  tesseract-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./Model_weights:/app/Model_weights:ro
+      - ./Input_Images:/app/Input_Images:ro
+      - ./Results:/app/Results
+    environment:
+      - PYTHONUNBUFFERED=1
+    deploy:
+      resources:
+        limits:
+          memory: 8G
+    restart: unless-stopped

@@ -1,0 +1,38 @@
+# Dependencies and build artifacts
+utils/app_utils/frontend/node_modules/
+utils/app_utils/frontend/dist/
+
+# Python caches
+__pycache__/
+*.pyc
+*.pyo
+
+# Git
+.git/
+.gitignore
+
+# Results (will be regenerated or volume-mounted)
+Results/
+Multifloor_Results/
+
+# Model weights (volume-mounted at runtime)
+Model_weights/
+*.pth
+*.ckpt
+
+# Temporary files
+temp_processing/
+tess/
+
+# IDE
+.vscode/
+.idea/
+.claude/
+
+# LaTeX
+*.aux
+*.log
+*.bbl
+*.blg
+bibliography.bib
+main.tex
