@@ -11,14 +11,10 @@ __pycache__/
 .git/
 .gitignore
 
-# Results (will be regenerated or volume-mounted)
-Results/
+# Results (plots and metadata regenerated; keep Json/ for cached examples)
+Results/Plots/
+Results/Time&Meta/
 Multifloor_Results/
-
-# Model weights (volume-mounted at runtime)
-Model_weights/
-*.pth
-*.ckpt
 
 # Temporary files
 temp_processing/

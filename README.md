@@ -1,3 +1,14 @@
+---
+title: Tesseract++
+emoji: 🏗️
+colorFrom: blue
+colorTo: purple
+sdk: docker
+app_port: 7860
+pinned: false
+short_description: Floorplan to navigable graph conversion
+---
+
 ## Tesseract++: Floorplan Parsing to Navigable Graphs
 
 This project converts annotated building floorplans into navigable graphs by combining text detection, semantic interpretation, room segmentation, and door detection. The pipeline produces both visual overlays and structured JSON suitable for routing, accessibility analysis, and downstream spatial reasoning.
