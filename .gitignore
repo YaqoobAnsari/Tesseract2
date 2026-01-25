@@ -9,3 +9,10 @@ __pycache__/
 *.pyc
 *.pyo
 tess/
+
+# Frontend build artifacts
+utils/app_utils/frontend/node_modules/
+utils/app_utils/frontend/dist/
+
+# Temporary processing files
+temp_processing/
