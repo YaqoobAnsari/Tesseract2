@@ -1150,7 +1150,7 @@ def interpret_bboxes(image_path, bbox_text_file, results_dir):
 
     interp_model = prep_read_labels(
         "None", "VGG", "BiLSTM", "CTC",
-        "/data1/yansari/cad2map/Tesseract++/Model_weights/None-VGG-BiLSTM-CTC.pth"
+        os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "Model_weights", "None-VGG-BiLSTM-CTC.pth")
     )
 
     # OCR each bbox
