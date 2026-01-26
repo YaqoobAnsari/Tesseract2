@@ -11,6 +11,8 @@ short_description: Floorplan to navigable graph conversion
 
 ## Tesseract++: Floorplan Parsing to Navigable Graphs
 
+> **Live Demo:** [huggingface.co/spaces/yansari/Tesseract](https://huggingface.co/spaces/yansari/Tesseract)
+
 This project converts annotated building floorplans into navigable graphs by combining text detection, semantic interpretation, room segmentation, and door detection. The pipeline produces both visual overlays and structured JSON suitable for routing, accessibility analysis, and downstream spatial reasoning.
 
 ### Key Capabilities
@@ -144,7 +146,11 @@ Tesseract++ includes an interactive web interface for uploading floorplans and e
 - 4 pre-cached example floorplans for instant demos
 - Interactive graph canvas with pan, zoom, and node hover tooltips
 - Node type filtering (room, door, corridor, outside, floor transition)
+- Per-node-type size sliders for visual customization
+- Edge visibility toggle
+- Pre-pruning / post-pruning graph stage toggle
 - Toggleable floorplan background overlay behind the graph
+- Live pipeline stage progress during processing
 - Statistics panel (node/edge counts, type breakdown, pruning reduction)
 - Export to PNG (high-res) or JSON
 
@@ -179,7 +185,7 @@ Requires `Model_weights/` and `Input_Images/` to be present locally (mounted as 
 
 #### Hugging Face Spaces
 
-The Dockerfile supports deployment as a Docker Space on Hugging Face. Set the Space SDK to **Docker** and ensure model weights and input images are included in the repository or configured as persistent storage.
+The app is deployed at [huggingface.co/spaces/yansari/Tesseract](https://huggingface.co/spaces/yansari/Tesseract) as a Docker Space. The Dockerfile handles CPU-only PyTorch installation and model weight retrieval automatically.
 
 ### Recent Improvements
 - **Enhanced door connectivity**: Type-aware door-to-room edge creation ensures all door types (r2c, r2r, exit) are properly connected while maintaining optimal pathfinding structure
