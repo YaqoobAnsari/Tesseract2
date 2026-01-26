@@ -12,10 +12,11 @@ from PIL import Image
 
 
 # Add the required paths to the Python path
-sys.path.append("/data1/yansari/cad2map/Tesseract++/Models/Text_Models")
-sys.path.append("./utils")  # Add the utils folder to the Python path
-sys.path.append("/data1/yansari/cad2map/Tesseract++/Models/Interpreter")
-sys.path.append("/data1/yansari/cad2map/Tesseract++/Models/Door_Models") 
+_PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(os.path.join(_PROJECT_ROOT, "Models", "Text_Models"))
+sys.path.append(os.path.join(_PROJECT_ROOT, "utils"))
+sys.path.append(os.path.join(_PROJECT_ROOT, "Models", "Interpreter"))
+sys.path.append(os.path.join(_PROJECT_ROOT, "Models", "Door_Models"))
 from text_interpreter import interpret_bboxes, parse_transition_labels
 from door_bboxer import*
 

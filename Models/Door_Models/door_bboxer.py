@@ -5,7 +5,7 @@ import numpy as np
 import cv2
 import os
 from datetime import datetime
-sys.path.append("/data1/yansari/cad2map/Tesseract++/utils")  # Add the utils folder to the Python path
+sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "utils"))
  
 from PIL import Image
 
@@ -165,7 +165,7 @@ def detect_doors(
     threshold=0.8,
     chunk_size=300,
     overlap=50,
-    results_dir="/data1/yansari/cad2map/Tesseract++/Results/Plots", 
+    results_dir=os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "Results", "Plots"),
 ):
     """
     Detects doors in a large image by chunking it into smaller patches for Faster R-CNN inference,
@@ -205,7 +205,7 @@ def detect_doors(
 
     #print(f"       Number of chunks created: {len(chunks)}")
 
-    door_model_path = "/data1/yansari/cad2map/Tesseract++/Model_weights/door_mdl_32.pth"
+    door_model_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "Model_weights", "door_mdl_32.pth")
     door_model = detection_model(door_model_path)
 
     # Step 3: Run inference on each chunk

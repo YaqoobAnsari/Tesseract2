@@ -46,8 +46,8 @@ import networkx as nx
 from PIL import Image
 
 # Add required paths
-sys.path.insert(0, "/data1/yansari/cad2map/Tesseract++")
-sys.path.insert(0, "/data1/yansari/cad2map/Tesseract++/utils")
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "utils"))
 
 from utils.graph import BuildingGraph
 
@@ -56,7 +56,7 @@ from utils.graph import BuildingGraph
 # CONSTANTS
 # =============================================================================
 
-BASE_PATH = "/data1/yansari/cad2map/Tesseract++"
+BASE_PATH = os.path.dirname(os.path.abspath(__file__))
 INPUT_IMAGES_DIR = os.path.join(BASE_PATH, "Input_Images")
 RESULTS_DIR = os.path.join(BASE_PATH, "Results")
 MULTIFLOOR_RESULTS_DIR = os.path.join(BASE_PATH, "Multifloor_Results")
