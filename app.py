@@ -28,7 +28,7 @@ sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), "utils"
 
 # Import app utilities
 from utils.app_utils.api.models import ProcessingResponse, GraphVisualization, ExampleImage
-from utils.app_utils.api.processing import ProcessingPipeline
+from utils.app_utils.api.processing import ProcessingPipeline, get_progress
 from utils.app_utils.visualization.graph_converter import convert_to_cytoscape
 
 # Initialize FastAPI app
@@ -222,6 +222,12 @@ async def get_cached_result(image_name: str):
         message=f"Loaded cached result for {image_name}"
     )
 
+@app.get("/api/progress/{image_name}")
+async def get_processing_progress(image_name: str):
+    """Get current processing stage for an image"""
+    stage = get_progress(image_name)
+    return {"stage": stage}
+
 @app.post("/api/process")
 async def process_image(
     request: Request,
@@ -318,7 +324,8 @@ async def process_image(
                 pipeline.process_image,
                 image_path,
                 image_name,
-                timeout=PROCESSING_TIMEOUT
+                timeout=PROCESSING_TIMEOUT,
+                progress_key=image_name
             )
 
             processing_time = time.time() - start_time

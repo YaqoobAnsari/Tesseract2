@@ -11,6 +11,19 @@ import shutil
 from pathlib import Path
 from typing import Dict, Any, Optional
 import threading
+from typing import Callable
+
+# Progress tracking (thread-safe via GIL for simple dict writes)
+_progress: Dict[str, str] = {}
+
+def set_progress(key: str, stage: str):
+    _progress[key] = stage
+
+def get_progress(key: str) -> str:
+    return _progress.get(key, "")
+
+def clear_progress(key: str):
+    _progress.pop(key, None)
 
 # Add required paths
 base_path = Path(__file__).parent.parent.parent.parent  # Back to Tesseract++ root
@@ -105,7 +118,7 @@ class ProcessingPipeline:
         post_pruning_json = self.results_dir / "Json" / image_stem / f"{image_stem}_post_pruning.json"
         return post_pruning_json.exists()
 
-    def process_image(self, image_path: str, image_name: str, timeout: int = 180) -> Dict[str, Any]:
+    def process_image(self, image_path: str, image_name: str, timeout: int = 180, progress_key: str = None) -> Dict[str, Any]:
         """
         Process a floorplan image through the Tesseract++ pipeline
 
@@ -139,10 +152,15 @@ class ProcessingPipeline:
             original_cwd = os.getcwd()
             os.chdir(self.base_path)
 
+            # Progress callback
+            def on_progress(stage: str):
+                if progress_key:
+                    set_progress(progress_key, stage)
+
             # Run the main processing pipeline with timeout
             def run_processing():
                 try:
-                    Main.make_graph(image_name)
+                    Main.make_graph(image_name, progress_callback=on_progress)
                 except Exception as e:
                     thread_exception[0] = e
 
@@ -202,6 +220,9 @@ class ProcessingPipeline:
         finally:
             # Cleanup
             os.chdir(original_cwd)
+
+            if progress_key:
+                clear_progress(progress_key)
 
             # Remove copied image if it was temporary
             if image_was_copied and input_image_path.exists():

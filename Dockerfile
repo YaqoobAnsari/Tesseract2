@@ -40,7 +40,7 @@ RUN python download_weights.py
 # Create writable directories and set permissions
 RUN useradd -m -u 1000 appuser && \
     mkdir -p /app/temp_processing /app/Results && \
-    chmod -R 777 /app/temp_processing /app/Results
+    chmod -R 777 /app/temp_processing /app/Results /app/Input_Images
 
 # Switch to non-root user (HF Spaces requirement)
 USER 1000
