@@ -43,10 +43,14 @@ export interface ProcessingResponse {
   image_name: string;
   processing_time: number;
   graph_data: CytoscapeGraph | null;
+  pre_pruning_graph_data: CytoscapeGraph | null;
   statistics: GraphStatistics;
   message: string;
   error?: string;
 }
+
+/** Graph processing stage selector */
+export type GraphStage = 'post_pruning' | 'pre_pruning';
 
 export interface GraphStatistics {
   total_nodes: number;

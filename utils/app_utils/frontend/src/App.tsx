@@ -1,5 +1,5 @@
-import { useState, useCallback } from 'react';
-import type { AppState, ProcessingResponse, NodeTypeVisibility } from './types';
+import { useState, useCallback, useMemo } from 'react';
+import type { AppState, ProcessingResponse, NodeTypeVisibility, GraphStage } from './types';
 import { processImage, processExample, fetchCachedResult, floorplanImageUrl } from './api';
 import { NODE_TYPES } from './constants';
 import Header from './components/Header';
@@ -22,6 +22,9 @@ function App() {
   const [showFloorplan, setShowFloorplan] = useState(false);
   const [floorplanUrl, setFloorplanUrl] = useState('');
 
+  // Graph stage toggle
+  const [graphStage, setGraphStage] = useState<GraphStage>('post_pruning');
+
   // Node type visibility
   const [visibility, setVisibility] = useState<NodeTypeVisibility>(() => {
     const v: NodeTypeVisibility = {};
@@ -36,6 +39,15 @@ function App() {
     data: Record<string, unknown>;
   } | null>(null);
 
+  // Determine which graph data to display based on stage selection
+  const activeGraphData = useMemo(() => {
+    if (!result) return null;
+    if (graphStage === 'pre_pruning' && result.pre_pruning_graph_data) {
+      return result.pre_pruning_graph_data;
+    }
+    return result.graph_data;
+  }, [result, graphStage]);
+
   const handleFile = useCallback(async (file: File) => {
     setAppState('processing');
     setProcessingName(file.name);
@@ -43,7 +55,8 @@ function App() {
     try {
       const res = await processImage(file);
       setResult(res);
-      setFloorplanUrl('');  // no floorplan for uploaded files
+      setFloorplanUrl(floorplanImageUrl(file.name));
+      setGraphStage('post_pruning');
       setAppState('results');
     } catch (e: unknown) {
       setErrorMsg(e instanceof Error ? e.message : 'Unknown error');
@@ -61,6 +74,7 @@ function App() {
         const res = await fetchCachedResult(name);
         setResult(res);
         setFloorplanUrl(floorplanImageUrl(name));
+        setGraphStage('post_pruning');
         setAppState('results');
       } catch {
         // Fallback to full processing
@@ -69,6 +83,7 @@ function App() {
           const res = await processExample(name);
           setResult(res);
           setFloorplanUrl(floorplanImageUrl(name));
+          setGraphStage('post_pruning');
           setAppState('results');
         } catch (e: unknown) {
           setErrorMsg(e instanceof Error ? e.message : 'Unknown error');
@@ -81,6 +96,7 @@ function App() {
         const res = await processExample(name);
         setResult(res);
         setFloorplanUrl(floorplanImageUrl(name));
+        setGraphStage('post_pruning');
         setAppState('results');
       } catch (e: unknown) {
         setErrorMsg(e instanceof Error ? e.message : 'Unknown error');
@@ -95,6 +111,7 @@ function App() {
     setErrorMsg('');
     setShowFloorplan(false);
     setFloorplanUrl('');
+    setGraphStage('post_pruning');
     setTooltip(null);
     // Reset visibility
     const v: NodeTypeVisibility = {};
@@ -124,11 +141,11 @@ function App() {
           </div>
         )}
 
-        {appState === 'results' && result?.graph_data && (
+        {appState === 'results' && activeGraphData && (
           <div className="results-layout">
             <div className="graph-area">
               <GraphViewer
-                graphData={result.graph_data}
+                graphData={activeGraphData}
                 visibility={visibility}
                 showFloorplan={showFloorplan}
                 floorplanUrl={floorplanUrl}
@@ -142,9 +159,9 @@ function App() {
 
             <div className="sidebar">
               <StatsPanel
-                statistics={result.statistics}
-                processingTime={result.processing_time}
-                imageName={result.image_name}
+                statistics={result!.statistics}
+                processingTime={result!.processing_time}
+                imageName={result!.image_name}
               />
 
               <GraphControls
@@ -156,9 +173,12 @@ function App() {
                 onFloorplanToggle={() => setShowFloorplan((v) => !v)}
                 hasFloorplan={!!floorplanUrl}
                 onFit={() => cyRef?.fit(undefined, 40)}
+                graphStage={graphStage}
+                onGraphStageChange={setGraphStage}
+                hasPrePruning={!!result?.pre_pruning_graph_data}
               />
 
-              <ExportPanel cy={cyRef} graphData={result.graph_data} />
+              <ExportPanel cy={cyRef} graphData={activeGraphData} />
 
               <div className="back-btn-row">
                 <button className="btn btn-block" onClick={handleReset}>

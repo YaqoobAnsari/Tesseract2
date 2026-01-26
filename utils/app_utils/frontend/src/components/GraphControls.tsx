@@ -1,4 +1,4 @@
-import type { NodeTypeVisibility } from '../types';
+import type { NodeTypeVisibility, GraphStage } from '../types';
 import { NODE_TYPES, NODE_COLORS, NODE_TYPE_LABELS } from '../constants';
 
 interface Props {
@@ -8,6 +8,9 @@ interface Props {
   onFloorplanToggle: () => void;
   hasFloorplan: boolean;
   onFit: () => void;
+  graphStage: GraphStage;
+  onGraphStageChange: (stage: GraphStage) => void;
+  hasPrePruning: boolean;
 }
 
 export default function GraphControls({
@@ -17,10 +20,34 @@ export default function GraphControls({
   onFloorplanToggle,
   hasFloorplan,
   onFit,
+  graphStage,
+  onGraphStageChange,
+  hasPrePruning,
 }: Props) {
   return (
     <div className="panel">
       <h3>Controls</h3>
+
+      {hasPrePruning && (
+        <>
+          <label className="stage-label">Graph Stage</label>
+          <div className="stage-toggle">
+            <button
+              className={`stage-btn${graphStage === 'post_pruning' ? ' active' : ''}`}
+              onClick={() => onGraphStageChange('post_pruning')}
+            >
+              Post-Pruning
+            </button>
+            <button
+              className={`stage-btn${graphStage === 'pre_pruning' ? ' active' : ''}`}
+              onClick={() => onGraphStageChange('pre_pruning')}
+            >
+              Pre-Pruning
+            </button>
+          </div>
+          <hr className="stat-divider" />
+        </>
+      )}
 
       {NODE_TYPES.map((type) => (
         <div className="type-toggle" key={type}>
@@ -42,7 +69,7 @@ export default function GraphControls({
       <hr className="stat-divider" />
 
       {hasFloorplan && (
-        <div className="bg-toggle">
+        <div className="type-toggle">
           <label>
             <input
               type="checkbox"
