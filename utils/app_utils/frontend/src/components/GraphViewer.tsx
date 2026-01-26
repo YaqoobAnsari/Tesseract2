@@ -84,19 +84,45 @@ export default function GraphViewer({
 }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const cyRef = useRef<cytoscape.Core | null>(null);
+  const floorplanRef = useRef<HTMLImageElement>(null);
+  const imgDimsRef = useRef<{ w: number; h: number } | null>(null);
   const [imgDims, setImgDims] = useState<{ w: number; h: number } | null>(null);
 
   // Pre-load floorplan image to get its natural dimensions
   useEffect(() => {
     if (!floorplanUrl) {
       setImgDims(null);
+      imgDimsRef.current = null;
       return;
     }
     const img = new Image();
-    img.onload = () => setImgDims({ w: img.naturalWidth, h: img.naturalHeight });
-    img.onerror = () => setImgDims(null);
+    img.onload = () => {
+      const dims = { w: img.naturalWidth, h: img.naturalHeight };
+      setImgDims(dims);
+      imgDimsRef.current = dims;
+    };
+    img.onerror = () => {
+      setImgDims(null);
+      imgDimsRef.current = null;
+    };
     img.src = floorplanUrl;
   }, [floorplanUrl]);
+
+  // Position the floorplan <img> to match Cytoscape's viewport.
+  // Reads from refs so the cy 'viewport' listener never goes stale.
+  const syncFloorplan = useCallback(() => {
+    const cy = cyRef.current;
+    const img = floorplanRef.current;
+    const dims = imgDimsRef.current;
+    if (!cy || !img || !dims) return;
+
+    const zoom = cy.zoom();
+    const pan = cy.pan();
+    img.style.left = `${pan.x}px`;
+    img.style.top = `${pan.y}px`;
+    img.style.width = `${dims.w * zoom}px`;
+    img.style.height = `${dims.h * zoom}px`;
+  }, []);
 
   // Initialize Cytoscape
   useEffect(() => {
@@ -128,10 +154,12 @@ export default function GraphViewer({
     cyRef.current = cy;
     onCyInit(cy);
 
+    // Keep floorplan image in sync with pan / zoom
+    cy.on('viewport', syncFloorplan);
+
     // Hover events for tooltip
     cy.on('mouseover', 'node', (evt) => {
       const node = evt.target;
-      if (node.data('id') === '__floorplan_bg__') return;
       const pos = node.renderedPosition();
       onTooltip({
         x: pos.x + 15,
@@ -160,7 +188,6 @@ export default function GraphViewer({
     const hiddenNodeIds = new Set<string>();
 
     cy.nodes().forEach((node) => {
-      if (node.data('id') === '__floorplan_bg__') return;
       const type = node.data('type') as string;
       if (visibility[type] === false) {
         node.addClass('hidden');
@@ -191,69 +218,35 @@ export default function GraphViewer({
     if (!cy) return;
 
     cy.nodes().forEach((node) => {
-      if (node.data('id') === '__floorplan_bg__') return;
       const type = node.data('type') as string;
       const size = nodeSizes[type] || NODE_SIZES[type] || 20;
       node.style({ width: size, height: size });
     });
   }, [nodeSizes]);
 
-  // Manage floorplan background node — pans and zooms with the graph
-  const updateFloorplan = useCallback(() => {
-    const cy = cyRef.current;
-    if (!cy) return;
-
-    const existing = cy.$('#__floorplan_bg__');
-
-    if (showFloorplan && imgDims && floorplanUrl) {
-      if (!existing.length) {
-        cy.add({
-          group: 'nodes',
-          data: { id: '__floorplan_bg__', type: '_background' },
-          position: { x: imgDims.w / 2, y: imgDims.h / 2 },
-        });
-      }
-
-      const bg = cy.$('#__floorplan_bg__');
-      bg.style({
-        width: imgDims.w,
-        height: imgDims.h,
-        shape: 'rectangle',
-        'background-image': floorplanUrl,
-        'background-fit': 'cover',
-        'background-opacity': 0.35,
-        'border-width': 0,
-        'background-color': '#ffffff',
-        'z-index': 0,
-      } as Record<string, unknown>);
-      bg.ungrabify();
-      bg.unselectify();
-      bg.removeClass('hidden');
-
-      // Ensure regular nodes and edges render above the floorplan
-      cy.nodes().forEach((node) => {
-        if (node.data('id') !== '__floorplan_bg__') {
-          node.style('z-index', 10);
-        }
-      });
-      cy.edges().forEach((edge) => {
-        edge.style('z-index', 5);
-      });
-    } else {
-      if (existing.length) {
-        existing.addClass('hidden');
-      }
-    }
-  }, [showFloorplan, imgDims, floorplanUrl]);
-
+  // Re-sync floorplan position when it becomes visible or dims load
   useEffect(() => {
-    updateFloorplan();
-  }, [updateFloorplan]);
+    syncFloorplan();
+  }, [showFloorplan, imgDims, syncFloorplan]);
 
   return (
-    <div
-      ref={containerRef}
-      style={{ width: '100%', height: '100%' }}
-    />
+    <div style={{ position: 'relative', width: '100%', height: '100%', overflow: 'hidden' }}>
+      {showFloorplan && imgDims && floorplanUrl && (
+        <img
+          ref={floorplanRef}
+          src={floorplanUrl}
+          alt=""
+          style={{
+            position: 'absolute',
+            opacity: 0.35,
+            pointerEvents: 'none',
+          }}
+        />
+      )}
+      <div
+        ref={containerRef}
+        style={{ width: '100%', height: '100%' }}
+      />
+    </div>
   );
 }
