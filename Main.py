@@ -105,16 +105,20 @@ def detect_floor_from_filename(image_name):
     print(f"Warning: Could not determine floor from '{image_name}' (first word: '{first_word}'), defaulting to floor 1")
     return 1
 
-def make_graph(image_name, floor_id=None):
+def make_graph(image_name, floor_id=None, progress_callback=None):
     """
-    Main function to check image existence, construct paths, run text detection, 
+    Main function to check image existence, construct paths, run text detection,
     and save graph-related outputs (plot and JSON).
 
     Args:
         image_name (str): Name of the image with the extension.
         floor_id (int, optional): Floor number (e.g., 1, 2, 3).
                                   If None, will be detected from filename or default to 1.
+        progress_callback (callable, optional): Called with (stage_name: str) at each pipeline stage.
     """
+    def _report(stage):
+        if progress_callback:
+            progress_callback(stage)
     # Define base paths
     base_path = os.getcwd()
     input_images_dir = os.path.join(base_path, "Input_Images")
@@ -182,16 +186,19 @@ def make_graph(image_name, floor_id=None):
     os.makedirs(test_img_dir, exist_ok=True)
 
     # Call get_Textboxes to perform text detection
+    _report("Detecting text regions")
     start_step = time.time()
     text_file_path = get_Textboxes(image_path, model_weights_dir, text_detection_dir)
     log_time("text detection check", start_step)
 
+    _report("Interpreting text labels")
     start_step = time.time()
     print("\nInterpreting bboxes...")
     room_bboxes, hallway_bboxes, outside_bboxes, transition_bboxes, result_file_path = interpret_bboxes(image_path, text_file_path, plots_dir)
     log_time("Interpreting bboxes check", start_step)
      
     # Initialize the graph
+    _report("Initializing graph nodes")
     print("\nInitializing Graph")
     # Detect floor from filename if not provided
     if floor_id is None:
@@ -272,6 +279,7 @@ def make_graph(image_name, floor_id=None):
     graph_plot_output_path = os.path.join(graph_img_dir, f"{image_name_no_ext}_thr_graph.png")
     graph.plot_on_image(image_path, graph_plot_output_path, display_labels=True, threshold_radius = 20, highlight_regions=False) 
  
+    _report("Flood filling rooms")
     print("\nFloodfilling rooms prior to door detection")
     start_step = time.time()
     #smart_fill_rooms(image_path, graph, results_dir, radius_threshold=50, node_radius=10)
@@ -309,6 +317,7 @@ def make_graph(image_name, floor_id=None):
             graph.graph.nodes[sub_id]["is_subnode"] = True
             graph.graph.nodes[sub_id]["parent_room_id"] = room_id
         
+    _report("Detecting doors")
     print("\nDetecting doors")
     start_step = time.time()
     door_bbox = detect_doors(image_path,threshold=0.9, chunk_size=300, overlap=75, results_dir=plots_dir)
@@ -316,17 +325,20 @@ def make_graph(image_name, floor_id=None):
     door_bbox = refine_door_bboxes(image_path, plots_dir, door_threshold= 20, door_bboxes=door_bbox)  
     log_time("Detecting doors check", start_step)
 
+    _report("Classifying doors")
     print("\nClassifying doors")
     start_step = time.time()
     exit_dbboxes, corridor2corridor_dbboxes, room2corridor_dbboxes, room2room_dbboxes, wardrobe_dbboxes = classify_doors(thr_img_path, door_bbox, connect_img_dir, print_tag=False)
     log_time("Classifying doors check", start_step)
     
+    _report("Building room-door connectivity")
     print("\nAdding classified door nodes to graph")
     start_step = time.time()
     graph.add_door_nodes(exit_dbboxes, corridor2corridor_dbboxes, room2corridor_dbboxes, room2room_dbboxes)
     print("\nAdding room to door edges to graph")
     graph.make_room_door_edges(image_path, (room2corridor_dbboxes+room2room_dbboxes+exit_dbboxes))   
 
+    _report("Populating corridor network")
     print("\nAdding corridor nodes to graph")
     corridor_distance = 20
     corridor_pixels = graph.add_corridor_nodes(image_path, corridor_pixels, test_img_dir, dest="corridor", distance=corridor_distance)
@@ -348,10 +360,12 @@ def make_graph(image_name, floor_id=None):
     graph.add_outdoor_edges(outdoor_pixels, distance=outside_distance)
     log_time("Updating graph nodes check", start_step)
 
+    _report("Funneling room paths to doors")
     print("\nFunneling room families to doors (grid lattice -> shortest paths)...")
     kept = graph.connect_all_families_funnel(spacing_px=60, door_selector="nearest")
     print(f"Kept {kept} intra-room edges across all rooms.")
 
+    _report("Creating edges")
     start_step = time.time()
     graph.connect_hallways()
     graph.connect_doors()
@@ -372,6 +386,7 @@ def make_graph(image_name, floor_id=None):
 
     tot_graph_nodes = graph.return_graph_size()
      
+    _report("Pruning graph")
     start_step = time.time()
     graph.connect_all_rooms(image_path, graph_img_dir)
     log_time("Graph pruning check", start_step)
