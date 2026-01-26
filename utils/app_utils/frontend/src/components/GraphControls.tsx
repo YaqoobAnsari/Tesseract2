@@ -1,9 +1,13 @@
-import type { NodeTypeVisibility, GraphStage } from '../types';
+import type { NodeTypeVisibility, NodeTypeSizes, GraphStage } from '../types';
 import { NODE_TYPES, NODE_COLORS, NODE_TYPE_LABELS } from '../constants';
 
 interface Props {
   visibility: NodeTypeVisibility;
   onToggle: (type: string) => void;
+  nodeSizes: NodeTypeSizes;
+  onNodeSizeChange: (type: string, size: number) => void;
+  showEdges: boolean;
+  onEdgesToggle: () => void;
   showFloorplan: boolean;
   onFloorplanToggle: () => void;
   hasFloorplan: boolean;
@@ -16,6 +20,10 @@ interface Props {
 export default function GraphControls({
   visibility,
   onToggle,
+  nodeSizes,
+  onNodeSizeChange,
+  showEdges,
+  onEdgesToggle,
   showFloorplan,
   onFloorplanToggle,
   hasFloorplan,
@@ -50,23 +58,46 @@ export default function GraphControls({
       )}
 
       {NODE_TYPES.map((type) => (
-        <div className="type-toggle" key={type}>
-          <label>
+        <div className="type-control-group" key={type}>
+          <div className="type-toggle">
+            <label>
+              <input
+                type="checkbox"
+                checked={visibility[type] !== false}
+                onChange={() => onToggle(type)}
+              />
+              <span
+                className="type-swatch"
+                style={{ backgroundColor: NODE_COLORS[type] }}
+              />
+              {NODE_TYPE_LABELS[type]}
+            </label>
+          </div>
+          <div className="size-slider">
             <input
-              type="checkbox"
-              checked={visibility[type] !== false}
-              onChange={() => onToggle(type)}
+              type="range"
+              min={4}
+              max={60}
+              value={nodeSizes[type] || 20}
+              onChange={(e) => onNodeSizeChange(type, Number(e.target.value))}
             />
-            <span
-              className="type-swatch"
-              style={{ backgroundColor: NODE_COLORS[type] }}
-            />
-            {NODE_TYPE_LABELS[type]}
-          </label>
+            <span className="size-value">{nodeSizes[type] || 20}</span>
+          </div>
         </div>
       ))}
 
       <hr className="stat-divider" />
+
+      <div className="type-toggle">
+        <label>
+          <input
+            type="checkbox"
+            checked={showEdges}
+            onChange={onEdgesToggle}
+          />
+          Show Edges
+        </label>
+      </div>
 
       {hasFloorplan && (
         <div className="type-toggle">

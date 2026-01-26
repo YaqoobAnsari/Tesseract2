@@ -64,3 +64,6 @@ export type AppState = 'idle' | 'processing' | 'results' | 'error';
 
 /** Node type visibility toggles */
 export type NodeTypeVisibility = Record<string, boolean>;
+
+/** Node type sizes (px) */
+export type NodeTypeSizes = Record<string, number>;
