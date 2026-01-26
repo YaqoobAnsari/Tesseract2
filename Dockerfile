@@ -35,13 +35,7 @@ COPY . .
 COPY --from=frontend-build /frontend/dist /app/utils/app_utils/frontend/dist
 
 # Download model weights from HF repo (Git LFS pointers are not resolved in Docker build context)
-RUN mkdir -p /app/Model_weights && \
-    curl -L -o /app/Model_weights/craft_mlt_25k.pth \
-      "https://huggingface.co/spaces/yansari/Tesseract/resolve/main/Model_weights/craft_mlt_25k.pth" && \
-    curl -L -o /app/Model_weights/None-VGG-BiLSTM-CTC.pth \
-      "https://huggingface.co/spaces/yansari/Tesseract/resolve/main/Model_weights/None-VGG-BiLSTM-CTC.pth" && \
-    curl -L -o /app/Model_weights/door_mdl_32.pth \
-      "https://huggingface.co/spaces/yansari/Tesseract/resolve/main/Model_weights/door_mdl_32.pth"
+RUN python download_weights.py
 
 # Create writable directories and set permissions
 RUN useradd -m -u 1000 appuser && \

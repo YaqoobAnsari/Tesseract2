@@ -1,7 +1,7 @@
 import { useState, useCallback, useMemo } from 'react';
-import type { AppState, ProcessingResponse, NodeTypeVisibility, GraphStage } from './types';
+import type { AppState, ProcessingResponse, NodeTypeVisibility, NodeTypeSizes, GraphStage } from './types';
 import { processImage, processExample, fetchCachedResult, floorplanImageUrl } from './api';
-import { NODE_TYPES } from './constants';
+import { NODE_TYPES, NODE_SIZES } from './constants';
 import Header from './components/Header';
 import ImageUpload from './components/ImageUpload';
 import ProcessingStatus from './components/ProcessingStatus';
@@ -31,6 +31,12 @@ function App() {
     for (const t of NODE_TYPES) v[t] = true;
     return v;
   });
+
+  // Node sizes (per-type)
+  const [nodeSizes, setNodeSizes] = useState<NodeTypeSizes>(() => ({ ...NODE_SIZES }));
+
+  // Edge visibility
+  const [showEdges, setShowEdges] = useState(true);
 
   // Tooltip state
   const [tooltip, setTooltip] = useState<{
@@ -113,10 +119,12 @@ function App() {
     setFloorplanUrl('');
     setGraphStage('post_pruning');
     setTooltip(null);
-    // Reset visibility
+    // Reset visibility, sizes, edges
     const v: NodeTypeVisibility = {};
     for (const t of NODE_TYPES) v[t] = true;
     setVisibility(v);
+    setNodeSizes({ ...NODE_SIZES });
+    setShowEdges(true);
   }, []);
 
   return (
@@ -147,6 +155,8 @@ function App() {
               <GraphViewer
                 graphData={activeGraphData}
                 visibility={visibility}
+                nodeSizes={nodeSizes}
+                showEdges={showEdges}
                 showFloorplan={showFloorplan}
                 floorplanUrl={floorplanUrl}
                 onCyInit={setCyRef}
@@ -169,6 +179,12 @@ function App() {
                 onToggle={(type) =>
                   setVisibility((v) => ({ ...v, [type]: !v[type] }))
                 }
+                nodeSizes={nodeSizes}
+                onNodeSizeChange={(type, size) =>
+                  setNodeSizes((s) => ({ ...s, [type]: size }))
+                }
+                showEdges={showEdges}
+                onEdgesToggle={() => setShowEdges((v) => !v)}
                 showFloorplan={showFloorplan}
                 onFloorplanToggle={() => setShowFloorplan((v) => !v)}
                 hasFloorplan={!!floorplanUrl}

@@ -1,11 +1,13 @@
 import { useEffect, useRef, useCallback, useState } from 'react';
 import cytoscape from 'cytoscape';
-import type { CytoscapeGraph, NodeTypeVisibility } from '../types';
+import type { CytoscapeGraph, NodeTypeVisibility, NodeTypeSizes } from '../types';
 import { NODE_COLORS, NODE_SIZES, NODE_SHAPES, EDGE_COLORS } from '../constants';
 
 interface Props {
   graphData: CytoscapeGraph;
   visibility: NodeTypeVisibility;
+  nodeSizes: NodeTypeSizes;
+  showEdges: boolean;
   showFloorplan: boolean;
   floorplanUrl: string;
   onCyInit: (cy: cytoscape.Core) => void;
@@ -73,6 +75,8 @@ function buildStylesheet(): cytoscape.StylesheetStyle[] {
 export default function GraphViewer({
   graphData,
   visibility,
+  nodeSizes,
+  showEdges,
   showFloorplan,
   floorplanUrl,
   onCyInit,
@@ -148,12 +152,11 @@ export default function GraphViewer({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [graphData]);
 
-  // Apply visibility toggles
+  // Apply visibility toggles (nodes + edges)
   useEffect(() => {
     const cy = cyRef.current;
     if (!cy) return;
 
-    // Build set of hidden node IDs for edge filtering
     const hiddenNodeIds = new Set<string>();
 
     cy.nodes().forEach((node) => {
@@ -168,15 +171,32 @@ export default function GraphViewer({
     });
 
     cy.edges().forEach((edge) => {
-      const src = edge.data('source') as string;
-      const tgt = edge.data('target') as string;
-      if (hiddenNodeIds.has(src) || hiddenNodeIds.has(tgt)) {
+      if (!showEdges) {
         edge.addClass('hidden');
       } else {
-        edge.removeClass('hidden');
+        const src = edge.data('source') as string;
+        const tgt = edge.data('target') as string;
+        if (hiddenNodeIds.has(src) || hiddenNodeIds.has(tgt)) {
+          edge.addClass('hidden');
+        } else {
+          edge.removeClass('hidden');
+        }
       }
     });
-  }, [visibility]);
+  }, [visibility, showEdges]);
+
+  // Apply node sizes dynamically
+  useEffect(() => {
+    const cy = cyRef.current;
+    if (!cy) return;
+
+    cy.nodes().forEach((node) => {
+      if (node.data('id') === '__floorplan_bg__') return;
+      const type = node.data('type') as string;
+      const size = nodeSizes[type] || NODE_SIZES[type] || 20;
+      node.style({ width: size, height: size });
+    });
+  }, [nodeSizes]);
 
   // Manage floorplan background node — pans and zooms with the graph
   const updateFloorplan = useCallback(() => {

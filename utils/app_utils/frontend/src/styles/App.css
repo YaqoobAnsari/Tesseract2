@@ -300,6 +300,53 @@ body {
   border-radius: 3px;
 }
 
+/* === Node type control group (checkbox + slider) === */
+.type-control-group {
+  padding: 2px 0;
+}
+
+.size-slider {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding-left: 24px;
+}
+
+.size-slider input[type="range"] {
+  flex: 1;
+  height: 4px;
+  -webkit-appearance: none;
+  appearance: none;
+  background: var(--border-color);
+  border-radius: 2px;
+  outline: none;
+}
+
+.size-slider input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--accent);
+  cursor: pointer;
+}
+
+.size-slider input[type="range"]::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--accent);
+  cursor: pointer;
+  border: none;
+}
+
+.size-value {
+  font-size: 0.72rem;
+  color: var(--text-secondary);
+  min-width: 20px;
+  text-align: right;
+}
+
 /* === Stats panel === */
 .stat-row {
   display: flex;
