@@ -81,11 +81,12 @@ class ProcessingPipeline:
 
         stats = self._calculate_statistics(graph_data)
 
-        # Add pruning comparison if pre-pruning exists
+        # Load pre-pruning graph if available
+        pre_pruning_graph = None
         if pre_pruning_json.exists():
             with open(pre_pruning_json, 'r') as f:
-                pre_pruning_data = json.load(f)
-                pre_nodes = len(pre_pruning_data.get("nodes", []))
+                pre_pruning_graph = json.load(f)
+                pre_nodes = len(pre_pruning_graph.get("nodes", []))
                 post_nodes = len(graph_data.get("nodes", []))
                 stats["pruning_reduction"] = round(
                     (1 - post_nodes / pre_nodes) * 100, 2
@@ -93,6 +94,7 @@ class ProcessingPipeline:
 
         return {
             "graph_json": graph_data,
+            "pre_pruning_graph_json": pre_pruning_graph,
             "stats": stats,
             "image_name": image_name
         }
@@ -174,16 +176,18 @@ class ProcessingPipeline:
             # Calculate statistics
             stats = self._calculate_statistics(graph_data)
 
-            # Add pruning comparison if pre-pruning exists
+            # Load pre-pruning graph if available
+            pre_pruning_graph = None
             if pre_pruning_json.exists():
                 with open(pre_pruning_json, 'r') as f:
-                    pre_pruning_data = json.load(f)
-                    pre_nodes = len(pre_pruning_data.get("nodes", []))
+                    pre_pruning_graph = json.load(f)
+                    pre_nodes = len(pre_pruning_graph.get("nodes", []))
                     post_nodes = len(graph_data.get("nodes", []))
                     stats["pruning_reduction"] = round((1 - post_nodes / pre_nodes) * 100, 2) if pre_nodes > 0 else 0
 
             result = {
                 "graph_json": graph_data,
+                "pre_pruning_graph_json": pre_pruning_graph,
                 "stats": stats,
                 "session_id": session_id,
                 "image_name": image_name

@@ -201,6 +201,10 @@ async def get_cached_result(image_name: str):
         raise HTTPException(status_code=404, detail="No cached result for this image")
 
     cytoscape_data = convert_to_cytoscape(cached["graph_json"])
+    pre_pruning_cytoscape = (
+        convert_to_cytoscape(cached["pre_pruning_graph_json"])
+        if cached.get("pre_pruning_graph_json") else None
+    )
 
     return ProcessingResponse(
         session_id=str(uuid.uuid4()),
@@ -208,6 +212,7 @@ async def get_cached_result(image_name: str):
         image_name=image_name,
         processing_time=0.0,
         graph_data=cytoscape_data,
+        pre_pruning_graph_data=pre_pruning_cytoscape,
         statistics={
             "total_nodes": cached["stats"]["total_nodes"],
             "total_edges": cached["stats"]["total_edges"],
@@ -264,12 +269,17 @@ async def process_image(
                 cached = pipeline.get_cached_result(example)
                 if cached is not None:
                     cytoscape_data = convert_to_cytoscape(cached["graph_json"])
+                    pre_pruning_cytoscape = (
+                        convert_to_cytoscape(cached["pre_pruning_graph_json"])
+                        if cached.get("pre_pruning_graph_json") else None
+                    )
                     return ProcessingResponse(
                         session_id=session_id,
                         status="success",
                         image_name=example,
                         processing_time=0.0,
                         graph_data=cytoscape_data,
+                        pre_pruning_graph_data=pre_pruning_cytoscape,
                         statistics={
                             "total_nodes": cached["stats"]["total_nodes"],
                             "total_edges": cached["stats"]["total_edges"],
@@ -315,6 +325,10 @@ async def process_image(
 
             # Convert graph to Cytoscape format
             cytoscape_data = convert_to_cytoscape(result["graph_json"])
+            pre_pruning_cytoscape = (
+                convert_to_cytoscape(result["pre_pruning_graph_json"])
+                if result.get("pre_pruning_graph_json") else None
+            )
 
             # Prepare response
             response = ProcessingResponse(
@@ -323,6 +337,7 @@ async def process_image(
                 image_name=image_name,
                 processing_time=processing_time,
                 graph_data=cytoscape_data,
+                pre_pruning_graph_data=pre_pruning_cytoscape,
                 statistics={
                     "total_nodes": result["stats"]["total_nodes"],
                     "total_edges": result["stats"]["total_edges"],
@@ -336,8 +351,11 @@ async def process_image(
             active_sessions[session_id]["status"] = "completed"
             active_sessions[session_id]["result"] = response.dict()
 
-            # Cleanup temp file if needed
+            # Save uploaded image for floorplan overlay, then cleanup temp
             if not is_example and os.path.exists(image_path):
+                if pipeline:
+                    overlay_path = pipeline.temp_dir / image_name
+                    shutil.copy2(image_path, str(overlay_path))
                 os.remove(image_path)
 
             return response

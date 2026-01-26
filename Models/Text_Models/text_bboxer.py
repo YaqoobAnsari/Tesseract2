@@ -59,11 +59,11 @@ def get_Textboxes(input_image_path, model_weights_dir, output_directory):
     # Load the CRAFT model 
     net = CRAFT()
     if cuda_available:
-        net.load_state_dict(copyStateDict(torch.load(model_checkpoint)))
+        net.load_state_dict(copyStateDict(torch.load(model_checkpoint, weights_only=False)))
         net = net.cuda()
         net = torch.nn.DataParallel(net)
     else:
-        net.load_state_dict(copyStateDict(torch.load(model_checkpoint, map_location="cpu")))
+        net.load_state_dict(copyStateDict(torch.load(model_checkpoint, map_location="cpu", weights_only=False)))
     net.eval()
 
     # Preprocess the image 

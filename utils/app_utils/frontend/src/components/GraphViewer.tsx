@@ -1,4 +1,4 @@
-import { useEffect, useRef, useCallback } from 'react';
+import { useEffect, useRef, useCallback, useState } from 'react';
 import cytoscape from 'cytoscape';
 import type { CytoscapeGraph, NodeTypeVisibility } from '../types';
 import { NODE_COLORS, NODE_SIZES, NODE_SHAPES, EDGE_COLORS } from '../constants';
@@ -80,6 +80,19 @@ export default function GraphViewer({
 }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const cyRef = useRef<cytoscape.Core | null>(null);
+  const [imgDims, setImgDims] = useState<{ w: number; h: number } | null>(null);
+
+  // Pre-load floorplan image to get its natural dimensions
+  useEffect(() => {
+    if (!floorplanUrl) {
+      setImgDims(null);
+      return;
+    }
+    const img = new Image();
+    img.onload = () => setImgDims({ w: img.naturalWidth, h: img.naturalHeight });
+    img.onerror = () => setImgDims(null);
+    img.src = floorplanUrl;
+  }, [floorplanUrl]);
 
   // Initialize Cytoscape
   useEffect(() => {
@@ -114,6 +127,7 @@ export default function GraphViewer({
     // Hover events for tooltip
     cy.on('mouseover', 'node', (evt) => {
       const node = evt.target;
+      if (node.data('id') === '__floorplan_bg__') return;
       const pos = node.renderedPosition();
       onTooltip({
         x: pos.x + 15,
@@ -143,6 +157,7 @@ export default function GraphViewer({
     const hiddenNodeIds = new Set<string>();
 
     cy.nodes().forEach((node) => {
+      if (node.data('id') === '__floorplan_bg__') return;
       const type = node.data('type') as string;
       if (visibility[type] === false) {
         node.addClass('hidden');
@@ -163,25 +178,54 @@ export default function GraphViewer({
     });
   }, [visibility]);
 
-  // Apply floorplan background
-  const updateBackground = useCallback(() => {
-    const el = containerRef.current;
-    if (!el) return;
-    if (showFloorplan && floorplanUrl) {
-      el.style.backgroundImage = `url(${floorplanUrl})`;
-      el.style.backgroundSize = 'contain';
-      el.style.backgroundRepeat = 'no-repeat';
-      el.style.backgroundPosition = 'center';
-      el.style.backgroundColor = '#f0f0f0';
+  // Manage floorplan background node — pans and zooms with the graph
+  const updateFloorplan = useCallback(() => {
+    const cy = cyRef.current;
+    if (!cy) return;
+
+    const existing = cy.$('#__floorplan_bg__');
+
+    if (showFloorplan && imgDims && floorplanUrl) {
+      if (!existing.length) {
+        cy.add({
+          group: 'nodes',
+          data: { id: '__floorplan_bg__', type: '_background' },
+          position: { x: imgDims.w / 2, y: imgDims.h / 2 },
+        });
+      }
+
+      const bg = cy.$('#__floorplan_bg__');
+      bg.style({
+        width: imgDims.w,
+        height: imgDims.h,
+        shape: 'rectangle',
+        'background-image': floorplanUrl,
+        'background-fit': 'cover',
+        'background-opacity': 0.35,
+        'border-width': 0,
+        'background-color': '#ffffff',
+        'z-index': 0,
+      } as Record<string, unknown>);
+      bg.ungrabify();
+      bg.unselectify();
+      bg.removeClass('hidden');
+
+      // Ensure regular nodes render on top
+      cy.nodes().forEach((node) => {
+        if (node.data('id') !== '__floorplan_bg__') {
+          node.style('z-index', 10);
+        }
+      });
     } else {
-      el.style.backgroundImage = 'none';
-      el.style.backgroundColor = '#ffffff';
+      if (existing.length) {
+        existing.addClass('hidden');
+      }
     }
-  }, [showFloorplan, floorplanUrl]);
+  }, [showFloorplan, imgDims, floorplanUrl]);
 
   useEffect(() => {
-    updateBackground();
-  }, [updateBackground]);
+    updateFloorplan();
+  }, [updateFloorplan]);
 
   return (
     <div
