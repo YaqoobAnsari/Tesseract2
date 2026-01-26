@@ -230,11 +230,14 @@ export default function GraphViewer({
       bg.unselectify();
       bg.removeClass('hidden');
 
-      // Ensure regular nodes render on top
+      // Ensure regular nodes and edges render above the floorplan
       cy.nodes().forEach((node) => {
         if (node.data('id') !== '__floorplan_bg__') {
           node.style('z-index', 10);
         }
+      });
+      cy.edges().forEach((edge) => {
+        edge.style('z-index', 5);
       });
     } else {
       if (existing.length) {
