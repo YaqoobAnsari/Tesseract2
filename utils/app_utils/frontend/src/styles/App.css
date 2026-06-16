@@ -477,3 +477,101 @@ body {
 .back-btn-row {
   padding: 8px 0;
 }
+
+/* === Navigation / routing panel === */
+.route-hint {
+  font-size: 0.72rem;
+  color: var(--text-secondary);
+  margin-bottom: 12px;
+  line-height: 1.4;
+}
+
+.route-field {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.78rem;
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+
+.route-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.route-select {
+  flex: 1;
+  min-width: 0;
+  padding: 5px 8px;
+  font-size: 0.78rem;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  background: var(--bg-card);
+  color: var(--text-primary);
+  cursor: pointer;
+}
+
+.route-select:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.route-buttons {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.route-buttons .btn {
+  flex: 1;
+}
+
+.route-buttons .btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.route-result {
+  margin-top: 12px;
+  padding: 10px 12px;
+  border: 1px solid var(--border-color);
+  border-left: 3px solid var(--accent);
+  border-radius: 6px;
+  background: var(--bg-primary);
+}
+
+.route-result-fail {
+  border-left-color: #dc3545;
+  font-size: 0.78rem;
+  color: #dc3545;
+}
+
+.route-result-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8rem;
+  padding: 2px 0;
+}
+
+.route-result-row .label {
+  color: var(--text-secondary);
+}
+
+.route-result-row .value {
+  font-weight: 600;
+}
+
+.route-badge {
+  display: inline-block;
+  margin-top: 6px;
+  background: #fde2d4;
+  color: #8a3b12;
+  font-size: 0.68rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 4px;
+}

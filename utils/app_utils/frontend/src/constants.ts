@@ -45,3 +45,16 @@ export const NODE_TYPE_LABELS: Record<string, string> = {
   outside: 'Outside',
   floor_transition: 'Floor Transition',
 };
+
+/** Colors for the interactive navigation route overlay */
+export const ROUTE_COLORS = {
+  path: '#0d6efd',   // highlighted route edges
+  source: '#2e7d32', // start node (green)
+  target: '#c62828', // destination node (red)
+};
+
+/** Node types that may be chosen as routing endpoints.
+ *  Rooms are the primary endpoints; transitions (stairs/elevators) are
+ *  offered too. The raw graph labels transitions as 'transition'; we also
+ *  accept 'floor_transition' for forward compatibility. */
+export const ROUTE_ENDPOINT_TYPES = ['room', 'transition', 'floor_transition'] as const;

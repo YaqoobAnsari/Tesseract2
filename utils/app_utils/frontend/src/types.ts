@@ -67,3 +67,22 @@ export type NodeTypeVisibility = Record<string, boolean>;
 
 /** Node type sizes (px) */
 export type NodeTypeSizes = Record<string, number>;
+
+/** A node that can serve as a routing endpoint (start / destination) */
+export interface RouteEndpoint {
+  id: string;
+  label: string;
+  type: string;
+  floor: string;
+}
+
+/** Result of an A* / Dijkstra routing query over the graph */
+export interface RouteInfo {
+  found: boolean;
+  /** Total path weight (sum of edge Euclidean distances, in pixels) */
+  distance: number;
+  /** Number of edges (segments) on the path */
+  segments: number;
+  /** True when the path spans more than one floor */
+  crossFloor: boolean;
+}

@@ -1,13 +1,22 @@
-import { useState, useCallback, useMemo } from 'react';
-import type { AppState, ProcessingResponse, NodeTypeVisibility, NodeTypeSizes, GraphStage } from './types';
+import { useState, useCallback, useMemo, useRef, useEffect } from 'react';
+import type {
+  AppState,
+  ProcessingResponse,
+  NodeTypeVisibility,
+  NodeTypeSizes,
+  GraphStage,
+  RouteEndpoint,
+  RouteInfo,
+} from './types';
 import { processImage, processExample, fetchCachedResult, floorplanImageUrl } from './api';
-import { NODE_TYPES, NODE_SIZES } from './constants';
+import { NODE_TYPES, NODE_SIZES, ROUTE_ENDPOINT_TYPES } from './constants';
 import Header from './components/Header';
 import ImageUpload from './components/ImageUpload';
 import ProcessingStatus from './components/ProcessingStatus';
 import GraphViewer from './components/GraphViewer';
 import GraphControls from './components/GraphControls';
 import StatsPanel from './components/StatsPanel';
+import RoutePanel from './components/RoutePanel';
 import ExportPanel from './components/ExportPanel';
 import NodeTooltip from './components/NodeTooltip';
 
@@ -45,6 +54,17 @@ function App() {
     data: Record<string, unknown>;
   } | null>(null);
 
+  // Navigation / routing state
+  const [routeSource, setRouteSource] = useState<string | null>(null);
+  const [routeTarget, setRouteTarget] = useState<string | null>(null);
+  const [routeInfo, setRouteInfo] = useState<RouteInfo | null>(null);
+
+  // Mirror routing endpoints into refs for the stable tap-to-select handler
+  const routeSourceRef = useRef<string | null>(null);
+  const routeTargetRef = useRef<string | null>(null);
+  useEffect(() => { routeSourceRef.current = routeSource; }, [routeSource]);
+  useEffect(() => { routeTargetRef.current = routeTarget; }, [routeTarget]);
+
   // Determine which graph data to display based on stage selection
   const activeGraphData = useMemo(() => {
     if (!result) return null;
@@ -53,6 +73,62 @@ function App() {
     }
     return result.graph_data;
   }, [result, graphStage]);
+
+  // Nodes that can serve as routing endpoints (main rooms, transitions, outside)
+  const routeEndpoints = useMemo<RouteEndpoint[]>(() => {
+    if (!activeGraphData) return [];
+    const types = ROUTE_ENDPOINT_TYPES as readonly string[];
+    return activeGraphData.nodes
+      .filter((n) => types.includes(n.data.type) && !n.data.isSubnode)
+      .map((n) => ({
+        id: n.data.id,
+        label: n.data.label,
+        type: n.data.type,
+        floor: n.data.floor,
+      }))
+      .sort(
+        (a, b) =>
+          a.type.localeCompare(b.type) ||
+          a.label.localeCompare(b.label, undefined, { numeric: true }),
+      );
+  }, [activeGraphData]);
+
+  const resetRoute = useCallback(() => {
+    setRouteSource(null);
+    setRouteTarget(null);
+    setRouteInfo(null);
+  }, []);
+
+  // Tap-to-select cycle: 1st node -> start, 2nd -> destination, 3rd -> new start
+  const handleNodePick = useCallback((id: string) => {
+    const s = routeSourceRef.current;
+    const t = routeTargetRef.current;
+    if (!s) {
+      setRouteSource(id);
+    } else if (!t) {
+      if (id !== s) setRouteTarget(id);
+    } else {
+      setRouteSource(id);
+      setRouteTarget(null);
+    }
+  }, []);
+
+  const handleSwap = useCallback(() => {
+    const s = routeSourceRef.current;
+    const t = routeTargetRef.current;
+    setRouteSource(t);
+    setRouteTarget(s);
+  }, []);
+
+  const handleRouteComputed = useCallback((info: RouteInfo | null) => {
+    setRouteInfo(info);
+  }, []);
+
+  // Clear any active route when the graph changes (new image or stage toggle),
+  // since endpoint node IDs may no longer exist in the new graph.
+  useEffect(() => {
+    resetRoute();
+  }, [result, graphStage, resetRoute]);
 
   const handleFile = useCallback(async (file: File) => {
     setAppState('processing');
@@ -159,8 +235,12 @@ function App() {
                 showEdges={showEdges}
                 showFloorplan={showFloorplan}
                 floorplanUrl={floorplanUrl}
+                routeSource={routeSource}
+                routeTarget={routeTarget}
                 onCyInit={setCyRef}
                 onTooltip={setTooltip}
+                onNodePick={handleNodePick}
+                onRouteComputed={handleRouteComputed}
               />
               {tooltip && (
                 <NodeTooltip x={tooltip.x} y={tooltip.y} data={tooltip.data} />
@@ -172,6 +252,17 @@ function App() {
                 statistics={result!.statistics}
                 processingTime={result!.processing_time}
                 imageName={result!.image_name}
+              />
+
+              <RoutePanel
+                endpoints={routeEndpoints}
+                source={routeSource}
+                target={routeTarget}
+                onSourceChange={setRouteSource}
+                onTargetChange={setRouteTarget}
+                onSwap={handleSwap}
+                onClear={resetRoute}
+                info={routeInfo}
               />
 
               <GraphControls

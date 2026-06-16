@@ -25,10 +25,16 @@ tess/
 .idea/
 .claude/
 
-# LaTeX
+# LaTeX / paper artifacts (not needed in the runtime image)
 *.aux
 *.log
 *.bbl
 *.blg
 bibliography.bib
 main.tex
+tables.tex
+Demo Paper/
+figs/
+plots/
+*.pdf
+*.docx
