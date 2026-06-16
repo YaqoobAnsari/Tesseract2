@@ -18,10 +18,10 @@ export const EDGE_COLORS: Record<string, string> = {
 
 /** Node sizes (width/height in px for Cytoscape) */
 export const NODE_SIZES: Record<string, number> = {
-  room: 30,
-  door: 20,
+  room: 15,
+  door: 15,
   corridor: 12,
-  outside: 25,
+  outside: 15,
   floor_transition: 35,
 };
 
