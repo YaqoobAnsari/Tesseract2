@@ -699,12 +699,14 @@ def get_room_subnode_candidates(
         vmin = float(areas_arr.min())
         vmax = float(max(areas_arr.max(), vmin + 1.0))
 
-        from matplotlib import cm
+        import matplotlib as mpl
         from matplotlib.colors import BoundaryNorm
 
         n_segments = 8
         boundaries = np.linspace(vmin, vmax, n_segments + 1)
-        cmap = cm.get_cmap("tab10", n_segments)
+        # matplotlib.cm.get_cmap was removed in matplotlib 3.11; use the
+        # current colormaps registry, which works on all supported versions.
+        cmap = mpl.colormaps["tab10"].resampled(n_segments)
         norm = BoundaryNorm(boundaries, cmap.N, clip=True)
 
         overlay_rgba = np.zeros((H, W, 4), dtype=np.uint8)
