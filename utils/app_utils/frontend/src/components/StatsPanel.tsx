@@ -9,9 +9,11 @@ interface Props {
   edited?: boolean;
   connectivity?: ConnectivityInfo | null;
   onFocusNode?: (id: string) => void;
+  onToggleBroken?: (show: boolean) => void;
 }
 
 const MAX_LISTED = 40;
+const REASON_LABEL: Record<string, string> = { isolated: 'no edges', room: 'room', exit: 'exit' };
 
 export default function StatsPanel({
   statistics,
@@ -20,11 +22,19 @@ export default function StatsPanel({
   edited,
   connectivity,
   onFocusNode,
+  onToggleBroken,
 }: Props) {
   const [open, setOpen] = useState(true);
   const [connOpen, setConnOpen] = useState(false);
   const { total_nodes, total_edges, node_types, pruning_reduction } = statistics;
-  const broken = connectivity && connectivity.score < 100;
+  const broken = connectivity && !connectivity.fullyConnected;
+
+  const toggleConn = () =>
+    setConnOpen((o) => {
+      const next = !o;
+      onToggleBroken?.(next);
+      return next;
+    });
 
   return (
     <div className="panel">
@@ -68,13 +78,13 @@ export default function StatsPanel({
                   {broken ? (
                     <button
                       className="conn-warn"
-                      title="Some nodes are disconnected. Click to inspect."
-                      onClick={() => setConnOpen((o) => !o)}
+                      title="Issues found. Click to inspect and highlight on the graph."
+                      onClick={toggleConn}
                     >
                       &#9888;
                     </button>
                   ) : (
-                    <span className="conn-ok" title="Fully connected">&#10003;</span>
+                    <span className="conn-ok" title="Rooms and exits fully connected">&#10003;</span>
                   )}
                 </span>
               </div>
@@ -82,26 +92,43 @@ export default function StatsPanel({
               {broken && connOpen && (
                 <div className="conn-list">
                   <div className="conn-list-title">
-                    {connectivity.disconnected.length} disconnected node
-                    {connectivity.disconnected.length === 1 ? '' : 's'} across{' '}
-                    {connectivity.componentCount} components. Click to locate.
+                    {connectivity.isolatedCount > 0 && (
+                      <div className="conn-flag">
+                        {connectivity.isolatedCount} node
+                        {connectivity.isolatedCount === 1 ? '' : 's'} with no edges
+                      </div>
+                    )}
+                    {connectivity.roomsDisconnected > 0 && (
+                      <div>
+                        {connectivity.roomsDisconnected} room
+                        {connectivity.roomsDisconnected === 1 ? '' : 's'} unreachable
+                      </div>
+                    )}
+                    {connectivity.exitsDisconnected > 0 && (
+                      <div>
+                        {connectivity.exitsDisconnected} exit door
+                        {connectivity.exitsDisconnected === 1 ? '' : 's'} unreachable
+                      </div>
+                    )}
+                    <div className="conn-locate">
+                      Highlighted in red on the graph. Click one to zoom to it.
+                    </div>
                   </div>
-                  {connectivity.disconnected.slice(0, MAX_LISTED).map((n) => (
-                    <button
-                      key={n.id}
-                      className="conn-node"
-                      onClick={() => onFocusNode?.(n.id)}
-                    >
+                  {connectivity.offenders.slice(0, MAX_LISTED).map((n) => (
+                    <button key={n.id} className="conn-node" onClick={() => onFocusNode?.(n.id)}>
                       <span
                         className="type-swatch"
                         style={{ backgroundColor: NODE_COLORS[n.type] || '#999' }}
                       />
-                      {n.id}
+                      <span className="conn-node-id">{n.id}</span>
+                      <span className={`conn-reason conn-reason-${n.reason}`}>
+                        {REASON_LABEL[n.reason]}
+                      </span>
                     </button>
                   ))}
-                  {connectivity.disconnected.length > MAX_LISTED && (
+                  {connectivity.offenders.length > MAX_LISTED && (
                     <div className="conn-more">
-                      + {connectivity.disconnected.length - MAX_LISTED} more
+                      + {connectivity.offenders.length - MAX_LISTED} more
                     </div>
                   )}
                 </div>

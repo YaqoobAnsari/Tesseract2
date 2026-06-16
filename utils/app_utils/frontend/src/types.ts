@@ -103,13 +103,21 @@ export interface GraphCounts {
   node_types: Record<string, number>;
 }
 
-/** Connectivity analysis of the current graph (computed client-side) */
+/** Connectivity analysis of the current graph (computed client-side).
+ *  We only care that the main room nodes are mutually connected and that
+ *  the exit doors reach the same network. Any node with no edges is a hard
+ *  red flag. */
 export interface ConnectivityInfo {
-  /** Percent of nodes in the largest connected component (100 = fully connected) */
+  /** Health score: percent of tracked nodes (rooms, exits, isolated) that are OK */
   score: number;
-  /** Number of connected components (1 = fully connected) */
+  fullyConnected: boolean;
+  /** Nodes with zero edges (must not exist) */
+  isolatedCount: number;
+  /** Main room nodes not connected to the main network */
+  roomsDisconnected: number;
+  /** Exit doors not connected to the main network */
+  exitsDisconnected: number;
   componentCount: number;
-  totalNodes: number;
-  /** Nodes that are NOT in the largest component (isolated or in broken subgraphs) */
-  disconnected: { id: string; type: string }[];
+  /** Offending nodes, with the reason each is flagged */
+  offenders: { id: string; type: string; reason: 'isolated' | 'room' | 'exit' }[];
 }

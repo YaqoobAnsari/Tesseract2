@@ -27,6 +27,8 @@ interface Props {
   routeTarget: string | null;
   mode: InteractionMode;
   addNodeType: string;
+  editVersion: number;
+  brokenNodeIds: string[];
   onCyInit: (cy: cytoscape.Core) => void;
   onTooltip: (
     info: { x: number; y: number; data: Record<string, unknown> } | null,
@@ -100,6 +102,15 @@ function buildStylesheet(): cytoscape.StylesheetStyle[] {
     { selector: 'edge.hover-delete', style: { 'line-color': '#dc3545', width: 5, opacity: 1, 'z-index': 9998 } },
     // Flash when focusing a disconnected node from the stats panel
     { selector: '.focus-flash', style: { 'overlay-color': '#ffb300', 'overlay-padding': 9, 'overlay-opacity': 0.55 } },
+    // Persistent red ring on broken / disconnected nodes
+    {
+      selector: 'node.broken',
+      style: {
+        'border-width': 4, 'border-color': '#dc3545',
+        'overlay-color': '#dc3545', 'overlay-padding': 6, 'overlay-opacity': 0.22,
+        opacity: 1, 'z-index': 9997,
+      },
+    },
   ];
 
   return [...defaults, ...nodeStyles, ...edgeStyles, ...routeStyles] as cytoscape.StylesheetStyle[];
@@ -117,6 +128,8 @@ export default function GraphViewer({
   routeTarget,
   mode,
   addNodeType,
+  editVersion,
+  brokenNodeIds,
   onCyInit,
   onTooltip,
   onNodeSelect,
@@ -390,10 +403,11 @@ export default function GraphViewer({
     }
 
     const hasRoute = pathNodeIds.size > 0;
-    // Endpoints (and any computed path) are always kept visible.
+    // Endpoints, the computed path, and flagged broken nodes stay visible.
     const keepVisible = new Set(pathNodeIds);
     if (routeSource) keepVisible.add(routeSource);
     if (routeTarget) keepVisible.add(routeTarget);
+    brokenNodeIds.forEach((id) => keepVisible.add(id));
     const hiddenNodeIds = new Set<string>();
 
     cy.nodes().forEach((node) => {
@@ -431,7 +445,17 @@ export default function GraphViewer({
       if (pathEles.nonempty()) cy.animate({ fit: { eles: pathEles, padding: 60 }, duration: 500 });
     }
     prevRouteKeyRef.current = key;
-  }, [graphData, visibility, showEdges, routeSource, routeTarget]);
+    // editVersion is included so removing an edge on the active route breaks
+    // (or reroutes) the highlighted path in real time.
+  }, [graphData, visibility, showEdges, routeSource, routeTarget, editVersion, brokenNodeIds]);
+
+  // Highlight broken / disconnected nodes while the stats list is open (#2).
+  useEffect(() => {
+    const cy = cyRef.current;
+    if (!cy) return;
+    cy.nodes().removeClass('broken');
+    brokenNodeIds.forEach((id) => cy.getElementById(id).addClass('broken'));
+  }, [brokenNodeIds, editVersion]);
 
   // ---- Node sizes ----
   useEffect(() => {

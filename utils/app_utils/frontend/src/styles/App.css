@@ -910,3 +910,43 @@ body {
   margin-top: 4px;
   padding-left: 4px;
 }
+
+.conn-flag {
+  color: #b02a37;
+  font-weight: 700;
+}
+
+.conn-locate {
+  margin-top: 4px;
+  font-style: italic;
+}
+
+.conn-node-id {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.conn-reason {
+  font-size: 0.64rem;
+  font-weight: 600;
+  padding: 1px 6px;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+.conn-reason-isolated {
+  background: #f8d7da;
+  color: #842029;
+}
+
+.conn-reason-room {
+  background: #fff3cd;
+  color: #664d03;
+}
+
+.conn-reason-exit {
+  background: #cfe2ff;
+  color: #084298;
+}

@@ -43,30 +43,72 @@ function countsOf(cy: cytoscape.Core): GraphCounts {
   return { total_nodes: cy.nodes().length, total_edges: cy.edges().length, node_types };
 }
 
+const isMainRoom = (n: cytoscape.NodeSingular) =>
+  n.data('type') === 'room' && !n.data('isSubnode');
+const isExitDoor = (n: cytoscape.NodeSingular) =>
+  n.data('type') === 'door' && /exit/i.test(n.id());
+
 function connectivityOf(cy: cytoscape.Core): ConnectivityInfo {
+  const empty: ConnectivityInfo = {
+    score: 100, fullyConnected: true, isolatedCount: 0,
+    roomsDisconnected: 0, exitsDisconnected: 0, componentCount: 0, offenders: [],
+  };
   const nodes = cy.nodes();
-  const total = nodes.length;
-  if (total === 0) return { score: 100, componentCount: 0, totalNodes: 0, disconnected: [] };
+  if (nodes.length === 0) return empty;
+
+  const mainRooms = nodes.filter(isMainRoom);
+  const exitDoors = nodes.filter(isExitDoor);
   const comps = cy.elements().components();
-  if (comps.length <= 1) return { score: 100, componentCount: 1, totalNodes: total, disconnected: [] };
-  let largestN = 0;
-  let largestIds = new Set<string>();
+
+  // The navigable network is the component holding the most main rooms.
+  let mainIds = new Set<string>();
+  let bestRooms = -1;
   for (const c of comps) {
-    const cn = c.nodes();
-    if (cn.length > largestN) {
-      largestN = cn.length;
-      largestIds = new Set<string>(cn.map((n) => n.id()));
+    const r = c.nodes().filter(isMainRoom).length;
+    if (r > bestRooms) {
+      bestRooms = r;
+      mainIds = new Set<string>(c.nodes().map((n) => n.id()));
     }
   }
-  const disconnected: { id: string; type: string }[] = [];
+
+  // Any node with zero edges is a hard red flag.
+  const isolated: string[] = [];
+  const typeById = new Map<string, string>();
   nodes.forEach((n) => {
-    if (!largestIds.has(n.id())) disconnected.push({ id: n.id(), type: n.data('type') as string });
+    typeById.set(n.id(), n.data('type') as string);
+    if (n.connectedEdges().length === 0) isolated.push(n.id());
   });
+  const isolatedSet = new Set(isolated);
+
+  const roomsOut = mainRooms
+    .filter((n) => !mainIds.has(n.id()) && !isolatedSet.has(n.id()))
+    .map((n) => n.id());
+  const exitsOut = exitDoors
+    .filter((n) => !mainIds.has(n.id()) && !isolatedSet.has(n.id()))
+    .map((n) => n.id());
+
+  const offenders: ConnectivityInfo['offenders'] = [];
+  const seen = new Set<string>();
+  for (const id of isolated) { offenders.push({ id, type: typeById.get(id) || '', reason: 'isolated' }); seen.add(id); }
+  for (const id of roomsOut) if (!seen.has(id)) { offenders.push({ id, type: 'room', reason: 'room' }); seen.add(id); }
+  for (const id of exitsOut) if (!seen.has(id)) { offenders.push({ id, type: 'door', reason: 'exit' }); seen.add(id); }
+
+  const tracked = new Set<string>();
+  mainRooms.forEach((n) => { tracked.add(n.id()); });
+  exitDoors.forEach((n) => { tracked.add(n.id()); });
+  isolated.forEach((id) => tracked.add(id));
+  const score = tracked.size === 0
+    ? 100
+    : Math.round((100 * (tracked.size - offenders.length)) / tracked.size);
+
   return {
-    score: Math.round((100 * largestN) / total),
+    score,
+    fullyConnected: offenders.length === 0,
+    isolatedCount: isolated.length,
+    roomsDisconnected: roomsOut.length,
+    exitsDisconnected: exitsOut.length,
     componentCount: comps.length,
-    totalNodes: total,
-    disconnected,
+    offenders,
   };
 }
 
@@ -114,6 +156,10 @@ function App() {
   const [connectivity, setConnectivity] = useState<ConnectivityInfo | null>(null);
   const [undoCount, setUndoCount] = useState(0);
   const editControls = useRef<{ undo: () => void } | null>(null);
+  // Bumped on every graph edit so the viewer re-runs routing/visibility live.
+  const [editVersion, setEditVersion] = useState(0);
+  // Whether to highlight broken/disconnected nodes on the canvas.
+  const [showBroken, setShowBroken] = useState(false);
 
   // Zoom readout
   const [zoomPct, setZoomPct] = useState(100);
@@ -197,6 +243,7 @@ function App() {
     setLiveCounts(null);
     setConnectivity(null);
     setUndoCount(0);
+    setShowBroken(false);
     const v: NodeTypeVisibility = {};
     for (const t of NODE_TYPES) v[t] = true;
     setVisibility(v);
@@ -226,7 +273,14 @@ function App() {
     if (!cy) return;
     setLiveCounts(countsOf(cy));
     setConnectivity(connectivityOf(cy));
+    setEditVersion((v) => v + 1); // (#1) force route/visibility to recompute live
   }, [cyRef]);
+
+  // IDs to highlight on the canvas while the broken-node list is open (#2).
+  const brokenNodeIds = useMemo(
+    () => (showBroken && connectivity ? connectivity.offenders.map((o) => o.id) : []),
+    [showBroken, connectivity],
+  );
 
   // Center and flash a (usually disconnected) node when picked from the stats panel.
   const focusNode = useCallback((id: string) => {
@@ -247,6 +301,7 @@ function App() {
     setLiveCounts(null);
     setConnectivity(null);
     setUndoCount(0);
+    setShowBroken(false);
   }, [result, graphStage, resetRoute]);
 
   // Track zoom + compute initial connectivity whenever the graph (re)loads.
@@ -295,6 +350,7 @@ function App() {
                 edited={!!liveCounts}
                 connectivity={connectivity}
                 onFocusNode={focusNode}
+                onToggleBroken={setShowBroken}
               />
               <VisualControls
                 visibility={visibility}
@@ -328,6 +384,8 @@ function App() {
                 routeTarget={routeTarget}
                 mode={mode}
                 addNodeType={addNodeType}
+                editVersion={editVersion}
+                brokenNodeIds={brokenNodeIds}
                 onCyInit={setCyRef}
                 onTooltip={setTooltip}
                 onNodeSelect={handleNodeSelect}
