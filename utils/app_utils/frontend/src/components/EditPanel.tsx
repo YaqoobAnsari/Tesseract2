@@ -7,7 +7,7 @@ interface Props {
   onAddNodeTypeChange: (type: string) => void;
   onSetMode: (mode: InteractionMode) => void;
   onUndo: () => void;
-  canUndo: boolean;
+  undoCount: number;
 }
 
 const HINTS: Partial<Record<InteractionMode, string>> = {
@@ -22,7 +22,7 @@ export default function EditPanel({
   onAddNodeTypeChange,
   onSetMode,
   onUndo,
-  canUndo,
+  undoCount,
 }: Props) {
   const tool = (m: InteractionMode, label: string) => (
     <button
@@ -68,7 +68,9 @@ export default function EditPanel({
       {HINTS[mode] && <div className="edit-hint">{HINTS[mode]}</div>}
 
       <div className="route-buttons" style={{ marginTop: 10 }}>
-        <button className="btn" onClick={onUndo} disabled={!canUndo}>Undo</button>
+        <button className="btn" onClick={onUndo} disabled={undoCount === 0}>
+          Undo{undoCount > 0 ? ` (${undoCount})` : ''}
+        </button>
         <button
           className="btn"
           onClick={() => onSetMode('idle')}
@@ -77,6 +79,10 @@ export default function EditPanel({
           Done
         </button>
       </div>
+      <p className="edit-undo-note">
+        Every change is undoable, all the way back to the originally extracted
+        graph.
+      </p>
     </div>
   );
 }

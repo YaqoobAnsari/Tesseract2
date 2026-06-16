@@ -34,7 +34,7 @@ interface Props {
   onNodeSelect: (id: string) => void;
   onRouteComputed: (info: RouteInfo | null) => void;
   onGraphMutated: () => void;
-  onEditStateChange: (canUndo: boolean) => void;
+  onEditStateChange: (undoCount: number) => void;
   editControls: MutableRefObject<{ undo: () => void } | null>;
 }
 
@@ -94,6 +94,12 @@ function buildStylesheet(): cytoscape.StylesheetStyle[] {
     },
     // Edit highlights
     { selector: 'node.edge-pending', style: { 'border-width': 4, 'border-color': '#0d6efd', opacity: 1, 'z-index': 10001 } },
+    // Hover glow (selection feedback during route / edge / delete modes)
+    { selector: 'node.hover-target', style: { 'overlay-color': '#0d6efd', 'overlay-padding': 7, 'overlay-opacity': 0.28 } },
+    { selector: 'node.hover-delete', style: { 'overlay-color': '#dc3545', 'overlay-padding': 7, 'overlay-opacity': 0.33 } },
+    { selector: 'edge.hover-delete', style: { 'line-color': '#dc3545', width: 5, opacity: 1, 'z-index': 9998 } },
+    // Flash when focusing a disconnected node from the stats panel
+    { selector: '.focus-flash', style: { 'overlay-color': '#ffb300', 'overlay-padding': 9, 'overlay-opacity': 0.55 } },
   ];
 
   return [...defaults, ...nodeStyles, ...edgeStyles, ...routeStyles] as cytoscape.StylesheetStyle[];
@@ -134,6 +140,7 @@ export default function GraphViewer({
   const modeRef = useRef(mode); modeRef.current = mode;
   const addNodeTypeRef = useRef(addNodeType); addNodeTypeRef.current = addNodeType;
   const visibilityRef = useRef(visibility); visibilityRef.current = visibility;
+  const nodeSizesRef = useRef(nodeSizes); nodeSizesRef.current = nodeSizes;
 
   const prevRouteKeyRef = useRef('');
   const undoStackRef = useRef<Array<() => void>>([]);
@@ -173,7 +180,7 @@ export default function GraphViewer({
   // ---- Edit helpers (operate directly on cy, with undo via restore/remove) ----
   const pushUndo = useCallback((inverse: () => void) => {
     undoStackRef.current.push(inverse);
-    onEditStateChangeRef.current(true);
+    onEditStateChangeRef.current(undoStackRef.current.length);
     onGraphMutatedRef.current();
   }, []);
 
@@ -196,6 +203,9 @@ export default function GraphViewer({
       data: { id, label: id, type, floor },
       position: { x: pos.x, y: pos.y },
     });
+    // (#3) new nodes adopt the current per-type size from the sliders.
+    const size = nodeSizesRef.current[type] || NODE_SIZES[type] || 20;
+    added.style({ width: size, height: size });
     if (visibilityRef.current[type] === false) added.addClass('hidden');
     pushUndo(() => added.remove());
   }, [pushUndo]);
@@ -248,16 +258,29 @@ export default function GraphViewer({
     prevRouteKeyRef.current = '';
     undoStackRef.current = [];
     pendingEdgeRef.current = null;
-    onEditStateChangeRef.current(false);
+    onEditStateChangeRef.current(0);
 
     cy.on('viewport', syncFloorplan);
 
+    // Hover: tooltip always, plus a selection glow when a pick mode is armed.
     cy.on('mouseover', 'node', (evt) => {
       const node = evt.target;
       const pos = node.renderedPosition();
       onTooltipRef.current({ x: pos.x + 15, y: pos.y - 10, data: node.data() });
+      const m = modeRef.current;
+      if (m === 'delete') node.addClass('hover-delete');
+      else if (m === 'route-start' || m === 'route-end' || m === 'add-edge') node.addClass('hover-target');
     });
-    cy.on('mouseout', 'node', () => onTooltipRef.current(null));
+    cy.on('mouseout', 'node', (evt) => {
+      onTooltipRef.current(null);
+      evt.target.removeClass('hover-target hover-delete');
+    });
+
+    // Edges glow red on hover while in delete mode.
+    cy.on('mouseover', 'edge', (evt) => {
+      if (modeRef.current === 'delete') evt.target.addClass('hover-delete');
+    });
+    cy.on('mouseout', 'edge', (evt) => evt.target.removeClass('hover-delete'));
 
     // Node taps: route selection, edge building, or deletion (by mode).
     cy.on('tap', 'node', (evt) => {
@@ -309,15 +332,16 @@ export default function GraphViewer({
       undo: () => {
         const inverse = undoStackRef.current.pop();
         if (inverse) inverse();
-        onEditStateChangeRef.current(undoStackRef.current.length > 0);
+        onEditStateChangeRef.current(undoStackRef.current.length);
         onGraphMutatedRef.current();
       },
     };
   }, [editControls]);
 
-  // Clear any pending edge when leaving add-edge mode.
+  // Clear pending edge and any stale hover glow when the mode changes.
   useEffect(() => {
     if (mode !== 'add-edge') clearPendingEdge();
+    cyRef.current?.elements().removeClass('hover-target hover-delete');
   }, [mode, clearPendingEdge]);
 
   // ---- Combined display effect: visibility + routing overlay ----
@@ -366,10 +390,14 @@ export default function GraphViewer({
     }
 
     const hasRoute = pathNodeIds.size > 0;
+    // Endpoints (and any computed path) are always kept visible.
+    const keepVisible = new Set(pathNodeIds);
+    if (routeSource) keepVisible.add(routeSource);
+    if (routeTarget) keepVisible.add(routeTarget);
     const hiddenNodeIds = new Set<string>();
 
     cy.nodes().forEach((node) => {
-      if (pathNodeIds.has(node.id())) { node.removeClass('hidden'); return; }
+      if (keepVisible.has(node.id())) { node.removeClass('hidden'); return; }
       const type = node.data('type') as string;
       if (visibility[type] === false) { node.addClass('hidden'); hiddenNodeIds.add(node.id()); }
       else node.removeClass('hidden');
@@ -388,9 +416,12 @@ export default function GraphViewer({
       cy.elements().addClass('route-dim');
       cy.nodes().forEach((n) => { if (pathNodeIds.has(n.id())) n.removeClass('route-dim').addClass('route-hl'); });
       cy.edges().forEach((e) => { if (pathEdgeIds.has(e.id())) e.removeClass('route-dim').addClass('route-hl'); });
-      cy.getElementById(routeSource!).removeClass('route-dim').addClass('route-src');
-      cy.getElementById(routeTarget!).removeClass('route-dim').addClass('route-dst');
     }
+
+    // Persistent endpoint markers: stay highlighted even before the
+    // destination is chosen, so the chosen Start node is always visible.
+    if (routeSource) cy.getElementById(routeSource).removeClass('route-dim').addClass('route-src');
+    if (routeTarget) cy.getElementById(routeTarget).removeClass('route-dim').addClass('route-dst');
 
     onRouteComputedRef.current(info);
 

@@ -102,3 +102,14 @@ export interface GraphCounts {
   total_edges: number;
   node_types: Record<string, number>;
 }
+
+/** Connectivity analysis of the current graph (computed client-side) */
+export interface ConnectivityInfo {
+  /** Percent of nodes in the largest connected component (100 = fully connected) */
+  score: number;
+  /** Number of connected components (1 = fully connected) */
+  componentCount: number;
+  totalNodes: number;
+  /** Nodes that are NOT in the largest component (isolated or in broken subgraphs) */
+  disconnected: { id: string; type: string }[];
+}

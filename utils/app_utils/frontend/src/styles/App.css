@@ -840,3 +840,73 @@ body {
   font-size: 0.76rem;
   color: var(--text-primary);
 }
+
+.edit-undo-note {
+  margin-top: 10px;
+  font-size: 0.7rem;
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
+/* === Connectivity (stats panel) === */
+.conn-ok {
+  color: #1a7f37;
+  font-weight: 700;
+  margin-left: 4px;
+}
+
+.conn-warn {
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: #d39e00;
+  font-size: 0.95rem;
+  margin-left: 4px;
+  padding: 0 2px;
+  line-height: 1;
+}
+
+.conn-warn:hover {
+  color: #b8860b;
+}
+
+.conn-list {
+  margin: 6px 0 4px;
+  padding: 8px;
+  background: #fff8e6;
+  border: 1px solid #f0d98c;
+  border-radius: 6px;
+}
+
+.conn-list-title {
+  font-size: 0.72rem;
+  color: #7a5b00;
+  margin-bottom: 6px;
+  line-height: 1.4;
+}
+
+.conn-node {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  text-align: left;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 0.74rem;
+  color: var(--text-primary);
+  padding: 3px 4px;
+  border-radius: 4px;
+}
+
+.conn-node:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.conn-more {
+  font-size: 0.7rem;
+  color: var(--text-secondary);
+  margin-top: 4px;
+  padding-left: 4px;
+}

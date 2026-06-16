@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import type { GraphStatistics } from '../types';
+import type { GraphStatistics, ConnectivityInfo } from '../types';
 import { NODE_TYPE_LABELS, NODE_COLORS } from '../constants';
 
 interface Props {
@@ -7,11 +7,24 @@ interface Props {
   processingTime: number;
   imageName: string;
   edited?: boolean;
+  connectivity?: ConnectivityInfo | null;
+  onFocusNode?: (id: string) => void;
 }
 
-export default function StatsPanel({ statistics, processingTime, imageName, edited }: Props) {
+const MAX_LISTED = 40;
+
+export default function StatsPanel({
+  statistics,
+  processingTime,
+  imageName,
+  edited,
+  connectivity,
+  onFocusNode,
+}: Props) {
   const [open, setOpen] = useState(true);
+  const [connOpen, setConnOpen] = useState(false);
   const { total_nodes, total_edges, node_types, pruning_reduction } = statistics;
+  const broken = connectivity && connectivity.score < 100;
 
   return (
     <div className="panel">
@@ -45,6 +58,56 @@ export default function StatsPanel({ statistics, processingTime, imageName, edit
             <span className="label">Total Edges</span>
             <span className="value">{total_edges}</span>
           </div>
+
+          {connectivity && (
+            <>
+              <div className="stat-row">
+                <span className="label">Connectivity</span>
+                <span className="value">
+                  {connectivity.score}%{' '}
+                  {broken ? (
+                    <button
+                      className="conn-warn"
+                      title="Some nodes are disconnected. Click to inspect."
+                      onClick={() => setConnOpen((o) => !o)}
+                    >
+                      &#9888;
+                    </button>
+                  ) : (
+                    <span className="conn-ok" title="Fully connected">&#10003;</span>
+                  )}
+                </span>
+              </div>
+
+              {broken && connOpen && (
+                <div className="conn-list">
+                  <div className="conn-list-title">
+                    {connectivity.disconnected.length} disconnected node
+                    {connectivity.disconnected.length === 1 ? '' : 's'} across{' '}
+                    {connectivity.componentCount} components. Click to locate.
+                  </div>
+                  {connectivity.disconnected.slice(0, MAX_LISTED).map((n) => (
+                    <button
+                      key={n.id}
+                      className="conn-node"
+                      onClick={() => onFocusNode?.(n.id)}
+                    >
+                      <span
+                        className="type-swatch"
+                        style={{ backgroundColor: NODE_COLORS[n.type] || '#999' }}
+                      />
+                      {n.id}
+                    </button>
+                  ))}
+                  {connectivity.disconnected.length > MAX_LISTED && (
+                    <div className="conn-more">
+                      + {connectivity.disconnected.length - MAX_LISTED} more
+                    </div>
+                  )}
+                </div>
+              )}
+            </>
+          )}
 
           {pruning_reduction != null && pruning_reduction > 0 && (
             <div className="stat-row">

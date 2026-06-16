@@ -10,6 +10,7 @@ import type {
   InteractionMode,
   GraphCounts,
   GraphStatistics,
+  ConnectivityInfo,
 } from './types';
 import { processImage, processExample, fetchCachedResult, floorplanImageUrl } from './api';
 import { NODE_TYPES, NODE_SIZES, ROUTE_ENDPOINT_TYPES } from './constants';
@@ -32,6 +33,42 @@ const MODE_BANNER: Partial<Record<InteractionMode, string>> = {
   'add-edge': 'Click one node, then another, to connect them',
   delete: 'Click a node or edge to delete it',
 };
+
+function countsOf(cy: cytoscape.Core): GraphCounts {
+  const node_types: Record<string, number> = {};
+  cy.nodes().forEach((n) => {
+    const t = n.data('type') as string;
+    node_types[t] = (node_types[t] || 0) + 1;
+  });
+  return { total_nodes: cy.nodes().length, total_edges: cy.edges().length, node_types };
+}
+
+function connectivityOf(cy: cytoscape.Core): ConnectivityInfo {
+  const nodes = cy.nodes();
+  const total = nodes.length;
+  if (total === 0) return { score: 100, componentCount: 0, totalNodes: 0, disconnected: [] };
+  const comps = cy.elements().components();
+  if (comps.length <= 1) return { score: 100, componentCount: 1, totalNodes: total, disconnected: [] };
+  let largestN = 0;
+  let largestIds = new Set<string>();
+  for (const c of comps) {
+    const cn = c.nodes();
+    if (cn.length > largestN) {
+      largestN = cn.length;
+      largestIds = new Set<string>(cn.map((n) => n.id()));
+    }
+  }
+  const disconnected: { id: string; type: string }[] = [];
+  nodes.forEach((n) => {
+    if (!largestIds.has(n.id())) disconnected.push({ id: n.id(), type: n.data('type') as string });
+  });
+  return {
+    score: Math.round((100 * largestN) / total),
+    componentCount: comps.length,
+    totalNodes: total,
+    disconnected,
+  };
+}
 
 function App() {
   const [appState, setAppState] = useState<AppState>('idle');
@@ -72,9 +109,10 @@ function App() {
   modeRef.current = mode;
   const [addNodeType, setAddNodeType] = useState<string>('room');
 
-  // Live counts after edits, and undo availability
+  // Live counts after edits, undo depth, and connectivity analysis
   const [liveCounts, setLiveCounts] = useState<GraphCounts | null>(null);
-  const [canUndo, setCanUndo] = useState(false);
+  const [connectivity, setConnectivity] = useState<ConnectivityInfo | null>(null);
+  const [undoCount, setUndoCount] = useState(0);
   const editControls = useRef<{ undo: () => void } | null>(null);
 
   // Zoom readout
@@ -157,7 +195,8 @@ function App() {
     setTooltip(null);
     setMode('idle');
     setLiveCounts(null);
-    setCanUndo(false);
+    setConnectivity(null);
+    setUndoCount(0);
     const v: NodeTypeVisibility = {};
     for (const t of NODE_TYPES) v[t] = true;
     setVisibility(v);
@@ -182,15 +221,21 @@ function App() {
 
   const handleRouteComputed = useCallback((info: RouteInfo | null) => setRouteInfo(info), []);
 
-  const refreshCounts = useCallback(() => {
+  const refreshAfterEdit = useCallback(() => {
     const cy = cyRef;
     if (!cy) return;
-    const node_types: Record<string, number> = {};
-    cy.nodes().forEach((n) => {
-      const t = n.data('type') as string;
-      node_types[t] = (node_types[t] || 0) + 1;
-    });
-    setLiveCounts({ total_nodes: cy.nodes().length, total_edges: cy.edges().length, node_types });
+    setLiveCounts(countsOf(cy));
+    setConnectivity(connectivityOf(cy));
+  }, [cyRef]);
+
+  // Center and flash a (usually disconnected) node when picked from the stats panel.
+  const focusNode = useCallback((id: string) => {
+    const cy = cyRef;
+    if (!cy) return;
+    const n = cy.getElementById(id);
+    if (n.empty()) return;
+    cy.animate({ center: { eles: n }, zoom: 1.8 }, { duration: 400 });
+    n.flashClass('focus-flash', 1600);
   }, [cyRef]);
 
   const handleUndo = useCallback(() => editControls.current?.undo(), []);
@@ -200,16 +245,18 @@ function App() {
     resetRoute();
     setMode('idle');
     setLiveCounts(null);
-    setCanUndo(false);
+    setConnectivity(null);
+    setUndoCount(0);
   }, [result, graphStage, resetRoute]);
 
-  // Track zoom level for the readout.
+  // Track zoom + compute initial connectivity whenever the graph (re)loads.
   useEffect(() => {
     const cy = cyRef;
     if (!cy) return;
     const update = () => setZoomPct(Math.round(cy.zoom() * 100));
     update();
     cy.on('zoom', update);
+    setConnectivity(connectivityOf(cy));
     return () => { cy.off('zoom', update); };
   }, [cyRef]);
 
@@ -246,6 +293,8 @@ function App() {
                 processingTime={result!.processing_time}
                 imageName={result!.image_name}
                 edited={!!liveCounts}
+                connectivity={connectivity}
+                onFocusNode={focusNode}
               />
               <VisualControls
                 visibility={visibility}
@@ -283,8 +332,8 @@ function App() {
                 onTooltip={setTooltip}
                 onNodeSelect={handleNodeSelect}
                 onRouteComputed={handleRouteComputed}
-                onGraphMutated={refreshCounts}
-                onEditStateChange={setCanUndo}
+                onGraphMutated={refreshAfterEdit}
+                onEditStateChange={setUndoCount}
                 editControls={editControls}
               />
 
@@ -323,7 +372,7 @@ function App() {
                 onAddNodeTypeChange={setAddNodeType}
                 onSetMode={setMode}
                 onUndo={handleUndo}
-                canUndo={canUndo}
+                undoCount={undoCount}
               />
               <ExportPanel cy={cyRef} />
             </aside>
