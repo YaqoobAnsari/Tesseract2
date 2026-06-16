@@ -10,6 +10,12 @@ import re
 import pandas as pd
 from PIL import Image
 
+# Force a headless matplotlib backend BEFORE any module imports pyplot.
+# The web pipeline runs in a worker thread where interactive (Tk) backends
+# crash with "main thread is not in main loop". Agg is non-interactive and safe.
+import matplotlib
+matplotlib.use("Agg")
+
 
 # Add the required paths to the Python path
 _PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))

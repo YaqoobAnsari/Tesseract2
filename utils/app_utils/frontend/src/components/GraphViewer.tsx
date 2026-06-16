@@ -1,10 +1,11 @@
-import { useEffect, useRef, useCallback, useState } from 'react';
+import { useEffect, useRef, useCallback, useState, type MutableRefObject } from 'react';
 import cytoscape from 'cytoscape';
 import type {
   CytoscapeGraph,
   NodeTypeVisibility,
   NodeTypeSizes,
   RouteInfo,
+  InteractionMode,
 } from '../types';
 import {
   NODE_COLORS,
@@ -12,7 +13,6 @@ import {
   NODE_SHAPES,
   EDGE_COLORS,
   ROUTE_COLORS,
-  ROUTE_ENDPOINT_TYPES,
 } from '../constants';
 
 interface Props {
@@ -22,22 +22,31 @@ interface Props {
   showEdges: boolean;
   showFloorplan: boolean;
   floorplanUrl: string;
+  floorplanOpacity: number;
   routeSource: string | null;
   routeTarget: string | null;
+  mode: InteractionMode;
+  addNodeType: string;
   onCyInit: (cy: cytoscape.Core) => void;
   onTooltip: (
     info: { x: number; y: number; data: Record<string, unknown> } | null,
   ) => void;
-  onNodePick: (id: string) => void;
+  onNodeSelect: (id: string) => void;
   onRouteComputed: (info: RouteInfo | null) => void;
+  onGraphMutated: () => void;
+  onEditStateChange: (canUndo: boolean) => void;
+  editControls: MutableRefObject<{ undo: () => void } | null>;
 }
 
 const ROUTE_CLASSES = 'route-hl route-dim route-src route-dst';
 
-function isPickable(node: cytoscape.NodeSingular): boolean {
-  const type = node.data('type') as string;
-  if (node.data('isSubnode')) return false;
-  return (ROUTE_ENDPOINT_TYPES as readonly string[]).includes(type);
+function edgeColorOf(a: string, b: string): string {
+  const s = new Set([a, b]);
+  if (s.has('floor_transition') || s.has('transition')) return 'transition';
+  if (s.has('outside')) return 'outside';
+  if (s.has('corridor')) return 'corridor';
+  if (s.has('room')) return 'room';
+  return 'default';
 }
 
 function buildStylesheet(): cytoscape.StylesheetStyle[] {
@@ -54,95 +63,40 @@ function buildStylesheet(): cytoscape.StylesheetStyle[] {
 
   const edgeStyles = Object.entries(EDGE_COLORS).map(([type, color]) => ({
     selector: `edge[edgeColorType="${type}"]`,
-    style: {
-      'line-color': color,
-      width: 1.5,
-      'curve-style': 'bezier',
-      opacity: 0.7,
-    },
+    style: { 'line-color': color, width: 1.5, 'curve-style': 'bezier', opacity: 0.7 },
   }));
 
   const defaults = [
-    {
-      selector: 'node',
-      style: { 'background-color': '#999', width: 15, height: 15, label: '' },
-    },
-    {
-      selector: 'edge',
-      style: {
-        'line-color': '#999',
-        width: 1.5,
-        'curve-style': 'bezier',
-        opacity: 0.5,
-      },
-    },
+    { selector: 'node', style: { 'background-color': '#999', width: 15, height: 15, label: '' } },
+    { selector: 'edge', style: { 'line-color': '#999', width: 1.5, 'curve-style': 'bezier', opacity: 0.5 } },
     { selector: '.hidden', style: { display: 'none' } },
   ];
 
-  // Routing overlay. Declared last so it wins over the type styles above.
   const routeStyles = [
-    {
-      selector: '.route-dim',
-      style: { opacity: 0.1, 'text-opacity': 0 },
-    },
-    {
-      selector: 'edge.route-hl',
-      style: {
-        'line-color': ROUTE_COLORS.path,
-        width: 5,
-        opacity: 1,
-        'z-index': 9999,
-      },
-    },
-    {
-      selector: 'node.route-hl',
-      style: {
-        'border-width': 3,
-        'border-color': ROUTE_COLORS.path,
-        opacity: 1,
-        'z-index': 9999,
-      },
-    },
+    { selector: '.route-dim', style: { opacity: 0.1, 'text-opacity': 0 } },
+    { selector: 'edge.route-hl', style: { 'line-color': ROUTE_COLORS.path, width: 5, opacity: 1, 'z-index': 9999 } },
+    { selector: 'node.route-hl', style: { 'border-width': 3, 'border-color': ROUTE_COLORS.path, opacity: 1, 'z-index': 9999 } },
     {
       selector: 'node.route-src',
       style: {
-        'background-color': ROUTE_COLORS.source,
-        'border-width': 4,
-        'border-color': '#1b5e20',
-        label: 'data(label)',
-        color: '#1b5e20',
-        'font-size': 13,
-        'font-weight': 'bold',
-        'text-outline-color': '#ffffff',
-        'text-outline-width': 2,
-        opacity: 1,
-        'z-index': 10000,
+        'background-color': ROUTE_COLORS.source, 'border-width': 4, 'border-color': '#1b5e20',
+        label: 'data(label)', color: '#1b5e20', 'font-size': 13, 'font-weight': 'bold',
+        'text-outline-color': '#ffffff', 'text-outline-width': 2, opacity: 1, 'z-index': 10000,
       },
     },
     {
       selector: 'node.route-dst',
       style: {
-        'background-color': ROUTE_COLORS.target,
-        'border-width': 4,
-        'border-color': '#b71c1c',
-        label: 'data(label)',
-        color: '#b71c1c',
-        'font-size': 13,
-        'font-weight': 'bold',
-        'text-outline-color': '#ffffff',
-        'text-outline-width': 2,
-        opacity: 1,
-        'z-index': 10000,
+        'background-color': ROUTE_COLORS.target, 'border-width': 4, 'border-color': '#b71c1c',
+        label: 'data(label)', color: '#b71c1c', 'font-size': 13, 'font-weight': 'bold',
+        'text-outline-color': '#ffffff', 'text-outline-width': 2, opacity: 1, 'z-index': 10000,
       },
     },
+    // Edit highlights
+    { selector: 'node.edge-pending', style: { 'border-width': 4, 'border-color': '#0d6efd', opacity: 1, 'z-index': 10001 } },
   ];
 
-  return [
-    ...defaults,
-    ...nodeStyles,
-    ...edgeStyles,
-    ...routeStyles,
-  ] as cytoscape.StylesheetStyle[];
+  return [...defaults, ...nodeStyles, ...edgeStyles, ...routeStyles] as cytoscape.StylesheetStyle[];
 }
 
 export default function GraphViewer({
@@ -152,12 +106,18 @@ export default function GraphViewer({
   showEdges,
   showFloorplan,
   floorplanUrl,
+  floorplanOpacity,
   routeSource,
   routeTarget,
+  mode,
+  addNodeType,
   onCyInit,
   onTooltip,
-  onNodePick,
+  onNodeSelect,
   onRouteComputed,
+  onGraphMutated,
+  onEditStateChange,
+  editControls,
 }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const cyRef = useRef<cytoscape.Core | null>(null);
@@ -165,18 +125,22 @@ export default function GraphViewer({
   const imgDimsRef = useRef<{ w: number; h: number } | null>(null);
   const [imgDims, setImgDims] = useState<{ w: number; h: number } | null>(null);
 
-  // Keep latest callbacks in refs so the cytoscape event handlers
-  // (bound once per graph) never go stale.
-  const onNodePickRef = useRef(onNodePick);
-  onNodePickRef.current = onNodePick;
-  const onRouteComputedRef = useRef(onRouteComputed);
-  onRouteComputedRef.current = onRouteComputed;
+  // Latest callbacks/props in refs so cy event handlers never go stale.
+  const onNodeSelectRef = useRef(onNodeSelect); onNodeSelectRef.current = onNodeSelect;
+  const onRouteComputedRef = useRef(onRouteComputed); onRouteComputedRef.current = onRouteComputed;
+  const onGraphMutatedRef = useRef(onGraphMutated); onGraphMutatedRef.current = onGraphMutated;
+  const onEditStateChangeRef = useRef(onEditStateChange); onEditStateChangeRef.current = onEditStateChange;
+  const onTooltipRef = useRef(onTooltip); onTooltipRef.current = onTooltip;
+  const modeRef = useRef(mode); modeRef.current = mode;
+  const addNodeTypeRef = useRef(addNodeType); addNodeTypeRef.current = addNodeType;
+  const visibilityRef = useRef(visibility); visibilityRef.current = visibility;
 
-  // Remember the last routed endpoints so we only re-fit the viewport when
-  // the route itself changes, not on every filter toggle.
   const prevRouteKeyRef = useRef('');
+  const undoStackRef = useRef<Array<() => void>>([]);
+  const editCounterRef = useRef(0);
+  const pendingEdgeRef = useRef<string | null>(null);
 
-  // Pre-load floorplan image to get its natural dimensions
+  // ---- Floorplan natural dimensions ----
   useEffect(() => {
     if (!floorplanUrl) {
       setImgDims(null);
@@ -189,20 +153,15 @@ export default function GraphViewer({
       setImgDims(dims);
       imgDimsRef.current = dims;
     };
-    img.onerror = () => {
-      setImgDims(null);
-      imgDimsRef.current = null;
-    };
+    img.onerror = () => { setImgDims(null); imgDimsRef.current = null; };
     img.src = floorplanUrl;
   }, [floorplanUrl]);
 
-  // Position the floorplan <img> to match Cytoscape's viewport.
   const syncFloorplan = useCallback(() => {
     const cy = cyRef.current;
     const img = floorplanRef.current;
     const dims = imgDimsRef.current;
     if (!cy || !img || !dims) return;
-
     const zoom = cy.zoom();
     const pan = cy.pan();
     img.style.left = `${pan.x}px`;
@@ -211,20 +170,64 @@ export default function GraphViewer({
     img.style.height = `${dims.h * zoom}px`;
   }, []);
 
-  // Initialize Cytoscape
+  // ---- Edit helpers (operate directly on cy, with undo via restore/remove) ----
+  const pushUndo = useCallback((inverse: () => void) => {
+    undoStackRef.current.push(inverse);
+    onEditStateChangeRef.current(true);
+    onGraphMutatedRef.current();
+  }, []);
+
+  const clearPendingEdge = useCallback(() => {
+    const cy = cyRef.current;
+    if (cy && pendingEdgeRef.current) {
+      cy.getElementById(pendingEdgeRef.current).removeClass('edge-pending');
+    }
+    pendingEdgeRef.current = null;
+  }, []);
+
+  const addNodeAt = useCallback((pos: { x: number; y: number }) => {
+    const cy = cyRef.current;
+    if (!cy) return;
+    const type = addNodeTypeRef.current;
+    const id = `added_${type}_${++editCounterRef.current}`;
+    const floor = cy.nodes().nonempty() ? cy.nodes().first().data('floor') : '';
+    const added = cy.add({
+      group: 'nodes',
+      data: { id, label: id, type, floor },
+      position: { x: pos.x, y: pos.y },
+    });
+    if (visibilityRef.current[type] === false) added.addClass('hidden');
+    pushUndo(() => added.remove());
+  }, [pushUndo]);
+
+  const addEdgeBetween = useCallback((aId: string, bId: string) => {
+    const cy = cyRef.current;
+    if (!cy || aId === bId) return;
+    if (cy.edges(`[source="${aId}"][target="${bId}"], [source="${bId}"][target="${aId}"]`).nonempty()) return;
+    const a = cy.getElementById(aId) as unknown as cytoscape.NodeSingular;
+    const b = cy.getElementById(bId) as unknown as cytoscape.NodeSingular;
+    const pa = a.position();
+    const pb = b.position();
+    const weight = Math.hypot(pa.x - pb.x, pa.y - pb.y);
+    const id = `eadded_${++editCounterRef.current}`;
+    const added = cy.add({
+      group: 'edges',
+      data: {
+        id, source: aId, target: bId, weight,
+        edgeColorType: edgeColorOf(a.data('type'), b.data('type')),
+      },
+    });
+    if (!showEdges) added.addClass('hidden');
+    pushUndo(() => added.remove());
+  }, [pushUndo, showEdges]);
+
+  // ---- Initialize Cytoscape (rebuilds only when the base graph changes) ----
   useEffect(() => {
     if (!containerRef.current) return;
 
     const elements: cytoscape.ElementDefinition[] = [
-      ...graphData.nodes.map((n) => ({
-        group: 'nodes' as const,
-        data: n.data,
-        position: n.position,
-      })),
-      ...graphData.edges.map((e) => ({
-        group: 'edges' as const,
-        data: e.data,
-      })),
+      ...graphData.nodes.map((n) => ({ group: 'nodes' as const, data: n.data, position: n.position })),
+      ...graphData.edges.map((e) => ({ group: 'edges' as const, data: e.data })),
     ];
 
     const cy = cytoscape({
@@ -232,50 +235,98 @@ export default function GraphViewer({
       elements,
       style: buildStylesheet(),
       layout: { name: 'preset' },
-      minZoom: 0.1,
-      maxZoom: 5,
+      minZoom: 0.05,
+      maxZoom: 8,
       wheelSensitivity: 0.3,
+      autoungrabify: true,      // (#9) no dragging nodes
+      boxSelectionEnabled: false,
     });
 
     cy.fit(undefined, 40);
     cyRef.current = cy;
     onCyInit(cy);
     prevRouteKeyRef.current = '';
+    undoStackRef.current = [];
+    pendingEdgeRef.current = null;
+    onEditStateChangeRef.current(false);
 
     cy.on('viewport', syncFloorplan);
 
     cy.on('mouseover', 'node', (evt) => {
       const node = evt.target;
       const pos = node.renderedPosition();
-      onTooltip({ x: pos.x + 15, y: pos.y - 10, data: node.data() });
+      onTooltipRef.current({ x: pos.x + 15, y: pos.y - 10, data: node.data() });
     });
+    cy.on('mouseout', 'node', () => onTooltipRef.current(null));
 
-    cy.on('mouseout', 'node', () => onTooltip(null));
-
-    // Tap a routing-eligible node to assign it as start / destination.
+    // Node taps: route selection, edge building, or deletion (by mode).
     cy.on('tap', 'node', (evt) => {
       const node = evt.target as cytoscape.NodeSingular;
-      if (isPickable(node)) onNodePickRef.current(node.id());
+      const m = modeRef.current;
+      if (m === 'route-start' || m === 'route-end') {
+        onNodeSelectRef.current(node.id());
+      } else if (m === 'add-edge') {
+        const first = pendingEdgeRef.current;
+        if (!first) {
+          pendingEdgeRef.current = node.id();
+          node.addClass('edge-pending');
+        } else if (first === node.id()) {
+          clearPendingEdge();
+        } else {
+          addEdgeBetween(first, node.id());
+          clearPendingEdge();
+        }
+      } else if (m === 'delete') {
+        const removed = node.remove();
+        pushUndo(() => { removed.restore(); });
+      }
+    });
+
+    // Edge taps: deletion.
+    cy.on('tap', 'edge', (evt) => {
+      if (modeRef.current === 'delete') {
+        const removed = evt.target.remove();
+        pushUndo(() => { removed.restore(); });
+      }
+    });
+
+    // Background taps: add node.
+    cy.on('tap', (evt) => {
+      if (evt.target !== cy) return;
+      if (modeRef.current === 'add-node') addNodeAt(evt.position);
     });
 
     return () => {
       cy.destroy();
       cyRef.current = null;
     };
-    // Only re-init when graph data changes
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [graphData]);
 
-  // Combined display effect: applies node/edge visibility AND the routing
-  // overlay together, so the two never clobber each other. Re-runs when
-  // filters or the chosen endpoints change.
+  // Expose undo to the parent.
+  useEffect(() => {
+    editControls.current = {
+      undo: () => {
+        const inverse = undoStackRef.current.pop();
+        if (inverse) inverse();
+        onEditStateChangeRef.current(undoStackRef.current.length > 0);
+        onGraphMutatedRef.current();
+      },
+    };
+  }, [editControls]);
+
+  // Clear any pending edge when leaving add-edge mode.
+  useEffect(() => {
+    if (mode !== 'add-edge') clearPendingEdge();
+  }, [mode, clearPendingEdge]);
+
+  // ---- Combined display effect: visibility + routing overlay ----
   useEffect(() => {
     const cy = cyRef.current;
     if (!cy) return;
 
     cy.elements().removeClass(ROUTE_CLASSES);
 
-    // ---- Compute the route (if both endpoints are chosen) ----
     const pathNodeIds = new Set<string>();
     const pathEdgeIds = new Set<string>();
     let info: RouteInfo | null = null;
@@ -283,30 +334,19 @@ export default function GraphViewer({
     if (routeSource && routeTarget && routeSource !== routeTarget) {
       const root = cy.getElementById(routeSource);
       const goal = cy.getElementById(routeTarget);
-
       if (!root.empty() && !goal.empty()) {
-        // Positions and floors come from the graph data, keyed by node id.
         const posById = new Map<string, { x: number; y: number; floor: string }>();
         graphData.nodes.forEach((n) =>
-          posById.set(n.data.id, {
-            x: n.position.x,
-            y: n.position.y,
-            floor: n.data.floor,
-          }),
-        );
+          posById.set(n.data.id, { x: n.position.x, y: n.position.y, floor: n.data.floor }));
         const goalEntry = posById.get(routeTarget);
         const goalFloor = goalEntry?.floor;
 
         const res = cy.elements().aStar({
-          root,
-          goal,
-          directed: false,
+          root, goal, directed: false,
           weight: (edge: cytoscape.EdgeCollection) => {
             const w = Number(edge.data('weight'));
             return isFinite(w) && w > 0 ? w : 1;
           },
-          // Straight-line distance to the goal. Admissible within a floor,
-          // and returns 0 across floors so A* stays optimal building-wide.
           heuristic: (node: cytoscape.NodeSingular) => {
             const np = posById.get(node.id());
             if (!np || !goalEntry || np.floor !== goalFloor) return 0;
@@ -316,19 +356,9 @@ export default function GraphViewer({
 
         if (res.found && res.path && res.path.length > 0) {
           const floors = new Set<string>();
-          res.path.nodes().forEach((n) => {
-            pathNodeIds.add(n.id());
-            floors.add(String(n.data('floor')));
-          });
-          res.path.edges().forEach((e) => {
-            pathEdgeIds.add(e.id());
-          });
-          info = {
-            found: true,
-            distance: Math.round(res.distance),
-            segments: pathEdgeIds.size,
-            crossFloor: floors.size > 1,
-          };
+          res.path.nodes().forEach((n) => { pathNodeIds.add(n.id()); floors.add(String(n.data('floor'))); });
+          res.path.edges().forEach((e) => { pathEdgeIds.add(e.id()); });
+          info = { found: true, distance: Math.round(res.distance), segments: pathEdgeIds.size, crossFloor: floors.size > 1 };
         } else {
           info = { found: false, distance: 0, segments: 0, crossFloor: false };
         }
@@ -336,68 +366,43 @@ export default function GraphViewer({
     }
 
     const hasRoute = pathNodeIds.size > 0;
-
-    // ---- Base visibility (filters). Path elements are never hidden. ----
     const hiddenNodeIds = new Set<string>();
+
     cy.nodes().forEach((node) => {
-      if (pathNodeIds.has(node.id())) {
-        node.removeClass('hidden');
-        return;
-      }
+      if (pathNodeIds.has(node.id())) { node.removeClass('hidden'); return; }
       const type = node.data('type') as string;
-      if (visibility[type] === false) {
-        node.addClass('hidden');
-        hiddenNodeIds.add(node.id());
-      } else {
-        node.removeClass('hidden');
-      }
+      if (visibility[type] === false) { node.addClass('hidden'); hiddenNodeIds.add(node.id()); }
+      else node.removeClass('hidden');
     });
 
     cy.edges().forEach((edge) => {
-      if (pathEdgeIds.has(edge.id())) {
-        edge.removeClass('hidden');
-        return;
-      }
-      if (!showEdges) {
-        edge.addClass('hidden');
-        return;
-      }
+      if (pathEdgeIds.has(edge.id())) { edge.removeClass('hidden'); return; }
+      if (!showEdges) { edge.addClass('hidden'); return; }
       const src = edge.data('source') as string;
       const tgt = edge.data('target') as string;
-      if (hiddenNodeIds.has(src) || hiddenNodeIds.has(tgt)) {
-        edge.addClass('hidden');
-      } else {
-        edge.removeClass('hidden');
-      }
+      if (hiddenNodeIds.has(src) || hiddenNodeIds.has(tgt)) edge.addClass('hidden');
+      else edge.removeClass('hidden');
     });
 
-    // ---- Routing overlay (dim the rest, highlight the path) ----
     if (hasRoute) {
       cy.elements().addClass('route-dim');
-      cy.nodes().forEach((n) => {
-        if (pathNodeIds.has(n.id())) n.removeClass('route-dim').addClass('route-hl');
-      });
-      cy.edges().forEach((e) => {
-        if (pathEdgeIds.has(e.id())) e.removeClass('route-dim').addClass('route-hl');
-      });
+      cy.nodes().forEach((n) => { if (pathNodeIds.has(n.id())) n.removeClass('route-dim').addClass('route-hl'); });
+      cy.edges().forEach((e) => { if (pathEdgeIds.has(e.id())) e.removeClass('route-dim').addClass('route-hl'); });
       cy.getElementById(routeSource!).removeClass('route-dim').addClass('route-src');
       cy.getElementById(routeTarget!).removeClass('route-dim').addClass('route-dst');
     }
 
-    // ---- Report result and re-fit only when the route changed ----
     onRouteComputedRef.current(info);
 
     const key = hasRoute ? `${routeSource}->${routeTarget}` : '';
     if (hasRoute && key !== prevRouteKeyRef.current) {
       const pathEles = cy.elements('.route-hl, .route-src, .route-dst');
-      if (pathEles.nonempty()) {
-        cy.animate({ fit: { eles: pathEles, padding: 60 }, duration: 500 });
-      }
+      if (pathEles.nonempty()) cy.animate({ fit: { eles: pathEles, padding: 60 }, duration: 500 });
     }
     prevRouteKeyRef.current = key;
   }, [graphData, visibility, showEdges, routeSource, routeTarget]);
 
-  // Apply node sizes dynamically
+  // ---- Node sizes ----
   useEffect(() => {
     const cy = cyRef.current;
     if (!cy) return;
@@ -408,10 +413,15 @@ export default function GraphViewer({
     });
   }, [nodeSizes]);
 
-  // Re-sync floorplan position when it becomes visible or dims load
-  useEffect(() => {
-    syncFloorplan();
-  }, [showFloorplan, imgDims, syncFloorplan]);
+  // ---- Floorplan re-sync ----
+  useEffect(() => { syncFloorplan(); }, [showFloorplan, imgDims, syncFloorplan]);
+
+  // ---- Cursor hint by mode ----
+  const cursor =
+    mode === 'add-node' ? 'copy'
+    : mode === 'delete' ? 'not-allowed'
+    : mode === 'add-edge' || mode === 'route-start' || mode === 'route-end' ? 'crosshair'
+    : 'default';
 
   return (
     <div style={{ position: 'relative', width: '100%', height: '100%', overflow: 'hidden' }}>
@@ -420,10 +430,10 @@ export default function GraphViewer({
           ref={floorplanRef}
           src={floorplanUrl}
           alt=""
-          style={{ position: 'absolute', opacity: 0.35, pointerEvents: 'none' }}
+          style={{ position: 'absolute', opacity: floorplanOpacity, pointerEvents: 'none' }}
         />
       )}
-      <div ref={containerRef} style={{ width: '100%', height: '100%' }} />
+      <div ref={containerRef} style={{ width: '100%', height: '100%', cursor }} />
     </div>
   );
 }

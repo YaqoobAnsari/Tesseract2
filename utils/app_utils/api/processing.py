@@ -13,6 +13,11 @@ from typing import Dict, Any, Optional
 import threading
 from typing import Callable
 
+# Headless matplotlib backend before Main (and its plotting modules) load.
+os.environ.setdefault("MPLBACKEND", "Agg")
+import matplotlib
+matplotlib.use("Agg")
+
 # Progress tracking (thread-safe via GIL for simple dict writes)
 _progress: Dict[str, str] = {}
 

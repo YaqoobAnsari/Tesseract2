@@ -124,7 +124,9 @@ def plot_image(img, boxes, scores, labels, dataset, save_path=None):
     if save_path is not None:
       plt.savefig(save_path)
 
-    plt.show()
+    # Do not call plt.show(): the pipeline runs headless and in worker threads.
+    # Close the figure to release memory instead.
+    plt.close('all')
 
 """
 sets up detection model to perform bounding box detection with

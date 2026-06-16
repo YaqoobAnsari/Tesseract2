@@ -1,4 +1,4 @@
-import type { RouteEndpoint, RouteInfo } from '../types';
+import type { RouteEndpoint, RouteInfo, InteractionMode } from '../types';
 import { NODE_TYPE_LABELS, ROUTE_COLORS } from '../constants';
 
 interface Props {
@@ -10,6 +10,15 @@ interface Props {
   onSwap: () => void;
   onClear: () => void;
   info: RouteInfo | null;
+  mode: InteractionMode;
+  onArmStart: () => void;
+  onArmEnd: () => void;
+}
+
+function labelFor(endpoints: RouteEndpoint[], id: string | null): string {
+  if (!id) return 'not set';
+  const ep = endpoints.find((e) => e.id === id);
+  return ep ? ep.label : id;
 }
 
 function optionLabel(ep: RouteEndpoint): string {
@@ -26,6 +35,9 @@ export default function RoutePanel({
   onSwap,
   onClear,
   info,
+  mode,
+  onArmStart,
+  onArmEnd,
 }: Props) {
   const hasRoute = !!source && !!target;
 
@@ -34,51 +46,36 @@ export default function RoutePanel({
       <h3>Navigation</h3>
 
       <p className="route-hint">
-        Pick a start and a destination from the menus, or click two nodes on
-        the graph. The shortest route is computed with A* search.
+        Click <strong>Set Start</strong>, then click a node on the graph. Do the
+        same for <strong>Set Destination</strong>. The shortest route is computed
+        with A* search.
       </p>
 
-      <label className="route-field">
-        <span className="route-dot" style={{ background: ROUTE_COLORS.source }} />
-        Start
-        <select
-          className="route-select"
-          value={source ?? ''}
-          onChange={(e) => onSourceChange(e.target.value || null)}
+      <div className="route-pick">
+        <button
+          className={`btn route-pick-btn${mode === 'route-start' ? ' arming' : ''}`}
+          onClick={onArmStart}
         >
-          <option value="">Select start…</option>
-          {endpoints.map((ep) => (
-            <option key={ep.id} value={ep.id} disabled={ep.id === target}>
-              {optionLabel(ep)}
-            </option>
-          ))}
-        </select>
-      </label>
+          <span className="route-dot" style={{ background: ROUTE_COLORS.source }} />
+          {mode === 'route-start' ? 'Click a node…' : 'Set Start'}
+        </button>
+        <div className="route-current">{labelFor(endpoints, source)}</div>
+      </div>
 
-      <label className="route-field">
-        <span className="route-dot" style={{ background: ROUTE_COLORS.target }} />
-        Destination
-        <select
-          className="route-select"
-          value={target ?? ''}
-          onChange={(e) => onTargetChange(e.target.value || null)}
+      <div className="route-pick">
+        <button
+          className={`btn route-pick-btn${mode === 'route-end' ? ' arming' : ''}`}
+          onClick={onArmEnd}
         >
-          <option value="">Select destination…</option>
-          {endpoints.map((ep) => (
-            <option key={ep.id} value={ep.id} disabled={ep.id === source}>
-              {optionLabel(ep)}
-            </option>
-          ))}
-        </select>
-      </label>
+          <span className="route-dot" style={{ background: ROUTE_COLORS.target }} />
+          {mode === 'route-end' ? 'Click a node…' : 'Set Destination'}
+        </button>
+        <div className="route-current">{labelFor(endpoints, target)}</div>
+      </div>
 
       <div className="route-buttons">
-        <button className="btn" onClick={onSwap} disabled={!hasRoute}>
-          Swap
-        </button>
-        <button className="btn" onClick={onClear} disabled={!source && !target}>
-          Clear
-        </button>
+        <button className="btn" onClick={onSwap} disabled={!hasRoute}>Swap</button>
+        <button className="btn" onClick={onClear} disabled={!source && !target}>Clear</button>
       </div>
 
       {hasRoute && info && (
@@ -93,15 +90,47 @@ export default function RoutePanel({
                 <span className="label">Segments</span>
                 <span className="value">{info.segments}</span>
               </div>
-              {info.crossFloor && (
-                <span className="route-badge">Crosses floors</span>
-              )}
+              {info.crossFloor && <span className="route-badge">Crosses floors</span>}
             </>
           ) : (
             <span>No route found between these points.</span>
           )}
         </div>
       )}
+
+      <details className="route-advanced">
+        <summary>Pick from list instead</summary>
+        <label className="route-field">
+          <span className="route-dot" style={{ background: ROUTE_COLORS.source }} />
+          <select
+            className="route-select"
+            value={source ?? ''}
+            onChange={(e) => onSourceChange(e.target.value || null)}
+          >
+            <option value="">Start…</option>
+            {endpoints.map((ep) => (
+              <option key={ep.id} value={ep.id} disabled={ep.id === target}>
+                {optionLabel(ep)}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label className="route-field">
+          <span className="route-dot" style={{ background: ROUTE_COLORS.target }} />
+          <select
+            className="route-select"
+            value={target ?? ''}
+            onChange={(e) => onTargetChange(e.target.value || null)}
+          >
+            <option value="">Destination…</option>
+            {endpoints.map((ep) => (
+              <option key={ep.id} value={ep.id} disabled={ep.id === source}>
+                {optionLabel(ep)}
+              </option>
+            ))}
+          </select>
+        </label>
+      </details>
     </div>
   );
 }

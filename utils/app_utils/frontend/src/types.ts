@@ -86,3 +86,19 @@ export interface RouteInfo {
   /** True when the path spans more than one floor */
   crossFloor: boolean;
 }
+
+/** Canvas interaction mode. Only one is active at a time. */
+export type InteractionMode =
+  | 'idle'
+  | 'route-start'
+  | 'route-end'
+  | 'add-node'
+  | 'add-edge'
+  | 'delete';
+
+/** Live graph counts, kept in sync with the canvas after edits */
+export interface GraphCounts {
+  total_nodes: number;
+  total_edges: number;
+  node_types: Record<string, number>;
+}
