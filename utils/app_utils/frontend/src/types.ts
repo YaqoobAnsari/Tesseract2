@@ -85,6 +85,10 @@ export interface RouteInfo {
   segments: number;
   /** True when the path spans more than one floor */
   crossFloor: boolean;
+  /** Number of nodes along the path */
+  nodeCount: number;
+  /** Count of nodes on the path by type (room subnodes counted as 'subnode') */
+  nodeTypes: Record<string, number>;
 }
 
 /** Canvas interaction mode. Only one is active at a time. */

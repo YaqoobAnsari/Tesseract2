@@ -20,6 +20,7 @@ import ProcessingStatus from './components/ProcessingStatus';
 import GraphViewer from './components/GraphViewer';
 import VisualControls from './components/VisualControls';
 import StatsPanel from './components/StatsPanel';
+import RouteStats from './components/RouteStats';
 import RoutePanel from './components/RoutePanel';
 import EditPanel from './components/EditPanel';
 import ExportPanel from './components/ExportPanel';
@@ -181,11 +182,28 @@ function App() {
       .sort((a, b) => a.type.localeCompare(b.type) || a.label.localeCompare(b.label, undefined, { numeric: true }));
   }, [activeGraphData]);
 
+  // Stats reflect what is on screen: live cy counts after edits, otherwise the
+  // counts of the currently displayed stage (pre vs post pruning). Pruning
+  // reduction is a fixed property of the image, kept from the backend.
   const statistics = useMemo<GraphStatistics>(() => {
-    const base = result?.statistics ?? { total_nodes: 0, total_edges: 0, node_types: {} };
-    if (!liveCounts) return base;
-    return { ...base, total_nodes: liveCounts.total_nodes, total_edges: liveCounts.total_edges, node_types: liveCounts.node_types };
-  }, [result, liveCounts]);
+    const pruning = result?.statistics.pruning_reduction;
+    if (liveCounts) {
+      return { ...liveCounts, pruning_reduction: pruning };
+    }
+    if (activeGraphData) {
+      const node_types: Record<string, number> = {};
+      for (const n of activeGraphData.nodes) {
+        node_types[n.data.type] = (node_types[n.data.type] || 0) + 1;
+      }
+      return {
+        total_nodes: activeGraphData.nodes.length,
+        total_edges: activeGraphData.edges.length,
+        node_types,
+        pruning_reduction: pruning,
+      };
+    }
+    return result?.statistics ?? { total_nodes: 0, total_edges: 0, node_types: {} };
+  }, [result, liveCounts, activeGraphData]);
 
   const resetRoute = useCallback(() => {
     setRouteSource(null);
@@ -352,6 +370,7 @@ function App() {
                 onFocusNode={focusNode}
                 onToggleBroken={setShowBroken}
               />
+              <RouteStats info={routeInfo} />
               <VisualControls
                 visibility={visibility}
                 onToggle={(type) => setVisibility((v) => ({ ...v, [type]: !v[type] }))}
@@ -386,6 +405,7 @@ function App() {
                 addNodeType={addNodeType}
                 editVersion={editVersion}
                 brokenNodeIds={brokenNodeIds}
+                viewKey={floorplanUrl || result!.image_name}
                 onCyInit={setCyRef}
                 onTooltip={setTooltip}
                 onNodeSelect={handleNodeSelect}

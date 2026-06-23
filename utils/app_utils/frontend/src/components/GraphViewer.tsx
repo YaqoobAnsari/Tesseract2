@@ -29,6 +29,10 @@ interface Props {
   addNodeType: string;
   editVersion: number;
   brokenNodeIds: string[];
+  /** Identity of the underlying image. When it is unchanged across a graph
+   *  swap (i.e. a pre/post pruning toggle), the viewport is preserved so the
+   *  graph stays aligned with the floorplan instead of re-fitting. */
+  viewKey: string;
   onCyInit: (cy: cytoscape.Core) => void;
   onTooltip: (
     info: { x: number; y: number; data: Record<string, unknown> } | null,
@@ -130,6 +134,7 @@ export default function GraphViewer({
   addNodeType,
   editVersion,
   brokenNodeIds,
+  viewKey,
   onCyInit,
   onTooltip,
   onNodeSelect,
@@ -159,6 +164,9 @@ export default function GraphViewer({
   const undoStackRef = useRef<Array<() => void>>([]);
   const editCounterRef = useRef(0);
   const pendingEdgeRef = useRef<string | null>(null);
+  // Saved viewport, used to keep the view stable across a pre/post toggle.
+  const savedViewRef = useRef<{ pan: { x: number; y: number }; zoom: number } | null>(null);
+  const viewKeyRef = useRef<string>('');
 
   // ---- Floorplan natural dimensions ----
   useEffect(() => {
@@ -265,8 +273,19 @@ export default function GraphViewer({
       boxSelectionEnabled: false,
     });
 
-    cy.fit(undefined, 40);
     cyRef.current = cy;
+
+    // Preserve the viewport across a pre/post pruning toggle (same image) so
+    // the graph stays aligned with the floorplan; fit only for a new image.
+    const sameImage = viewKey === viewKeyRef.current && savedViewRef.current !== null;
+    if (sameImage && savedViewRef.current) {
+      cy.viewport({ zoom: savedViewRef.current.zoom, pan: savedViewRef.current.pan });
+    } else {
+      cy.fit(undefined, 40);
+    }
+    viewKeyRef.current = viewKey;
+    syncFloorplan();
+
     onCyInit(cy);
     prevRouteKeyRef.current = '';
     undoStackRef.current = [];
@@ -333,6 +352,11 @@ export default function GraphViewer({
     });
 
     return () => {
+      // Remember the viewport so the next init (a stage toggle) can restore it.
+      try {
+        const p = cy.pan();
+        savedViewRef.current = { pan: { x: p.x, y: p.y }, zoom: cy.zoom() };
+      } catch { /* ignore */ }
       cy.destroy();
       cyRef.current = null;
     };
@@ -393,11 +417,25 @@ export default function GraphViewer({
 
         if (res.found && res.path && res.path.length > 0) {
           const floors = new Set<string>();
-          res.path.nodes().forEach((n) => { pathNodeIds.add(n.id()); floors.add(String(n.data('floor'))); });
+          const nodeTypes: Record<string, number> = {};
+          res.path.nodes().forEach((n) => {
+            pathNodeIds.add(n.id());
+            floors.add(String(n.data('floor')));
+            let t = n.data('type') as string;
+            if (t === 'room' && n.data('isSubnode')) t = 'subnode';
+            nodeTypes[t] = (nodeTypes[t] || 0) + 1;
+          });
           res.path.edges().forEach((e) => { pathEdgeIds.add(e.id()); });
-          info = { found: true, distance: Math.round(res.distance), segments: pathEdgeIds.size, crossFloor: floors.size > 1 };
+          info = {
+            found: true,
+            distance: Math.round(res.distance),
+            segments: pathEdgeIds.size,
+            crossFloor: floors.size > 1,
+            nodeCount: pathNodeIds.size,
+            nodeTypes,
+          };
         } else {
-          info = { found: false, distance: 0, segments: 0, crossFloor: false };
+          info = { found: false, distance: 0, segments: 0, crossFloor: false, nodeCount: 0, nodeTypes: {} };
         }
       }
     }
