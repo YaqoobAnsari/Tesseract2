@@ -13,6 +13,13 @@ Cytoscape.js elements format:
 from typing import Dict, Any, List
 
 
+def _norm_type(t: str) -> str:
+    """Normalize node types for the frontend. The pipeline emits 'transition'
+    for stairs/elevators, but the UI keys color, shape, size, and labels on
+    'floor_transition'. Map them so everything stays consistent."""
+    return "floor_transition" if t == "transition" else t
+
+
 def _determine_edge_color_type(
     source_id: str,
     target_id: str,
@@ -51,7 +58,7 @@ def convert_to_cytoscape(graph_json: Dict[str, Any]) -> Dict[str, Any]:
     # Build node type lookup for edge coloring
     node_type_map: Dict[str, str] = {}
     for node in raw_nodes:
-        node_type_map[node["id"]] = node.get("type", "unknown")
+        node_type_map[node["id"]] = _norm_type(node.get("type", "unknown"))
 
     # Convert nodes
     cy_nodes: List[Dict[str, Any]] = []
@@ -63,7 +70,7 @@ def convert_to_cytoscape(graph_json: Dict[str, Any]) -> Dict[str, Any]:
         data: Dict[str, Any] = {
             "id": node["id"],
             "label": node["id"],
-            "type": node.get("type", "unknown"),
+            "type": _norm_type(node.get("type", "unknown")),
             "floor": node.get("floor", ""),
         }
 

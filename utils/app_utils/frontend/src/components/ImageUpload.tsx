@@ -40,6 +40,20 @@ export default function ImageUpload({ onFile, onExample }: Props) {
 
   return (
     <div className="upload-container">
+      <div className="intro">
+        <h1 className="intro-title">
+          <span>Tesseract</span> Floorplan Analyzer
+        </h1>
+        <p className="intro-abstract">
+          Tesseract turns an annotated building floor plan into a navigable graph.
+          It detects text labels, segments rooms and corridors, finds and
+          classifies doors, and assembles a typed graph of rooms, corridors,
+          doors, and floor transitions connected by walkable edges. Upload a floor
+          plan or open an example to watch the pipeline run, explore the graph,
+          route between any two rooms, and refine the result by hand.
+        </p>
+      </div>
+
       <div
         className={`dropzone${dragOver ? ' drag-over' : ''}`}
         onDragOver={(e) => {
@@ -92,6 +106,17 @@ export default function ImageUpload({ onFile, onExample }: Props) {
           </div>
         </div>
       )}
+
+      <footer className="intro-footer">
+        Work conducted by Carnegie Mellon University in Qatar.{' '}
+        <a
+          href="https://dl.acm.org/doi/abs/10.1145/3748636.3762771"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Read the paper
+        </a>
+      </footer>
     </div>
   );
 }

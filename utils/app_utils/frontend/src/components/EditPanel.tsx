@@ -7,7 +7,9 @@ interface Props {
   onAddNodeTypeChange: (type: string) => void;
   onSetMode: (mode: InteractionMode) => void;
   onUndo: () => void;
+  onRedo: () => void;
   undoCount: number;
+  redoCount: number;
 }
 
 const HINTS: Partial<Record<InteractionMode, string>> = {
@@ -22,7 +24,9 @@ export default function EditPanel({
   onAddNodeTypeChange,
   onSetMode,
   onUndo,
+  onRedo,
   undoCount,
+  redoCount,
 }: Props) {
   const tool = (m: InteractionMode, label: string) => (
     <button
@@ -71,17 +75,21 @@ export default function EditPanel({
         <button className="btn" onClick={onUndo} disabled={undoCount === 0}>
           Undo{undoCount > 0 ? ` (${undoCount})` : ''}
         </button>
-        <button
-          className="btn"
-          onClick={() => onSetMode('idle')}
-          disabled={mode === 'idle'}
-        >
-          Done
+        <button className="btn" onClick={onRedo} disabled={redoCount === 0}>
+          Redo{redoCount > 0 ? ` (${redoCount})` : ''}
         </button>
       </div>
+      <button
+        className="btn btn-block"
+        style={{ marginTop: 8 }}
+        onClick={() => onSetMode('idle')}
+        disabled={mode === 'idle'}
+      >
+        Done Editing
+      </button>
       <p className="edit-undo-note">
-        Every change is undoable, all the way back to the originally extracted
-        graph.
+        Every change is undoable and redoable, all the way back to the originally
+        extracted graph.
       </p>
     </div>
   );

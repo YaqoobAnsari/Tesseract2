@@ -111,7 +111,8 @@ export default function StatsPanel({
                       </div>
                     )}
                     <div className="conn-locate">
-                      Highlighted in red on the graph. Click one to zoom to it.
+                      The smaller, disconnected subgraph is highlighted in red on
+                      the graph. Click a node to zoom to it.
                     </div>
                   </div>
                   {connectivity.offenders.slice(0, MAX_LISTED).map((n) => (

@@ -1,5 +1,5 @@
 ---
-title: Tesseract++
+title: Tesseract
 emoji: 🏗️
 colorFrom: blue
 colorTo: purple

@@ -37,12 +37,12 @@ export const NODE_SHAPES: Record<string, string> = {
 /** All known node types in display order */
 export const NODE_TYPES = ['room', 'door', 'corridor', 'outside', 'floor_transition'] as const;
 
-/** Human-readable labels for node types */
+/** Human-readable labels for node types (singular, Title Case) */
 export const NODE_TYPE_LABELS: Record<string, string> = {
   room: 'Room',
   door: 'Door',
   corridor: 'Corridor',
-  outside: 'Outside',
+  outside: 'Outdoor',
   floor_transition: 'Floor Transition',
 };
 
@@ -53,8 +53,7 @@ export const ROUTE_COLORS = {
   target: '#c62828', // destination node (red)
 };
 
-/** Node types that may be chosen as routing endpoints.
- *  Rooms are the primary endpoints; transitions (stairs/elevators) are
- *  offered too. The raw graph labels transitions as 'transition'; we also
- *  accept 'floor_transition' for forward compatibility. */
-export const ROUTE_ENDPOINT_TYPES = ['room', 'transition', 'floor_transition'] as const;
+/** Node types that may be chosen as routing endpoints. Rooms are primary;
+ *  floor transitions (stairs/elevators) are offered too. (The backend
+ *  normalizes 'transition' to 'floor_transition'.) */
+export const ROUTE_ENDPOINT_TYPES = ['room', 'floor_transition'] as const;

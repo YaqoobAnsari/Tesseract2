@@ -6,16 +6,16 @@ interface Props {
 }
 
 const PATH_TYPE_LABELS: Record<string, string> = {
-  room: 'Rooms',
-  subnode: 'Room waypoints',
-  corridor: 'Corridors',
-  door: 'Doors',
+  room: 'Room',
+  subnode: 'Room Subnode',
+  corridor: 'Corridor',
+  door: 'Door',
   outside: 'Outdoor',
-  transition: 'Transitions',
+  floor_transition: 'Floor Transition',
 };
 
 // Show the navigationally meaningful types first.
-const TYPE_ORDER = ['room', 'door', 'transition', 'corridor', 'outside', 'subnode'];
+const TYPE_ORDER = ['room', 'door', 'floor_transition', 'corridor', 'outside', 'subnode'];
 
 export default function RouteStats({ info }: Props) {
   if (!info || !info.found) return null;

@@ -62,7 +62,6 @@ CURATED_EXAMPLES = [
     "FF part 1upE.png",
     "FF part 2up.png",
     "FF part 3upE.png",
-    "SF part 1upE.png",
 ]
 
 # Session storage (in-memory, cleared on restart)

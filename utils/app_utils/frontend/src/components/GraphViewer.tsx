@@ -40,9 +40,12 @@ interface Props {
   onNodeSelect: (id: string) => void;
   onRouteComputed: (info: RouteInfo | null) => void;
   onGraphMutated: () => void;
-  onEditStateChange: (undoCount: number) => void;
-  editControls: MutableRefObject<{ undo: () => void } | null>;
+  onEditStateChange: (undoCount: number, redoCount: number) => void;
+  editControls: MutableRefObject<{ undo: () => void; redo: () => void } | null>;
 }
+
+/** One reversible edit, with both directions. */
+type EditEntry = { undo: () => void; redo: () => void };
 
 const ROUTE_CLASSES = 'route-hl route-dim route-src route-dst';
 
@@ -106,12 +109,12 @@ function buildStylesheet(): cytoscape.StylesheetStyle[] {
     { selector: 'edge.hover-delete', style: { 'line-color': '#dc3545', width: 5, opacity: 1, 'z-index': 9998 } },
     // Flash when focusing a disconnected node from the stats panel
     { selector: '.focus-flash', style: { 'overlay-color': '#ffb300', 'overlay-padding': 9, 'overlay-opacity': 0.55 } },
-    // Persistent red ring on broken / disconnected nodes
+    // Persistent red ring on broken / disconnected nodes (large glow, #5)
     {
       selector: 'node.broken',
       style: {
         'border-width': 4, 'border-color': '#dc3545',
-        'overlay-color': '#dc3545', 'overlay-padding': 6, 'overlay-opacity': 0.22,
+        'overlay-color': '#dc3545', 'overlay-padding': 12, 'overlay-opacity': 0.28,
         opacity: 1, 'z-index': 9997,
       },
     },
@@ -161,7 +164,8 @@ export default function GraphViewer({
   const nodeSizesRef = useRef(nodeSizes); nodeSizesRef.current = nodeSizes;
 
   const prevRouteKeyRef = useRef('');
-  const undoStackRef = useRef<Array<() => void>>([]);
+  const undoStackRef = useRef<EditEntry[]>([]);
+  const redoStackRef = useRef<EditEntry[]>([]);
   const editCounterRef = useRef(0);
   const pendingEdgeRef = useRef<string | null>(null);
   // Saved viewport, used to keep the view stable across a pre/post toggle.
@@ -198,12 +202,17 @@ export default function GraphViewer({
     img.style.height = `${dims.h * zoom}px`;
   }, []);
 
-  // ---- Edit helpers (operate directly on cy, with undo via restore/remove) ----
-  const pushUndo = useCallback((inverse: () => void) => {
-    undoStackRef.current.push(inverse);
-    onEditStateChangeRef.current(undoStackRef.current.length);
-    onGraphMutatedRef.current();
+  // ---- Edit helpers (operate directly on cy, with undo/redo via restore/remove) ----
+  const reportEdit = useCallback(() => {
+    onEditStateChangeRef.current(undoStackRef.current.length, redoStackRef.current.length);
   }, []);
+
+  const pushEdit = useCallback((undo: () => void, redo: () => void) => {
+    undoStackRef.current.push({ undo, redo });
+    redoStackRef.current = []; // a fresh edit invalidates the redo stack
+    reportEdit();
+    onGraphMutatedRef.current();
+  }, [reportEdit]);
 
   const clearPendingEdge = useCallback(() => {
     const cy = cyRef.current;
@@ -216,41 +225,46 @@ export default function GraphViewer({
   const addNodeAt = useCallback((pos: { x: number; y: number }) => {
     const cy = cyRef.current;
     if (!cy) return;
-    const type = addNodeTypeRef.current;
-    const id = `added_${type}_${++editCounterRef.current}`;
-    const floor = cy.nodes().nonempty() ? cy.nodes().first().data('floor') : '';
-    const added = cy.add({
-      group: 'nodes',
-      data: { id, label: id, type, floor },
-      position: { x: pos.x, y: pos.y },
-    });
-    // (#3) new nodes adopt the current per-type size from the sliders.
-    const size = nodeSizesRef.current[type] || NODE_SIZES[type] || 20;
-    added.style({ width: size, height: size });
-    if (visibilityRef.current[type] === false) added.addClass('hidden');
-    pushUndo(() => added.remove());
-  }, [pushUndo]);
+    try {
+      const type = addNodeTypeRef.current;
+      const id = `added_${type}_${++editCounterRef.current}`;
+      const floor = cy.nodes().nonempty() ? cy.nodes().first().data('floor') : '';
+      const added = cy.add({
+        group: 'nodes',
+        data: { id, label: id, type, floor },
+        position: { x: pos.x, y: pos.y },
+      });
+      // (#3) new nodes adopt the current per-type size from the sliders.
+      const size = nodeSizesRef.current[type] || NODE_SIZES[type] || 20;
+      added.style({ width: size, height: size });
+      if (visibilityRef.current[type] === false) added.addClass('hidden');
+      pushEdit(() => added.remove(), () => { added.restore(); });
+    } catch (err) { console.error('add node failed', err); }
+  }, [pushEdit]);
 
   const addEdgeBetween = useCallback((aId: string, bId: string) => {
     const cy = cyRef.current;
     if (!cy || aId === bId) return;
-    if (cy.edges(`[source="${aId}"][target="${bId}"], [source="${bId}"][target="${aId}"]`).nonempty()) return;
-    const a = cy.getElementById(aId) as unknown as cytoscape.NodeSingular;
-    const b = cy.getElementById(bId) as unknown as cytoscape.NodeSingular;
-    const pa = a.position();
-    const pb = b.position();
-    const weight = Math.hypot(pa.x - pb.x, pa.y - pb.y);
-    const id = `eadded_${++editCounterRef.current}`;
-    const added = cy.add({
-      group: 'edges',
-      data: {
-        id, source: aId, target: bId, weight,
-        edgeColorType: edgeColorOf(a.data('type'), b.data('type')),
-      },
-    });
-    if (!showEdges) added.addClass('hidden');
-    pushUndo(() => added.remove());
-  }, [pushUndo, showEdges]);
+    try {
+      if (cy.edges(`[source="${aId}"][target="${bId}"], [source="${bId}"][target="${aId}"]`).nonempty()) return;
+      const a = cy.getElementById(aId) as unknown as cytoscape.NodeSingular;
+      const b = cy.getElementById(bId) as unknown as cytoscape.NodeSingular;
+      if (a.empty() || b.empty()) return;
+      const pa = a.position();
+      const pb = b.position();
+      const weight = Math.hypot(pa.x - pb.x, pa.y - pb.y);
+      const id = `eadded_${++editCounterRef.current}`;
+      const added = cy.add({
+        group: 'edges',
+        data: {
+          id, source: aId, target: bId, weight,
+          edgeColorType: edgeColorOf(a.data('type'), b.data('type')),
+        },
+      });
+      if (!showEdges) added.addClass('hidden');
+      pushEdit(() => added.remove(), () => { added.restore(); });
+    } catch (err) { console.error('add edge failed', err); }
+  }, [pushEdit, showEdges]);
 
   // ---- Initialize Cytoscape (rebuilds only when the base graph changes) ----
   useEffect(() => {
@@ -289,8 +303,9 @@ export default function GraphViewer({
     onCyInit(cy);
     prevRouteKeyRef.current = '';
     undoStackRef.current = [];
+    redoStackRef.current = [];
     pendingEdgeRef.current = null;
-    onEditStateChangeRef.current(0);
+    onEditStateChangeRef.current(0, 0);
 
     cy.on('viewport', syncFloorplan);
 
@@ -332,16 +347,20 @@ export default function GraphViewer({
           clearPendingEdge();
         }
       } else if (m === 'delete') {
-        const removed = node.remove();
-        pushUndo(() => { removed.restore(); });
+        try {
+          const removed = node.remove();
+          pushEdit(() => { removed.restore(); }, () => { removed.remove(); });
+        } catch (err) { console.error('delete node failed', err); }
       }
     });
 
     // Edge taps: deletion.
     cy.on('tap', 'edge', (evt) => {
       if (modeRef.current === 'delete') {
-        const removed = evt.target.remove();
-        pushUndo(() => { removed.restore(); });
+        try {
+          const removed = evt.target.remove();
+          pushEdit(() => { removed.restore(); }, () => { removed.remove(); });
+        } catch (err) { console.error('delete edge failed', err); }
       }
     });
 
@@ -363,13 +382,23 @@ export default function GraphViewer({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [graphData]);
 
-  // Expose undo to the parent.
+  // Expose undo/redo to the parent.
   useEffect(() => {
     editControls.current = {
       undo: () => {
-        const inverse = undoStackRef.current.pop();
-        if (inverse) inverse();
-        onEditStateChangeRef.current(undoStackRef.current.length);
+        const e = undoStackRef.current.pop();
+        if (!e) return;
+        try { e.undo(); } catch (err) { console.error('undo failed', err); }
+        redoStackRef.current.push(e);
+        onEditStateChangeRef.current(undoStackRef.current.length, redoStackRef.current.length);
+        onGraphMutatedRef.current();
+      },
+      redo: () => {
+        const e = redoStackRef.current.pop();
+        if (!e) return;
+        try { e.redo(); } catch (err) { console.error('redo failed', err); }
+        undoStackRef.current.push(e);
+        onEditStateChangeRef.current(undoStackRef.current.length, redoStackRef.current.length);
         onGraphMutatedRef.current();
       },
     };
@@ -386,6 +415,7 @@ export default function GraphViewer({
     const cy = cyRef.current;
     if (!cy) return;
 
+    try {
     cy.elements().removeClass(ROUTE_CLASSES);
 
     const pathNodeIds = new Set<string>();
@@ -483,6 +513,10 @@ export default function GraphViewer({
       if (pathEles.nonempty()) cy.animate({ fit: { eles: pathEles, padding: 60 }, duration: 500 });
     }
     prevRouteKeyRef.current = key;
+    } catch (err) {
+      console.error('display update failed', err);
+      onRouteComputedRef.current(null);
+    }
     // editVersion is included so removing an edge on the active route breaks
     // (or reroutes) the highlighted path in real time.
   }, [graphData, visibility, showEdges, routeSource, routeTarget, editVersion, brokenNodeIds]);
@@ -491,8 +525,10 @@ export default function GraphViewer({
   useEffect(() => {
     const cy = cyRef.current;
     if (!cy) return;
-    cy.nodes().removeClass('broken');
-    brokenNodeIds.forEach((id) => cy.getElementById(id).addClass('broken'));
+    try {
+      cy.nodes().removeClass('broken');
+      brokenNodeIds.forEach((id) => cy.getElementById(id).addClass('broken'));
+    } catch (err) { console.error('broken highlight failed', err); }
   }, [brokenNodeIds, editVersion]);
 
   // ---- Node sizes ----

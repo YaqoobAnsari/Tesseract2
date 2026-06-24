@@ -131,10 +131,52 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   width: 100%;
   height: 100%;
-  padding: 40px;
+  padding: 48px 40px;
+  overflow-y: auto;
+}
+
+/* === Intro / landing === */
+.intro {
+  text-align: center;
+  max-width: 680px;
+  margin-bottom: 28px;
+}
+
+.intro-title {
+  font-size: 2rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin-bottom: 14px;
+}
+
+.intro-title span {
+  color: var(--accent);
+}
+
+.intro-abstract {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.intro-footer {
+  margin-top: 36px;
+  padding-bottom: 8px;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  text-align: center;
+}
+
+.intro-footer a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.intro-footer a:hover {
+  text-decoration: underline;
 }
 
 .dropzone {

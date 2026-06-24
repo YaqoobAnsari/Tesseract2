@@ -156,7 +156,8 @@ function App() {
   const [liveCounts, setLiveCounts] = useState<GraphCounts | null>(null);
   const [connectivity, setConnectivity] = useState<ConnectivityInfo | null>(null);
   const [undoCount, setUndoCount] = useState(0);
-  const editControls = useRef<{ undo: () => void } | null>(null);
+  const [redoCount, setRedoCount] = useState(0);
+  const editControls = useRef<{ undo: () => void; redo: () => void } | null>(null);
   // Bumped on every graph edit so the viewer re-runs routing/visibility live.
   const [editVersion, setEditVersion] = useState(0);
   // Whether to highlight broken/disconnected nodes on the canvas.
@@ -261,6 +262,7 @@ function App() {
     setLiveCounts(null);
     setConnectivity(null);
     setUndoCount(0);
+    setRedoCount(0);
     setShowBroken(false);
     const v: NodeTypeVisibility = {};
     for (const t of NODE_TYPES) v[t] = true;
@@ -311,6 +313,11 @@ function App() {
   }, [cyRef]);
 
   const handleUndo = useCallback(() => editControls.current?.undo(), []);
+  const handleRedo = useCallback(() => editControls.current?.redo(), []);
+  const handleEditState = useCallback((u: number, r: number) => {
+    setUndoCount(u);
+    setRedoCount(r);
+  }, []);
 
   // Reset interaction state whenever the displayed graph changes.
   useEffect(() => {
@@ -319,6 +326,7 @@ function App() {
     setLiveCounts(null);
     setConnectivity(null);
     setUndoCount(0);
+    setRedoCount(0);
     setShowBroken(false);
   }, [result, graphStage, resetRoute]);
 
@@ -370,7 +378,6 @@ function App() {
                 onFocusNode={focusNode}
                 onToggleBroken={setShowBroken}
               />
-              <RouteStats info={routeInfo} />
               <VisualControls
                 visibility={visibility}
                 onToggle={(type) => setVisibility((v) => ({ ...v, [type]: !v[type] }))}
@@ -411,7 +418,7 @@ function App() {
                 onNodeSelect={handleNodeSelect}
                 onRouteComputed={handleRouteComputed}
                 onGraphMutated={refreshAfterEdit}
-                onEditStateChange={setUndoCount}
+                onEditStateChange={handleEditState}
                 editControls={editControls}
               />
 
@@ -444,13 +451,16 @@ function App() {
                 onArmStart={() => armRoute('route-start')}
                 onArmEnd={() => armRoute('route-end')}
               />
+              <RouteStats info={routeInfo} />
               <EditPanel
                 mode={mode}
                 addNodeType={addNodeType}
                 onAddNodeTypeChange={setAddNodeType}
                 onSetMode={setMode}
                 onUndo={handleUndo}
+                onRedo={handleRedo}
                 undoCount={undoCount}
+                redoCount={redoCount}
               />
               <ExportPanel cy={cyRef} />
             </aside>

@@ -12,7 +12,7 @@ export default function Header({ onBack }: Props) {
           </button>
         )}
         <h1>
-          <span>Tesseract++</span> Floorplan Analyzer
+          <span>Tesseract</span> Floorplan Analyzer
         </h1>
       </div>
       <div className="header-subtitle">
