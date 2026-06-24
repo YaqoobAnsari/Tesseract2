@@ -225,7 +225,7 @@ body {
 .examples-section {
   margin-top: 32px;
   width: 100%;
-  max-width: 700px;
+  max-width: 600px;
 }
 
 .examples-section h2 {
@@ -237,8 +237,8 @@ body {
 
 .example-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-  gap: 12px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
 }
 
 .example-card {
