@@ -5,8 +5,7 @@ import numpy as np
 import cv2
 import os
 from datetime import datetime
-_REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
-sys.path.append(os.path.join(_REPO_ROOT, "utils"))
+sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "utils"))
  
 from PIL import Image
 
@@ -125,7 +124,9 @@ def plot_image(img, boxes, scores, labels, dataset, save_path=None):
     if save_path is not None:
       plt.savefig(save_path)
 
-    plt.show()
+    # Do not call plt.show(): the pipeline runs headless and in worker threads.
+    # Close the figure to release memory instead.
+    plt.close('all')
 
 """
 sets up detection model to perform bounding box detection with
@@ -166,7 +167,7 @@ def detect_doors(
     threshold=0.8,
     chunk_size=300,
     overlap=50,
-    results_dir=os.path.join(_REPO_ROOT, "results", "single_floor", "Plots"),
+    results_dir=os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "results", "single_floor", "Plots"),
 ):
     """
     Detects doors in a large image by chunking it into smaller patches for Faster R-CNN inference,
@@ -206,7 +207,7 @@ def detect_doors(
 
     #print(f"       Number of chunks created: {len(chunks)}")
 
-    door_model_path = os.path.join(_REPO_ROOT, "Model_weights", "door_mdl_32.pth")
+    door_model_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "Model_weights", "door_mdl_32.pth")
     door_model = detection_model(door_model_path)
 
     # Step 3: Run inference on each chunk

@@ -1,8 +1,22 @@
+---
+title: Tesseract
+emoji: 🏗️
+colorFrom: blue
+colorTo: purple
+sdk: docker
+app_port: 7860
+pinned: false
+short_description: Floorplan to navigable graph conversion
+---
+
 # Tesseract++ — Floorplan Parsing to Navigable Graphs
 
 Tesseract++ converts annotated building floorplan images into navigable, multi-floor graph representations. It combines text detection, semantic interpretation, room segmentation, and door detection into a pipeline that produces typed graphs (rooms, corridors, doors, outdoor areas, stairs/elevators) with geometric edge weights — suitable for pathfinding, accessibility analysis, egress studies, and downstream spatial reasoning.
 
 This repository accompanies the journal extension of *Tesseract* (SIGSpatial'25).
+
+> **Live Demo:** [huggingface.co/spaces/yansari/Tesseract](https://huggingface.co/spaces/yansari/Tesseract)
+
 
 ```mermaid
 flowchart LR
@@ -133,8 +147,10 @@ Mapping format and validation rules (image existence, floor adjacency N±1, one-
 ### Web interface
 
 ```bash
-python app.py   # FastAPI + bundled frontend
+python app.py   # FastAPI + bundled React frontend (interactive graph viewer/editor)
 ```
+
+Deployed as a Docker Space at [huggingface.co/spaces/yansari/Tesseract](https://huggingface.co/spaces/yansari/Tesseract); the `Dockerfile` handles CPU-only PyTorch installation and model-weight retrieval (`download_weights.py`) automatically.
 
 ## Evaluation Suite
 

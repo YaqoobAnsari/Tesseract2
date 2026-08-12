@@ -10,7 +10,7 @@ class ExampleImage(BaseModel):
     name: str
     display_name: str
     size_kb: float
-    path: str
+    has_cached_result: bool = False
 
 class NodeData(BaseModel):
     """Graph node data structure"""
@@ -42,6 +42,7 @@ class ProcessingResponse(BaseModel):
     image_name: str
     processing_time: float
     graph_data: Optional[CytoscapeGraph] = None
+    pre_pruning_graph_data: Optional[CytoscapeGraph] = None
     statistics: Dict[str, Any] = {}
     message: str = ""
     error: Optional[str] = None

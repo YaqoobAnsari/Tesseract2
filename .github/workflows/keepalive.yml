@@ -1,0 +1,32 @@
+name: Keep HF Space awake
+
+# This job runs on GitHub's own servers (not your machine), so it works 24/7
+# even when your computer is off, asleep, or offline. It pings the Hugging
+# Face Space on a schedule so the free tier's 48h inactivity timer never
+# triggers a sleep. Adjust the cron below to ping more or less often.
+
+on:
+  schedule:
+    - cron: "0 */3 * * *"   # every 3 hours (UTC)
+  workflow_dispatch: {}       # lets you run it manually from the Actions tab
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping the Space health endpoint
+        run: |
+          URL="https://yansari-tesseract.hf.space/health"
+          for i in 1 2 3 4 5; do
+            code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 90 "$URL" || echo "000")
+            echo "Attempt $i -> HTTP $code"
+            if [ "$code" = "200" ]; then
+              echo "Space is awake."
+              exit 0
+            fi
+            sleep 30
+          done
+          # Even without a 200 the request registers activity and wakes a
+          # sleeping Space, so we do not fail the workflow.
+          echo "No 200 yet (Space may still be cold-starting); ping registered."
+          exit 0

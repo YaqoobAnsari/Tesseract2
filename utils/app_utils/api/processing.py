@@ -6,13 +6,29 @@ Wraps Main.py functionality for web API usage
 import os
 import sys
 import json
-import signal
 import tempfile
 import shutil
 from pathlib import Path
 from typing import Dict, Any, Optional
-from contextlib import contextmanager
 import threading
+from typing import Callable
+
+# Headless matplotlib backend before Main (and its plotting modules) load.
+os.environ.setdefault("MPLBACKEND", "Agg")
+import matplotlib
+matplotlib.use("Agg")
+
+# Progress tracking (thread-safe via GIL for simple dict writes)
+_progress: Dict[str, str] = {}
+
+def set_progress(key: str, stage: str):
+    _progress[key] = stage
+
+def get_progress(key: str) -> str:
+    return _progress.get(key, "")
+
+def clear_progress(key: str):
+    _progress.pop(key, None)
 
 # Add required paths
 base_path = Path(__file__).parent.parent.parent.parent  # Back to Tesseract++ root
@@ -28,20 +44,6 @@ import Main
 class TimeoutException(Exception):
     """Custom exception for processing timeout"""
     pass
-
-@contextmanager
-def timeout(seconds):
-    """Context manager for timeout"""
-    def signal_handler(signum, frame):
-        raise TimeoutException("Processing timeout")
-
-    # Set the signal handler and alarm
-    signal.signal(signal.SIGALRM, signal_handler)
-    signal.alarm(seconds)
-    try:
-        yield
-    finally:
-        signal.alarm(0)  # Disable alarm
 
 class ProcessingPipeline:
     """
@@ -75,7 +77,54 @@ class ProcessingPipeline:
             if not weight_path.exists():
                 raise FileNotFoundError(f"Required model weight not found: {weight_path}")
 
-    def process_image(self, image_path: str, image_name: str, timeout: int = 180) -> Dict[str, Any]:
+    def get_cached_result(self, image_name: str) -> Optional[Dict[str, Any]]:
+        """
+        Check for and return pre-computed results for an image.
+
+        Args:
+            image_name: Image filename (e.g. "FF part 1upE.png")
+
+        Returns:
+            Processing result dict if cached, None otherwise.
+        """
+        image_stem = Path(image_name).stem
+        json_dir = self.results_dir / "Json" / image_stem
+        post_pruning_json = json_dir / f"{image_stem}_post_pruning.json"
+        pre_pruning_json = json_dir / f"{image_stem}_pre_pruning.json"
+
+        if not post_pruning_json.exists():
+            return None
+
+        with open(post_pruning_json, 'r') as f:
+            graph_data = json.load(f)
+
+        stats = self._calculate_statistics(graph_data)
+
+        # Load pre-pruning graph if available
+        pre_pruning_graph = None
+        if pre_pruning_json.exists():
+            with open(pre_pruning_json, 'r') as f:
+                pre_pruning_graph = json.load(f)
+                pre_nodes = len(pre_pruning_graph.get("nodes", []))
+                post_nodes = len(graph_data.get("nodes", []))
+                stats["pruning_reduction"] = round(
+                    (1 - post_nodes / pre_nodes) * 100, 2
+                ) if pre_nodes > 0 else 0
+
+        return {
+            "graph_json": graph_data,
+            "pre_pruning_graph_json": pre_pruning_graph,
+            "stats": stats,
+            "image_name": image_name
+        }
+
+    def has_cached_result(self, image_name: str) -> bool:
+        """Check if a cached result exists for an image."""
+        image_stem = Path(image_name).stem
+        post_pruning_json = self.results_dir / "Json" / image_stem / f"{image_stem}_post_pruning.json"
+        return post_pruning_json.exists()
+
+    def process_image(self, image_path: str, image_name: str, timeout: int = 180, progress_key: str = None) -> Dict[str, Any]:
         """
         Process a floorplan image through the Tesseract++ pipeline
 
@@ -97,6 +146,9 @@ class ProcessingPipeline:
         input_image_path = self.input_images_dir / image_name
         image_was_copied = False
 
+        # Track exception from thread
+        thread_exception = [None]
+
         try:
             if not input_image_path.exists():
                 shutil.copy2(image_path, input_image_path)
@@ -106,12 +158,17 @@ class ProcessingPipeline:
             original_cwd = os.getcwd()
             os.chdir(self.base_path)
 
+            # Progress callback
+            def on_progress(stage: str):
+                if progress_key:
+                    set_progress(progress_key, stage)
+
             # Run the main processing pipeline with timeout
             def run_processing():
                 try:
-                    Main.make_graph(image_name)
+                    Main.make_graph(image_name, progress_callback=on_progress)
                 except Exception as e:
-                    raise e
+                    thread_exception[0] = e
 
             # Use threading for timeout control
             thread = threading.Thread(target=run_processing)
@@ -121,6 +178,9 @@ class ProcessingPipeline:
 
             if thread.is_alive():
                 raise TimeoutException(f"Processing exceeded {timeout} seconds")
+
+            if thread_exception[0] is not None:
+                raise thread_exception[0]
 
             # Extract results
             image_name_no_ext = Path(image_name).stem
@@ -140,24 +200,35 @@ class ProcessingPipeline:
             # Calculate statistics
             stats = self._calculate_statistics(graph_data)
 
-            # Add pruning comparison if pre-pruning exists
+            # Load pre-pruning graph if available
+            pre_pruning_graph = None
             if pre_pruning_json.exists():
                 with open(pre_pruning_json, 'r') as f:
-                    pre_pruning_data = json.load(f)
-                    pre_nodes = len(pre_pruning_data.get("nodes", []))
+                    pre_pruning_graph = json.load(f)
+                    pre_nodes = len(pre_pruning_graph.get("nodes", []))
                     post_nodes = len(graph_data.get("nodes", []))
                     stats["pruning_reduction"] = round((1 - post_nodes / pre_nodes) * 100, 2) if pre_nodes > 0 else 0
 
-            return {
+            result = {
                 "graph_json": graph_data,
+                "pre_pruning_graph_json": pre_pruning_graph,
                 "stats": stats,
                 "session_id": session_id,
                 "image_name": image_name
             }
 
+            # Clean up Results for uploaded (non-example) images
+            if image_was_copied:
+                self._cleanup_results(image_name_no_ext)
+
+            return result
+
         finally:
             # Cleanup
             os.chdir(original_cwd)
+
+            if progress_key:
+                clear_progress(progress_key)
 
             # Remove copied image if it was temporary
             if image_was_copied and input_image_path.exists():
@@ -166,6 +237,23 @@ class ProcessingPipeline:
             # Clean up session directory
             if session_dir.exists():
                 shutil.rmtree(session_dir, ignore_errors=True)
+
+    def _cleanup_results(self, image_stem: str):
+        """Clean up Results subdirectories for non-example (uploaded) images."""
+        results_subdirs = [
+            "Json", "Plots/connective_plots", "Plots/door_detect",
+            "Plots/flood_fill", "Plots/graph_plots", "Plots/interpreter_detect",
+            "Plots/room_subnodes", "Plots/smart_fill", "Plots/text_detection",
+            "Plots/test_plots", "Time&Meta/Text files"
+        ]
+        for subdir in results_subdirs:
+            result_path = self.results_dir / subdir / image_stem
+            if result_path.exists() and result_path.is_dir():
+                shutil.rmtree(result_path, ignore_errors=True)
+            # Also check for timer info text files
+            timer_file = self.results_dir / "Time&Meta" / "Text files" / f"{image_stem}_timer_info.txt"
+            if timer_file.exists():
+                timer_file.unlink(missing_ok=True)
 
     def _calculate_statistics(self, graph_data: Dict[str, Any]) -> Dict[str, Any]:
         """Calculate graph statistics"""
@@ -190,7 +278,6 @@ class ProcessingPipeline:
         for img_path in sorted(self.input_images_dir.glob("*.png"))[:4]:
             images.append({
                 "name": img_path.name,
-                "path": str(img_path),
                 "size_kb": img_path.stat().st_size / 1024
             })
         return images

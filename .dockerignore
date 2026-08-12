@@ -1,0 +1,40 @@
+# Dependencies and build artifacts
+utils/app_utils/frontend/node_modules/
+utils/app_utils/frontend/dist/
+
+# Python caches
+__pycache__/
+*.pyc
+*.pyo
+
+# Git
+.git/
+.gitignore
+
+# Results (plots and metadata regenerated; keep Json/ for cached examples)
+Results/Plots/
+Results/Time&Meta/
+Multifloor_Results/
+
+# Temporary files
+temp_processing/
+tess/
+
+# IDE
+.vscode/
+.idea/
+.claude/
+
+# LaTeX / paper artifacts (not needed in the runtime image)
+*.aux
+*.log
+*.bbl
+*.blg
+bibliography.bib
+main.tex
+tables.tex
+Demo Paper/
+figs/
+plots/
+*.pdf
+*.docx

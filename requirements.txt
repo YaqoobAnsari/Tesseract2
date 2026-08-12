@@ -1,28 +1,31 @@
-# Tesseract++ dependencies (tested with Python 3.12)
-#
-# PyTorch: install the build matching your hardware first, e.g. CPU-only:
-#   pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
-torch
-torchvision
-torchaudio
+# Core dependencies
+torch>=2.0.0
+torchvision>=0.15.0
+numpy>=1.24.0
+opencv-python>=4.8.0
+Pillow>=10.0.0
+pandas>=2.0.0
+matplotlib>=3.7.0
+networkx>=3.1
 
-opencv-python-headless
-numpy
-pandas
-pillow
-matplotlib
-networkx
-scipy
-scikit-image
-lmdb
-natsort
-six
-tqdm
-fuzzywuzzy
-python-Levenshtein
+# Image processing
+scikit-image>=0.21.0
 
-# web interface (app.py)
-fastapi
-uvicorn
-pydantic
-python-multipart
+# Evaluation suite (registration, assignment, statistics)
+scipy>=1.11.0
+tqdm>=4.65.0
+
+# Text recognition
+lmdb>=1.4.0
+natsort>=8.4.0
+six>=1.16.0
+python-Levenshtein>=0.21.0
+fuzzywuzzy>=0.18.0
+
+# Web application
+fastapi>=0.104.0
+uvicorn[standard]>=0.24.0
+python-multipart>=0.0.6
+
+# HF Spaces model weight download
+huggingface_hub>=0.20.0

@@ -28,7 +28,7 @@ sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), "utils"
 
 # Import app utilities
 from utils.app_utils.api.models import ProcessingResponse, GraphVisualization, ExampleImage
-from utils.app_utils.api.processing import ProcessingPipeline
+from utils.app_utils.api.processing import ProcessingPipeline, get_progress
 from utils.app_utils.visualization.graph_converter import convert_to_cytoscape
 
 # Initialize FastAPI app
@@ -50,7 +50,20 @@ app.add_middleware(
 # Global variables
 UPLOAD_LIMIT_MB = 10
 PROCESSING_TIMEOUT = 180  # 3 minutes
-from config import MODEL_WEIGHTS_DIR, INPUT_IMAGES_DIR, RESULTS_DIR
+
+# All repository paths come from config.py
+import config as _config
+_BASE_DIR = Path(_config.BASE_PATH)
+MODEL_WEIGHTS_DIR = Path(_config.MODEL_WEIGHTS_DIR)
+INPUT_IMAGES_DIR = Path(_config.INPUT_IMAGES_DIR)
+RESULTS_DIR = Path(_config.RESULTS_DIR)
+
+# Curated example images (order matters for display)
+CURATED_EXAMPLES = [
+    "FF part 1upE.png",
+    "FF part 2up.png",
+    "FF part 3upE.png",
+]
 
 # Session storage (in-memory, cleared on restart)
 active_sessions: Dict[str, Dict[str, Any]] = {}
@@ -82,11 +95,11 @@ async def startup_event():
 
     missing_models = []
     for model_name, weight_file in model_checks.items():
-        weight_path = os.path.join(MODEL_WEIGHTS_DIR, weight_file)
-        if not os.path.exists(weight_path):
+        weight_path = MODEL_WEIGHTS_DIR / weight_file
+        if not weight_path.exists():
             missing_models.append(f"{model_name} ({weight_file})")
         else:
-            print(f"✓ {model_name} weights found")
+            print(f"  {model_name} weights found")
 
     if missing_models:
         error_msg = f"Missing model weights in {MODEL_WEIGHTS_DIR}:\n" + "\n".join(missing_models)
@@ -96,14 +109,14 @@ async def startup_event():
     # Initialize processing pipeline
     try:
         pipeline = ProcessingPipeline()
-        print("✓ Processing pipeline initialized")
+        print("  Processing pipeline initialized")
     except Exception as e:
         print(f"ERROR: Failed to initialize pipeline: {e}")
         raise
 
-    # Check example images
-    example_count = len(list(Path(INPUT_IMAGES_DIR).glob("*.png")))
-    print(f"✓ Found {example_count} example images")
+    # Check curated example images
+    found = sum(1 for name in CURATED_EXAMPLES if (INPUT_IMAGES_DIR / name).exists())
+    print(f"  Found {found}/{len(CURATED_EXAMPLES)} curated example images")
 
     print("=" * 50)
     print("Application ready!")
@@ -112,9 +125,8 @@ async def startup_event():
 @app.on_event("shutdown")
 async def shutdown_event():
     """Cleanup on shutdown"""
-    # Clear any temporary files
     for session_id, session_data in active_sessions.items():
-        if "temp_file" in session_data and os.path.exists(session_data["temp_file"]):
+        if "temp_file" in session_data and session_data["temp_file"] and os.path.exists(session_data["temp_file"]):
             os.remove(session_data["temp_file"])
     active_sessions.clear()
 
@@ -122,43 +134,99 @@ async def shutdown_event():
 async def health_check():
     """Health check endpoint"""
     models_loaded = pipeline is not None
-    example_images = len(list(Path(INPUT_IMAGES_DIR).glob("*.png")))
+    found = sum(1 for name in CURATED_EXAMPLES if (INPUT_IMAGES_DIR / name).exists())
 
     return HealthCheck(
         status="healthy" if models_loaded else "unhealthy",
         models_loaded=models_loaded,
-        example_images=example_images,
+        example_images=found,
         message="System ready for processing" if models_loaded else "Models not loaded"
     )
 
 @app.get("/api/examples", response_model=List[ExampleImage])
 async def get_example_images():
-    """Get list of example images"""
+    """Get list of curated example images"""
     examples = []
 
-    # Get first 4 PNG images from the floorplans folder
-    image_files = sorted(Path(INPUT_IMAGES_DIR).glob("*.png"))[:4]
+    for img_name in CURATED_EXAMPLES:
+        img_path = INPUT_IMAGES_DIR / img_name
+        if not img_path.exists():
+            continue
 
-    for img_path in image_files:
-        # Get file info
         stat = img_path.stat()
+        has_cached = pipeline.has_cached_result(img_name) if pipeline else False
+
         examples.append(ExampleImage(
-            name=img_path.name,
-            display_name=img_path.stem.replace("_", " ").title(),
-            size_kb=stat.st_size / 1024,
-            path=str(img_path)
+            name=img_name,
+            display_name=img_path.stem.replace("_", " "),
+            size_kb=round(stat.st_size / 1024, 1),
+            has_cached_result=has_cached
         ))
 
     return examples
 
 @app.get("/api/example-image/{image_name}")
 async def get_example_image(image_name: str):
-    """Serve example image file"""
-    image_path = Path(INPUT_IMAGES_DIR) / image_name
+    """Serve example image thumbnail"""
+    image_path = INPUT_IMAGES_DIR / image_name
     if not image_path.exists() or not image_path.is_file():
         raise HTTPException(status_code=404, detail="Example image not found")
 
     return FileResponse(image_path, media_type="image/png")
+
+@app.get("/api/floorplan-image/{image_name}")
+async def get_floorplan_image(image_name: str):
+    """Serve original floorplan image for background overlay"""
+    # Check Input_Images for example images
+    image_path = INPUT_IMAGES_DIR / image_name
+    if image_path.exists() and image_path.is_file():
+        return FileResponse(image_path, media_type="image/png")
+
+    # Check temp storage for uploaded images
+    if pipeline:
+        temp_path = pipeline.temp_dir / image_name
+        if temp_path.exists() and temp_path.is_file():
+            return FileResponse(temp_path, media_type="image/png")
+
+    raise HTTPException(status_code=404, detail="Floorplan image not found")
+
+@app.get("/api/cached-result/{image_name}")
+async def get_cached_result(image_name: str):
+    """Get pre-computed result for a cached example image"""
+    if not pipeline:
+        raise HTTPException(status_code=503, detail="Pipeline not initialized")
+
+    cached = pipeline.get_cached_result(image_name)
+    if cached is None:
+        raise HTTPException(status_code=404, detail="No cached result for this image")
+
+    cytoscape_data = convert_to_cytoscape(cached["graph_json"])
+    pre_pruning_cytoscape = (
+        convert_to_cytoscape(cached["pre_pruning_graph_json"])
+        if cached.get("pre_pruning_graph_json") else None
+    )
+
+    return ProcessingResponse(
+        session_id=str(uuid.uuid4()),
+        status="success",
+        image_name=image_name,
+        processing_time=0.0,
+        graph_data=cytoscape_data,
+        pre_pruning_graph_data=pre_pruning_cytoscape,
+        statistics={
+            "total_nodes": cached["stats"]["total_nodes"],
+            "total_edges": cached["stats"]["total_edges"],
+            "node_types": cached["stats"]["node_types"],
+            "pruning_reduction": cached["stats"].get("pruning_reduction", 0)
+        },
+        message=f"Loaded cached result for {image_name}"
+    )
+
+@app.get("/api/progress/{image_name}")
+async def get_processing_progress(image_name: str):
+    """Get current processing stage for an image"""
+    stage = get_progress(image_name)
+    return {"stage": stage}
 
 @app.post("/api/process")
 async def process_image(
@@ -199,16 +267,41 @@ async def process_image(
 
             image_path = temp_file.name
             image_name = file.filename
-            is_temp = True
+            is_example = False
 
         elif example:
-            # Use example image
-            image_path = str(Path(INPUT_IMAGES_DIR) / example)
+            # Check for cached result first
+            if pipeline:
+                cached = pipeline.get_cached_result(example)
+                if cached is not None:
+                    cytoscape_data = convert_to_cytoscape(cached["graph_json"])
+                    pre_pruning_cytoscape = (
+                        convert_to_cytoscape(cached["pre_pruning_graph_json"])
+                        if cached.get("pre_pruning_graph_json") else None
+                    )
+                    return ProcessingResponse(
+                        session_id=session_id,
+                        status="success",
+                        image_name=example,
+                        processing_time=0.0,
+                        graph_data=cytoscape_data,
+                        pre_pruning_graph_data=pre_pruning_cytoscape,
+                        statistics={
+                            "total_nodes": cached["stats"]["total_nodes"],
+                            "total_edges": cached["stats"]["total_edges"],
+                            "node_types": cached["stats"]["node_types"],
+                            "pruning_reduction": cached["stats"].get("pruning_reduction", 0)
+                        },
+                        message=f"Loaded cached result for {example}"
+                    )
+
+            # No cache — run full pipeline
+            image_path = str(INPUT_IMAGES_DIR / example)
             if not os.path.exists(image_path):
                 raise HTTPException(status_code=404, detail="Example image not found")
 
             image_name = example
-            is_temp = False
+            is_example = True
 
         else:
             raise HTTPException(status_code=400, detail="No image provided")
@@ -219,7 +312,7 @@ async def process_image(
             "status": "processing",
             "start_time": time.time(),
             "image_name": image_name,
-            "temp_file": image_path if is_temp else None
+            "temp_file": image_path if not is_example else None
         }
 
         # Process image synchronously
@@ -231,13 +324,18 @@ async def process_image(
                 pipeline.process_image,
                 image_path,
                 image_name,
-                timeout=PROCESSING_TIMEOUT
+                timeout=PROCESSING_TIMEOUT,
+                progress_key=image_name
             )
 
             processing_time = time.time() - start_time
 
             # Convert graph to Cytoscape format
             cytoscape_data = convert_to_cytoscape(result["graph_json"])
+            pre_pruning_cytoscape = (
+                convert_to_cytoscape(result["pre_pruning_graph_json"])
+                if result.get("pre_pruning_graph_json") else None
+            )
 
             # Prepare response
             response = ProcessingResponse(
@@ -246,6 +344,7 @@ async def process_image(
                 image_name=image_name,
                 processing_time=processing_time,
                 graph_data=cytoscape_data,
+                pre_pruning_graph_data=pre_pruning_cytoscape,
                 statistics={
                     "total_nodes": result["stats"]["total_nodes"],
                     "total_edges": result["stats"]["total_edges"],
@@ -259,8 +358,11 @@ async def process_image(
             active_sessions[session_id]["status"] = "completed"
             active_sessions[session_id]["result"] = response.dict()
 
-            # Cleanup temp file if needed
-            if is_temp and os.path.exists(image_path):
+            # Save uploaded image for floorplan overlay, then cleanup temp
+            if not is_example and os.path.exists(image_path):
+                if pipeline:
+                    overlay_path = pipeline.temp_dir / image_name
+                    shutil.copy2(image_path, str(overlay_path))
                 os.remove(image_path)
 
             return response
@@ -305,8 +407,8 @@ async def clear_session(session_id: str):
 
     return {"message": "Session not found"}
 
-# Mount static files for React frontend
-frontend_dir = Path(__file__).parent / "utils" / "app_utils" / "frontend" / "build"
+# Mount static files for React frontend (Vite build output goes to dist/)
+frontend_dir = Path(__file__).parent / "utils" / "app_utils" / "frontend" / "dist"
 if frontend_dir.exists():
     app.mount("/", StaticFiles(directory=str(frontend_dir), html=True), name="frontend")
 else:
@@ -322,7 +424,7 @@ if __name__ == "__main__":
     uvicorn.run(
         "app:app",
         host="0.0.0.0",
-        port=8000,
+        port=int(os.environ.get("PORT", 7860)),
         reload=False,  # Set to True for development
         log_level="info"
     )
