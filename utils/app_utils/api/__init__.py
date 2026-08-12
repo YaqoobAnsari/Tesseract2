@@ -1,0 +1,1 @@
+# API utilities for Tesseract++ web application
