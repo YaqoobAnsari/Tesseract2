@@ -4,7 +4,7 @@ All numbers below were produced on the included demo data (see the README's
 *Data Notes* — in particular, the FF↔SF pair duplicates one drawing, and
 `GF part 1upE` carries programmatically added labels). Every experiment is
 reproducible with the listed command; outputs land under
-`Multifloor_Results/<ExperimentName>/`.
+`results/evaluation/<ExperimentName>/`.
 
 ## Metric layer — `evaluate_metrics.py`
 

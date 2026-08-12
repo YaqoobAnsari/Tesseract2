@@ -11,11 +11,10 @@ import pandas as pd
 from PIL import Image
 
 
-# Add the required paths to the Python path
-sys.path.append("/data1/yansari/cad2map/Tesseract++/Models/Text_Models")
-sys.path.append("./utils")  # Add the utils folder to the Python path
-sys.path.append("/data1/yansari/cad2map/Tesseract++/Models/Interpreter")
-sys.path.append("/data1/yansari/cad2map/Tesseract++/Models/Door_Models") 
+# All repository paths come from config.py (also puts Models/utils on sys.path)
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import config
+from config import INPUT_IMAGES_DIR, MODEL_WEIGHTS_DIR, RESULTS_DIR
 from text_interpreter import interpret_bboxes, parse_transition_labels
 from door_bboxer import*
 
@@ -117,10 +116,9 @@ def make_graph(image_name, floor_id=None, corridor_distance=20):
                                   pixels (default 20; used for density ablation).
     """
     # Define base paths
-    base_path = os.getcwd()
-    input_images_dir = os.path.join(base_path, "Input_Images")
-    model_weights_dir = os.path.join(base_path, "Model_weights")
-    results_dir = os.path.join(base_path, "Results")
+    input_images_dir = INPUT_IMAGES_DIR
+    model_weights_dir = MODEL_WEIGHTS_DIR
+    results_dir = RESULTS_DIR
 
     time_dir = os.path.join(results_dir, "Time&Meta")
     os.makedirs(time_dir, exist_ok=True)
@@ -1026,10 +1024,9 @@ def process_multi_floor(image_names, transition_mapping=None, spatial_tolerance=
     print("MULTI-FLOOR PROCESSING")
     print("="*70)
     
-    base_path = os.getcwd()
-    input_images_dir = os.path.join(base_path, "Input_Images")
-    results_dir = os.path.join(base_path, "Results")
-    
+    input_images_dir = INPUT_IMAGES_DIR
+    results_dir = RESULTS_DIR
+
     # Step 1: Validate transition mapping if provided
     if transition_mapping:
         is_valid, errors, warnings = validate_transition_mapping(
@@ -1197,7 +1194,7 @@ if __name__ == "__main__":
         "image_name",
         type=str,
         nargs="?",
-        help="Name of the image (with extension) in the Input_Images folder."
+        help="Name of the image (with extension) in the data/floorplans folder."
     )
     parser.add_argument(
         "--corridor-distance",

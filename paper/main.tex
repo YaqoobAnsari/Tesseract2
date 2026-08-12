@@ -578,7 +578,7 @@ Post-merge, the system verifies:
 % [FILL: Node/edge counts, connectivity verification, comparison to ground truth if available]
 
 \paragraph{Funneling Ablation.}
-We compare three intra-room connectivity strategies on the same processed floors: \emph{full} (every family node wired to every family door), \emph{funneling} (ours), and \emph{one-per-room} (subnodes removed; rooms as single nodes, with off-graph entry modeled as a Euclidean hop to the main node). All variants achieve complete family-to-door connectivity; they differ in cost and path quality. On the primary evaluation floor (34 families, 198 subnodes, 2 exits), funneling retains 167 intra-room edges against 1{,}869 for full wiring (Proposition~\ref{prop:funneling}; a second floor with 20 families and 120 subnodes gives exactly 120, ratio 1.00), while its subnode-to-nearest-exit routes are only 7.2\% longer than the dense reference (962\,px vs.\ 904\,px mean); one-per-room pays 13.5\% stretch and forfeits intra-room spatial fidelity. Mean single-query Dijkstra times are 0.37, 0.44, and 0.30\,ms respectively --- funneling occupies the size/quality sweet spot. (Script: \texttt{evaluate\_funneling.py}; outputs under \texttt{Multifloor\_Results/FunnelingAblation/}.)
+We compare three intra-room connectivity strategies on the same processed floors: \emph{full} (every family node wired to every family door), \emph{funneling} (ours), and \emph{one-per-room} (subnodes removed; rooms as single nodes, with off-graph entry modeled as a Euclidean hop to the main node). All variants achieve complete family-to-door connectivity; they differ in cost and path quality. On the primary evaluation floor (34 families, 198 subnodes, 2 exits), funneling retains 167 intra-room edges against 1{,}869 for full wiring (Proposition~\ref{prop:funneling}; a second floor with 20 families and 120 subnodes gives exactly 120, ratio 1.00), while its subnode-to-nearest-exit routes are only 7.2\% longer than the dense reference (962\,px vs.\ 904\,px mean); one-per-room pays 13.5\% stretch and forfeits intra-room spatial fidelity. Mean single-query Dijkstra times are 0.37, 0.44, and 0.30\,ms respectively --- funneling occupies the size/quality sweet spot. (Script: \texttt{evaluation/evaluate\_funneling.py}; outputs under \texttt{results/evaluation/FunnelingAblation/}.)
 
 \paragraph{Timing Analysis.}
 Table~\ref{tab:timing} summarizes per-stage processing times.
@@ -629,7 +629,7 @@ Figure~\ref{fig:pruning} illustrates pruning impact across test floorplans.
 \subsection{Downstream Task Validation}
 \label{subsec:downstream}
 
-Beyond intrinsic graph metrics, we validate the representation on two concrete jobs (script: \texttt{evaluate\_downstream.py}).
+Beyond intrinsic graph metrics, we validate the representation on two concrete jobs (script: \texttt{evaluation/evaluate\_downstream.py}).
 
 \paragraph{Accessibility Routing.}
 Routing with stairs forbidden (elevators only) is possible precisely because transition nodes are typed. On a two-floor merge with full transition correspondence, all sampled cross-floor room pairs remain reachable step-free, at a mean detour ratio of 2.02$\times$ (p90: 3.93$\times$) relative to unrestricted routing. On the ground-floor/first-floor pair --- where only a stairs correspondence is established --- the analysis reports 102/102 pairs reachable normally but \emph{zero} step-free routes, surfacing an accessibility gap that untyped graphs cannot express.

@@ -45,21 +45,13 @@ from mpl_toolkits.mplot3d.art3d import Line3DCollection
 import networkx as nx
 from PIL import Image
 
-# Add required paths
-sys.path.insert(0, "/data1/yansari/cad2map/Tesseract++")
-sys.path.insert(0, "/data1/yansari/cad2map/Tesseract++/utils")
+# All repository paths come from config.py (also puts Models/utils on sys.path)
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import config
+from config import (BASE_PATH, INPUT_IMAGES_DIR, MAPPINGS_DIR, RESULTS_DIR,
+                    MULTIFLOOR_RESULTS_DIR)
 
 from utils.graph import BuildingGraph
-
-
-# =============================================================================
-# CONSTANTS
-# =============================================================================
-
-BASE_PATH = "/data1/yansari/cad2map/Tesseract++"
-INPUT_IMAGES_DIR = os.path.join(BASE_PATH, "Input_Images")
-RESULTS_DIR = os.path.join(BASE_PATH, "Results")
-MULTIFLOOR_RESULTS_DIR = os.path.join(BASE_PATH, "Multifloor_Results")
 
 # Floor code mappings (supports negative floors for basements)
 FLOOR_CODE_MAP = {
@@ -1937,7 +1929,7 @@ def process_auto_match(image1, image2, floor1=None, floor2=None,
                            "or raise --reject-cost.")
 
     seq = f"AUTO_{get_floor_display_name(floor1)}_{get_floor_display_name(floor2)}"
-    mapping_path = os.path.join(BASE_PATH, "mappings", f"{seq}.txt")
+    mapping_path = os.path.join(MAPPINGS_DIR, f"{seq}.txt")
     write_mapping_file(result, floor1, image1, floor2, image2, mapping_path)
     print(f"\n  Inferred mapping written to: {mapping_path}")
 

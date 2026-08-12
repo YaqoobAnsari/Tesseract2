@@ -28,17 +28,20 @@ flowchart LR
 
 ```
 Tesseract++/
-├── Main.py                     # single-floor pipeline (end-to-end)
-├── MultiFloor.py               # multi-floor merge + automatic transition matching
-├── app.py                      # FastAPI web interface
-├── evaluate_matcher.py         # synthetic robustness suite for auto-matching
-├── evaluate_funneling.py       # 3-way intra-room connectivity ablation
-├── evaluate_door_knockout.py   # connectivity under door-detector degradation
-├── evaluate_corridor_density.py# corridor sampling density trade-off
-├── evaluate_pruning.py         # pruning keep-term ablation, pre/post comparison
-├── evaluate_downstream.py      # accessibility routing + egress distances
-├── evaluate_metrics.py         # metric layer over all processed graphs
-├── evaluate_text_accuracy.py   # label detection/recognition accuracy
+├── config.py                   # single source of truth for all repository paths
+├── Main.py                     # entry point: single-floor pipeline
+├── MultiFloor.py               # entry point: multi-floor merge + auto matching
+├── app.py                      # entry point: FastAPI web interface
+├── requirements.txt
+├── evaluation/                 # reproducible evaluation suite
+│   ├── evaluate_metrics.py         # metric layer over all processed graphs
+│   ├── evaluate_matcher.py         # auto-matching robustness (synthetic)
+│   ├── evaluate_funneling.py       # 3-way intra-room connectivity ablation
+│   ├── evaluate_door_knockout.py   # connectivity under detector degradation
+│   ├── evaluate_corridor_density.py# corridor sampling density trade-off
+│   ├── evaluate_pruning.py         # pruning keep-term ablation, pre/post
+│   ├── evaluate_downstream.py      # accessibility routing + egress distances
+│   └── evaluate_text_accuracy.py   # label detection/recognition accuracy
 ├── utils/                      # graph construction, flood fill, matching, metrics
 │   ├── graph.py                #   BuildingGraph: nodes, edges, funneling, pruning
 │   ├── transition_matcher.py   #   registration + assignment-with-rejection
@@ -46,12 +49,15 @@ Tesseract++/
 │   └── app_utils/              #   web app internals
 ├── Models/                     # text detection (CRAFT), interpreter, door models
 ├── Model_weights/              # NOT tracked - place checkpoints here (*.pth)
-├── Input_Images/               # input floorplans (see Data Notes)
-├── mappings/                   # transition mapping files (manual + AUTO_*)
-├── Results/                    # single-floor outputs (Json / Plots / Time&Meta)
-├── Multifloor_Results/         # merged graphs, plots, and all evaluation outputs
+├── data/
+│   ├── floorplans/             # input floorplan images (see Data Notes)
+│   └── mappings/               # transition mapping files (manual + AUTO_*)
+├── results/
+│   ├── single_floor/           # per-image outputs (Json / Plots / Time&Meta)
+│   ├── multi_floor/            # merged building graphs (Jsons / Plots / Time&Meta)
+│   └── evaluation/             # outputs of the evaluation suite
 ├── paper/                      # journal manuscript sources
-└── docs/                       # documentation
+└── docs/                       # documentation (EVALUATION.md)
 ```
 
 ## Input Conventions
@@ -78,8 +84,8 @@ Tested with Python 3.12 and CPU PyTorch 2.9.1:
 python -m venv tess
 source tess/bin/activate
 pip install --upgrade pip setuptools wheel
-pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
-pip install opencv-python-headless numpy pandas pillow matplotlib networkx lmdb natsort six scikit-image scipy tqdm fuzzywuzzy python-Levenshtein
+pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu   # CPU build
+pip install -r requirements.txt
 ```
 
 Model weights are not committed. Place under `Model_weights/`:
@@ -97,12 +103,12 @@ python -u Main.py "FF part 1upE.png"
 python -u Main.py "FF part 1upE.png" --corridor-distance 40
 ```
 
-Outputs land in `Results/{Json,Plots,Time&Meta}/`.
+Outputs land in `results/single_floor/{Json,Plots,Time&Meta}/`.
 
 ### Multi-floor — automatic (recommended)
 
 ```bash
-# infer the stairs/elevator correspondence, write mappings/AUTO_*.txt,
+# infer the stairs/elevator correspondence, write data/mappings/AUTO_*.txt,
 # validate it, and run the full merge:
 python MultiFloor.py --auto-match "FF part 1upE.png:SF part 1upE.png"
 
@@ -118,11 +124,11 @@ The inferred mapping file records registration provenance (transform, wall-agree
 ### Multi-floor — manual mapping
 
 ```bash
-python MultiFloor.py --mapping-file mappings/FF_SF.txt
+python MultiFloor.py --mapping-file data/mappings/FF_SF.txt
 python MultiFloor.py --mapping "(1, FF part 1upE.png, stairs_1):(2, SF part 1upE.png, stairs_1)"
 ```
 
-Mapping format and validation rules (image existence, floor adjacency N±1, one-to-one, filename consistency) are documented in the header of `mappings/FF_SF.txt`.
+Mapping format and validation rules (image existence, floor adjacency N±1, one-to-one, filename consistency) are documented in the header of `data/mappings/FF_SF.txt`.
 
 ### Web interface
 
@@ -132,7 +138,7 @@ python app.py   # FastAPI + bundled frontend
 
 ## Evaluation Suite
 
-Each script prints a summary and writes CSV/figures under `Multifloor_Results/`:
+Each script prints a summary and writes CSV/figures under `results/evaluation/`:
 
 | Script | Question it answers |
 |---|---|

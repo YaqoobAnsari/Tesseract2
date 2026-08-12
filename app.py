@@ -50,9 +50,7 @@ app.add_middleware(
 # Global variables
 UPLOAD_LIMIT_MB = 10
 PROCESSING_TIMEOUT = 180  # 3 minutes
-MODEL_WEIGHTS_DIR = "/data1/yansari/cad2map/Tesseract++/Model_weights"
-INPUT_IMAGES_DIR = "/data1/yansari/cad2map/Tesseract++/Input_Images"
-RESULTS_DIR = "/data1/yansari/cad2map/Tesseract++/Results"
+from config import MODEL_WEIGHTS_DIR, INPUT_IMAGES_DIR, RESULTS_DIR
 
 # Session storage (in-memory, cleared on restart)
 active_sessions: Dict[str, Dict[str, Any]] = {}
@@ -138,7 +136,7 @@ async def get_example_images():
     """Get list of example images"""
     examples = []
 
-    # Get first 4 PNG images from Input_Images folder
+    # Get first 4 PNG images from the floorplans folder
     image_files = sorted(Path(INPUT_IMAGES_DIR).glob("*.png"))[:4]
 
     for img_path in image_files:

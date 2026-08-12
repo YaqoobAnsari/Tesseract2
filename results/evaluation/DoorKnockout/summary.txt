@@ -1,0 +1,17 @@
+Door-knockout experiment (pre-pruning graphs, 3 draws/level)
+
+FF part 3up:
+  random-all: 0%:1.000  10%:0.883  20%:0.753  30%:0.507  40%:0.392  50%:0.305
+    r2c-only: 0%:1.000  10%:0.906  20%:0.730  30%:0.653  40%:0.525  50%:0.378
+    c2c-only: 0%:1.000  10%:1.000  20%:1.000  30%:1.000  40%:1.000  50%:1.000
+
+Single c2c door sensitivity (delete one door alone):
+  FF part 3up c2c_door_1: completeness 1.000 -> 1.000 (drop 0.000), exit reach change +0.000
+  FF part 3up c2c_door_2: completeness 1.000 -> 1.000 (drop 0.000), exit reach change +0.000
+  FF part 3up c2c_door_3: completeness 1.000 -> 1.000 (drop 0.000), exit reach change +0.000
+  FF part 3up c2c_door_4: completeness 1.000 -> 1.000 (drop 0.000), exit reach change +0.000
+  FF part 3up c2c_door_5: completeness 1.000 -> 1.000 (drop 0.000), exit reach change +0.000
+  FF part 3up c2c_door_6: completeness 1.000 -> 1.000 (drop 0.000), exit reach change +0.000
+  FF part 3up c2c_door_7: completeness 1.000 -> 1.000 (drop 0.000), exit reach change +0.000
+
+NOTE: deletions are applied to the detector's OUTPUT (no door ground truth exists for these floors), so curves measure sensitivity relative to the current detector, not absolute recall. Entry doors (transition-serving, synthetic) are never deleted.

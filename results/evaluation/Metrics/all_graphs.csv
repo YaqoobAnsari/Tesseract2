@@ -1,0 +1,22 @@
+n_nodes,n_edges,n_main_rooms,n_exit_doors,n_transitions,completeness,exit_reachability,transition_reachability,n_components,largest_component_share,room_components,graph,kind
+778,1417,36,2,0,1.0,1.0,,1,1.0,1,FF part 1up,single-floor
+878,1118,34,2,3,1.0,1.0,1.0,1,1.0,1,FF part 1upE,single-floor
+712,928,35,10,0,1.0,1.0,,1,1.0,1,FF part 2up,single-floor
+334,488,28,3,0,1.0,1.0,,1,1.0,1,FF part 3up,single-floor
+458,501,25,3,0,0.5133333333333333,0.72,,7,0.9694323144104804,7,FF part 3upE,single-floor
+468,538,16,2,0,0.7583333333333333,0.875,,3,0.9829059829059829,3,FF part 4up,single-floor
+791,875,20,2,0,0.7157894736842105,0.85,,4,0.9873577749683944,4,FF part 6up,single-floor
+46,52,3,0,3,1.0,,1.0,1,1.0,1,GF part 1upE,single-floor
+875,1111,34,2,3,1.0,1.0,1.0,1,1.0,1,SF part 1upE,single-floor
+56,57,3,6,0,1.0,1.0,,1,1.0,1,file_1,single-floor
+14,13,2,0,0,1.0,,,1,1.0,1,file_10,single-floor
+29,30,3,1,0,1.0,1.0,,1,1.0,1,file_2,single-floor
+43,45,6,0,0,1.0,,,1,1.0,1,file_3,single-floor
+92,128,3,3,0,1.0,1.0,,1,1.0,1,file_4,single-floor
+36,40,3,1,0,1.0,1.0,,1,1.0,1,file_5,single-floor
+44,60,4,1,0,1.0,1.0,,1,1.0,1,file_6,single-floor
+84,123,6,0,0,1.0,,,1,1.0,1,file_7,single-floor
+21,21,3,0,0,1.0,,,1,1.0,1,file_8,single-floor
+44,62,4,0,0,1.0,,,1,1.0,1,file_9,single-floor
+1750,2225,68,4,6,1.0,1.0,1.0,1,1.0,1,FF_SF,multi-floor
+921,1164,37,2,6,1.0,1.0,1.0,1,1.0,1,G_FF,multi-floor

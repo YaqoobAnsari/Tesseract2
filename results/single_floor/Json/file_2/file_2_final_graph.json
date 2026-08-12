@@ -1,0 +1,55 @@
+{
+  "nodes": [
+    {
+      "id": "room_1",
+      "type": "room",
+      "position": [
+        195.0,
+        86.0
+      ],
+      "floor": "2",
+      "pixels": []
+    },
+    {
+      "id": "room_2",
+      "type": "room",
+      "position": [
+        555.0,
+        190.5
+      ],
+      "floor": "2",
+      "pixels": []
+    },
+    {
+      "id": "room_3",
+      "type": "room",
+      "position": [
+        403.0,
+        334.5
+      ],
+      "floor": "2",
+      "pixels": []
+    },
+    {
+      "id": "corridor_main_1",
+      "type": "corridor",
+      "position": [
+        258.5,
+        211.0
+      ],
+      "floor": "2",
+      "pixels": []
+    },
+    {
+      "id": "outside_main_1",
+      "type": "outside",
+      "position": [
+        425.5,
+        86.5
+      ],
+      "floor": "NA",
+      "pixels": []
+    }
+  ],
+  "edges": []
+}

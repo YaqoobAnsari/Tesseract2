@@ -49,9 +49,10 @@ class ProcessingPipeline:
     """
 
     def __init__(self):
-        self.base_path = Path(__file__).parent.parent.parent.parent
-        self.input_images_dir = self.base_path / "Input_Images"
-        self.results_dir = self.base_path / "Results"
+        import config
+        self.base_path = Path(config.BASE_PATH)
+        self.input_images_dir = Path(config.INPUT_IMAGES_DIR)
+        self.results_dir = Path(config.RESULTS_DIR)
         self.temp_dir = self.base_path / "temp_processing"
 
         # Create temp directory if not exists
