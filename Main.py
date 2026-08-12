@@ -104,15 +104,17 @@ def detect_floor_from_filename(image_name):
     print(f"Warning: Could not determine floor from '{image_name}' (first word: '{first_word}'), defaulting to floor 1")
     return 1
 
-def make_graph(image_name, floor_id=None):
+def make_graph(image_name, floor_id=None, corridor_distance=20):
     """
-    Main function to check image existence, construct paths, run text detection, 
+    Main function to check image existence, construct paths, run text detection,
     and save graph-related outputs (plot and JSON).
 
     Args:
         image_name (str): Name of the image with the extension.
         floor_id (int, optional): Floor number (e.g., 1, 2, 3).
                                   If None, will be detected from filename or default to 1.
+        corridor_distance (int, optional): Corridor sampling grid spacing in
+                                  pixels (default 20; used for density ablation).
     """
     # Define base paths
     base_path = os.getcwd()
@@ -245,11 +247,11 @@ def make_graph(image_name, floor_id=None):
 
         graph.add_node(
             node_id,
-            node_type="transition",
+            node_type="floor_transition",
             position=(x, y),
-            floor_id=graph.default_floor,  
+            floor_id=graph.default_floor,
         )
-    print(f"Added {stairs_count} stair nodes and {elevator_count} elevator nodes to the graph\n")
+    print(f"Added {stairs_count} stair nodes and {elevator_count} elevator nodes (floor_transition) to the graph\n")
     
     log_time("graph initialization check", start_step)
     json_output_path = os.path.join(json_img_dir, f"{image_name_no_ext}_ini_graph.json")
@@ -326,8 +328,7 @@ def make_graph(image_name, floor_id=None):
     print("\nAdding room to door edges to graph")
     graph.make_room_door_edges(image_path, (room2corridor_dbboxes+room2room_dbboxes+exit_dbboxes))   
 
-    print("\nAdding corridor nodes to graph")
-    corridor_distance = 20
+    print(f"\nAdding corridor nodes to graph (spacing {corridor_distance}px)")
     corridor_pixels = graph.add_corridor_nodes(image_path, corridor_pixels, test_img_dir, dest="corridor", distance=corridor_distance)
     print(f"Added {len(corridor_pixels)} corridor nodes to the graph")
     for i, (y, x) in enumerate(corridor_pixels):
@@ -346,6 +347,13 @@ def make_graph(image_name, floor_id=None):
         graph.add_node(node_id, node_type=node_type, position=(x, y))
     graph.add_outdoor_edges(outdoor_pixels, distance=outside_distance)
     log_time("Updating graph nodes check", start_step)
+
+    # Create entry point doors for floor transitions (stairs/elevators)
+    # These synthetic doors connect floor_transition nodes to the nearest corridor
+    print("\nCreating entry point doors for floor transitions...")
+    start_step = time.time()
+    graph.create_entry_point_doors(image_path, transition_bboxes)
+    log_time("Entry point doors creation check", start_step)
 
     print("\nFunneling room families to doors (grid lattice -> shortest paths)...")
     kept = graph.connect_all_families_funnel(spacing_px=60, door_selector="nearest")
@@ -1191,6 +1199,12 @@ if __name__ == "__main__":
         nargs="?",
         help="Name of the image (with extension) in the Input_Images folder."
     )
+    parser.add_argument(
+        "--corridor-distance",
+        type=int,
+        default=20,
+        help="Corridor sampling grid spacing in pixels (default: 20)."
+    )
 
     # Parse arguments
     args = parser.parse_args()
@@ -1201,7 +1215,7 @@ if __name__ == "__main__":
 
     try:
         # Run the main function
-        make_graph(args.image_name)
+        make_graph(args.image_name, corridor_distance=args.corridor_distance)
     except FileNotFoundError as e:
         # Print the error and exit
         print(e)

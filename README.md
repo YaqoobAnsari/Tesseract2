@@ -1,44 +1,79 @@
-## Tesseract++: Floorplan Parsing to Navigable Graphs
+# Tesseract++ — Floorplan Parsing to Navigable Graphs
 
-This project converts annotated building floorplans into navigable graphs by combining text detection, semantic interpretation, room segmentation, and door detection. The pipeline produces both visual overlays and structured JSON suitable for routing, accessibility analysis, and downstream spatial reasoning.
+Tesseract++ converts annotated building floorplan images into navigable, multi-floor graph representations. It combines text detection, semantic interpretation, room segmentation, and door detection into a pipeline that produces typed graphs (rooms, corridors, doors, outdoor areas, stairs/elevators) with geometric edge weights — suitable for pathfinding, accessibility analysis, egress studies, and downstream spatial reasoning.
 
-### Key Capabilities
-- **Text detection & interpretation**: CRAFT-based text detection (`Models/Text_Models`) followed by semantic parsing (`Models/Interpreter`) to label rooms, corridors, outdoors, and transition elements (stairs/elevators).
-- **Graph construction**: Builds a multi-type `BuildingGraph` (`utils/graph.py`) with typed nodes (rooms, corridors, outside, doors, transitions) and geometric attributes.
-- **Spatial refinement**: Flood/smart fill segmentation, subnode proposal, corridor/outdoor expansion, and edge creation/pruning for a well-conditioned graph.
-- **Door pipeline**: Faster R-CNN–based door detection/refinement/classification (`Models/Door_Models`), with intelligent room-to-door connectivity:
-  - **Type-aware door connections**: Different strategies for room-to-corridor (r2c), room-to-room (r2r), and exit doors
-  - **Room family funneling**: Optimal pathfinding from subnodes through main room to doors
-  - **Guaranteed connectivity**: Ensures all room subnodes can reach corridor doors via main room
-- **Transition handling**: Automatic connection of stairs/elevators to corridor networks for multi-floor navigation support
-- **Multi-floor connectivity**: Comprehensive support for processing multiple floorplan images and connecting them via transition nodes:
-  - **Dynamic floor detection**: Automatically extracts floor numbers from image filenames (FF→1, SF→2, TF→3, numeric→N)
-  - **Graph merging**: Combines individual floor graphs into a unified multi-floor graph with prefixed node IDs
-  - **Inter-floor transition mapping**: Manual mapping system with comprehensive validation:
-    - Image existence checks (all images must exist in `Input_Images/`)
-    - Node type validation (only transition nodes can connect across floors)
-    - One-to-one constraint enforcement (one transition per floor pair)
-    - Floor order validation (warns on non-adjacent floor connections)
-    - Spatial alignment verification (ensures vertical alignment of transitions)
-  - **Auto-processing**: Automatically processes missing floor graphs before merging
-  - **Robust error handling**: Detailed error messages and validation at every step
-- **Outputs**: JSON graph exports and multiple plot variants (initial, thresholded, pre/post-pruning, blank overlays), plus timing/metadata summaries.
+This repository accompanies the journal extension of *Tesseract* (SIGSpatial'25).
 
-### Repository Layout
-- `Main.py` — orchestrates the single-floor pipeline end-to-end.
-- `MultiFloor.py` — standalone module for multi-floor connectivity processing.
-- `mappings/` — contains transition mapping files for multi-floor connections.
-- `Models/Text_Models/` — text detection (CRAFT) and helpers.
-- `Models/Interpreter/` — text interpretation and label parsing.
-- `Models/Door_Models/` — door detection/classification models.
-- `utils/` — graph utilities, connectivity, flood fill, timing analysis.
-- `Input_Images/` — sample/input floorplan images (included).
-- `Results/` — single-floor generated plots, JSONs, and timing reports.
-- `Multifloor_Results/` — multi-floor outputs (Jsons, Plots, Time&Meta per floor sequence).
-- `Model_weights/` — **not tracked**; place model checkpoints here (`*.pth`, `*.ckpt`).
+```mermaid
+flowchart LR
+    A[Floorplan image] --> B[Text detection\nCRAFT + recognizer]
+    B --> C[Semantic interpretation\nrooms / halls / outside / stairs / elev]
+    C --> D[Flood-fill segmentation\n+ hex-grid subnodes]
+    D --> E[Door detection\nFaster R-CNN + classification]
+    E --> F[Graph construction\nfunneling + pruning]
+    F --> G[Single-floor graph JSON]
+    G --> H[Multi-floor merge\nautomatic transition matching]
+    H --> I[Unified building graph]
+```
 
-### Environment & Dependencies
-Tested with Python 3.12 and CPU PyTorch 2.9.1. Minimal setup:
+## Highlights
+
+- **Room-family funneling** with a proven guarantee: every room point reaches every room door using a number of intra-room edges *linear* in the subnode count (spanning-tree construction, validated by ablation).
+- **Automatic inter-floor transition matching** (`--auto-match`): infers which stairs/elevators on adjacent floors are the same physical shaft, via wall-mask registration (similarity transform + ICP polish + phase correlation, mirror-aware) and globally optimal assignment **with a rejection option** — shafts that terminate stay unmatched. Manual mapping files remain fully supported and always take precedence when provided.
+- **Conservative, verified pruning**: 59% node / 82% edge reduction with **0.00% route-length inflation** and a ~4× query-time speedup on the evaluation floor.
+- **Typed transitions enable real downstream tasks**: stairs-forbidden (elevator-only) routing and per-room egress-distance analysis ship as ready-made evaluations.
+- **A reproducible evaluation suite** (`evaluate_*.py`) covering matcher robustness, funneling ablation, door-knockout sensitivity, corridor-density trade-offs, pruning ablation, and text-detection accuracy. See [`docs/EVALUATION.md`](docs/EVALUATION.md).
+
+## Repository Layout
+
+```
+Tesseract++/
+├── Main.py                     # single-floor pipeline (end-to-end)
+├── MultiFloor.py               # multi-floor merge + automatic transition matching
+├── app.py                      # FastAPI web interface
+├── evaluate_matcher.py         # synthetic robustness suite for auto-matching
+├── evaluate_funneling.py       # 3-way intra-room connectivity ablation
+├── evaluate_door_knockout.py   # connectivity under door-detector degradation
+├── evaluate_corridor_density.py# corridor sampling density trade-off
+├── evaluate_pruning.py         # pruning keep-term ablation, pre/post comparison
+├── evaluate_downstream.py      # accessibility routing + egress distances
+├── evaluate_metrics.py         # metric layer over all processed graphs
+├── evaluate_text_accuracy.py   # label detection/recognition accuracy
+├── utils/                      # graph construction, flood fill, matching, metrics
+│   ├── graph.py                #   BuildingGraph: nodes, edges, funneling, pruning
+│   ├── transition_matcher.py   #   registration + assignment-with-rejection
+│   ├── metrics.py              #   completeness / reachability / components
+│   └── app_utils/              #   web app internals
+├── Models/                     # text detection (CRAFT), interpreter, door models
+├── Model_weights/              # NOT tracked - place checkpoints here (*.pth)
+├── Input_Images/               # input floorplans (see Data Notes)
+├── mappings/                   # transition mapping files (manual + AUTO_*)
+├── Results/                    # single-floor outputs (Json / Plots / Time&Meta)
+├── Multifloor_Results/         # merged graphs, plots, and all evaluation outputs
+├── paper/                      # journal manuscript sources
+└── docs/                       # documentation
+```
+
+## Input Conventions
+
+The pipeline consumes **annotated** floorplans: semantic classes are seeded by text labels on the drawing. Recognized vocabulary (case-insensitive):
+
+| Label on drawing | Interpreted as |
+|---|---|
+| any number (`1001`, `0006`, …) | room (the number becomes the room name) |
+| `Hall` | corridor |
+| `NA` | outside / non-navigable region |
+| `Stairs`, `Stair`, `Staircase` | stairs transition node |
+| `Elev`, `Elevator`, `Lift` | elevator transition node |
+
+Drawings without `Hall`/`NA`/`Stairs`/`Elev` labels will not produce corridors, outdoor regions, or transitions (door classification requires all five semantic classes and will fail with fewer). The `…upE` filename suffix marks drawings that were manually enhanced with these labels.
+
+Floor indices are parsed from the filename prefix: `B2`/`B1` (basements, −2/−1), `GF` (0), `FF` (1), `SF` (2), `TF` (3), or a leading number.
+
+## Installation
+
+Tested with Python 3.12 and CPU PyTorch 2.9.1:
+
 ```bash
 python -m venv tess
 source tess/bin/activate
@@ -47,95 +82,84 @@ pip install torch torchvision torchaudio --index-url https://download.pytorch.or
 pip install opencv-python-headless numpy pandas pillow matplotlib networkx lmdb natsort six scikit-image scipy tqdm fuzzywuzzy python-Levenshtein
 ```
 
-### Model Weights
-Weights are not committed. Place required checkpoints under `Model_weights/`, e.g.:
-- `Model_weights/craft_mlt_25k.pth` (CRAFT text detector)
-- Door detector weights as expected by `Models/Door_Models/door_bboxer.py`
-- Interpreter/text recognition weights as expected by `Models/Interpreter/text_interpreter.py`
+Model weights are not committed. Place under `Model_weights/`:
+- `craft_mlt_25k.pth` (CRAFT text detector)
+- door detector weights expected by `Models/Door_Models/door_bboxer.py`
+- recognizer weights expected by `Models/Interpreter/text_interpreter.py`
 
-### Running the Pipeline
+## Usage
 
-#### Single Floor Processing
-From the repo root:
+### Single floor
+
 ```bash
-source tess/bin/activate  # or your environment
 python -u Main.py "FF part 1upE.png"
-```
-The script expects the image name to exist under `Input_Images/`. Outputs are written under `Results/`:
-- `Results/Plots/...` — overlays for detection, graphs, doors, fills.
-- `Results/Json/...` — graph JSONs (initial, pre-pruning, post-pruning).
-- `Results/Time&Meta/...` — timing logs and correlation plots.
-
-#### Multi-Floor Processing
-Multi-floor connectivity is handled by the standalone `MultiFloor.py` module.
-
-**Step 1: Prepare your images**
-
-Place all floorplan images in `Input_Images/` with floor indicators in filenames:
-- `FF part 1upE.png` → Floor 1 (First Floor)
-- `SF part 1upE.png` → Floor 2 (Second Floor)
-- `TF part 1upE.png` → Floor 3 (Third Floor)
-- `B1 part 1upE.png` → Floor -1 (Basement 1)
-- `4 part 1upE.png` → Floor 4 (numeric floors)
-
-**Step 2: Create a mapping file**
-
-Create a `.txt` file in the `mappings/` folder with transition connections:
-
-```
-# Mapping format: (floor_num, image_name, node_id):(floor_num, image_name, node_id)
-
-# Connect stairs_1 from Floor 1 to Floor 2
-(1, FF part 1upE.png, stairs_1):(2, SF part 1upE.png, stairs_1)
-
-# Connect elevator_1 from Floor 1 to Floor 2
-(1, FF part 1upE.png, elevator_1):(2, SF part 1upE.png, elevator_1)
+# optional: corridor sampling density (default 20 px)
+python -u Main.py "FF part 1upE.png" --corridor-distance 40
 ```
 
-**Step 3: Run multi-floor processing**
+Outputs land in `Results/{Json,Plots,Time&Meta}/`.
+
+### Multi-floor — automatic (recommended)
 
 ```bash
-source tess/bin/activate
+# infer the stairs/elevator correspondence, write mappings/AUTO_*.txt,
+# validate it, and run the full merge:
+python MultiFloor.py --auto-match "FF part 1upE.png:SF part 1upE.png"
+
+# inspect the inferred mapping without merging:
+python MultiFloor.py --auto-match "FF part 1upE.png:SF part 1upE.png" --auto-dry-run
+
+# tune rejection (higher = force more pairings), override floors:
+python MultiFloor.py --auto-match "GF part 1upE.png:FF part 1upE.png" --reject-cost 0.15 --floors 0:1
+```
+
+The inferred mapping file records registration provenance (transform, wall-agreement chamfer, coverage) and per-match cost/confidence, and emits explicit `WARNING` lines when the registration is weak, mirrored, or supported by fewer than two aligned shafts — review it like any hand-written mapping.
+
+### Multi-floor — manual mapping
+
+```bash
 python MultiFloor.py --mapping-file mappings/FF_SF.txt
-```
-
-Or use inline mapping:
-```bash
 python MultiFloor.py --mapping "(1, FF part 1upE.png, stairs_1):(2, SF part 1upE.png, stairs_1)"
 ```
 
-**Output Structure:**
-- `Multifloor_Results/Jsons/FF_SF/` — merged graph and floor backups
-- `Multifloor_Results/Plots/FF_SF/` — visualization plots
-- `Multifloor_Results/Time&Meta/FF_SF/` — timing and validation reports
+Mapping format and validation rules (image existence, floor adjacency N±1, one-to-one, filename consistency) are documented in the header of `mappings/FF_SF.txt`.
 
-**Validation Features:**
-- ✅ Ensures all images exist before processing
-- ✅ Validates that only transition nodes (stairs/elevators) are mapped
-- ✅ Enforces one-to-one constraint (one transition per floor pair)
-- ✅ **Enforces floor adjacency** (Floor N can only connect to N±1) — ERROR on violation
-- ✅ Supports negative floors (basements: B1=-1, B2=-2)
-- ✅ Auto-generates missing floor graphs before merging
-- ✅ Provides detailed error messages for debugging
+### Web interface
 
-### Recent Improvements
-- **Enhanced door connectivity**: Type-aware door-to-room edge creation ensures all door types (r2c, r2r, exit) are properly connected while maintaining optimal pathfinding structure
-- **Transition node integration**: Stairs and elevators are now automatically connected to corridor networks, enabling multi-floor pathfinding
-- **Robust room family funneling**: Improved algorithm guarantees connectivity for all room subnodes while preserving optimal door placement
-- **Multi-floor module (`MultiFloor.py`)**: Complete standalone module for multi-floor connectivity with:
-  - Text-based mapping file format
-  - Comprehensive validation (floor adjacency, one-to-one constraints)
-  - Auto-generation of missing floor graphs
-  - Organized output structure under `Multifloor_Results/`
-  - Visualization plots for merged graphs and inter-floor connections
-- **OCR text in results**: Text detection results now include inferred text alongside bounding box coordinates
-- **Improved flood fill robustness**: Enhanced seed finding algorithm prevents text annotation interference
+```bash
+python app.py   # FastAPI + bundled frontend
+```
 
-### Notes and Good Practices
-- Keep weights out of version control; `.gitignore` already excludes `Model_weights/` and `*.pth/*.ckpt`.
-- If running on GPU, PyTorch will automatically use CUDA when available; otherwise CPU is used.
-- Large artifacts (images/results) are included for reproducibility; consider Git LFS if you plan to grow the dataset.
+## Evaluation Suite
 
-### Citation / Academic Use
-If you build upon this code for publications, please cite the CRAFT text detector (Baek et al., 2019) and Faster R-CNN (Ren et al., 2015) as appropriate, alongside your own work. No formal project-specific citation is provided here.
+Each script prints a summary and writes CSV/figures under `Multifloor_Results/`:
 
+| Script | Question it answers |
+|---|---|
+| `evaluate_metrics.py` | completeness / exit reachability / components for every processed graph |
+| `evaluate_matcher.py` | is automatic transition matching robust to shift/rotation/scale, twin shafts, terminating shafts? |
+| `evaluate_funneling.py` | what does funneling buy vs dense wiring vs one-node-per-room? |
+| `evaluate_door_knockout.py` | how does connectivity degrade as door detection worsens, per door type? |
+| `evaluate_corridor_density.py` | what does corridor node density actually buy? |
+| `evaluate_pruning.py` | which pruning keep-terms are load-bearing; what does pruning cost? |
+| `evaluate_downstream.py` | accessibility (stairs-forbidden) routing and egress distances on merged graphs |
+| `evaluate_text_accuracy.py` | label detection / recognition rates against hand-enumerated ground truth |
+
+Headline numbers and methodology: [`docs/EVALUATION.md`](docs/EVALUATION.md).
+
+## Data Notes (read before drawing conclusions)
+
+- `SF part 1upE.png` is a **byte-identical copy** of `FF part 1upE.png`, present only so the multi-floor machinery has a two-floor smoke test. Results derived from the FF↔SF pair exercise the pipeline but do **not** constitute evidence on genuinely different floors.
+- `GF part 1upE.png` is `LF part 1.png` (a genuinely different, lower-floor drawing) with the semantic labels added programmatically; label placement should be verified against the real building before the derived graphs are treated as ground truth.
+- Genuine multi-floor evaluation requires real per-floor drawings of the same building; the automatic matcher and its synthetic robustness suite are designed to slot such data in with no code changes.
+
+## Known Limitations
+
+- Inputs must follow the annotation conventions above; unlabeled or style-diverse drawings are out of scope.
+- All distances are in pixels — no metres-per-pixel scale is estimated yet.
+- Registration assumes similarity transforms (uniform scale); mirrored drawings are detected and flagged, not silently corrected; floors sharing fewer than two true shaft correspondences rely on wall-mask evidence alone.
+- Single-run registration+matching on partially overlapping floor sections is conservative: expect unmatched shafts and review warnings rather than forced pairings.
+
+## Citation
+
+If you build on this work, please cite the Tesseract conference paper (SIGSpatial'25) and, where relevant, CRAFT (Baek et al., 2019) and Faster R-CNN (Ren et al., 2015). Manuscript sources for the journal extension live in `paper/`.

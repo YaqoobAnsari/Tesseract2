@@ -9,3 +9,14 @@ __pycache__/
 *.pyc
 *.pyo
 tess/
+
+# generated result backups
+*.manual-backup/
+
+# LaTeX build artifacts
+paper/*.aux
+paper/*.bbl
+paper/*.blg
+paper/*.log
+paper/*.out
+paper/*.pdf

@@ -1,0 +1,16 @@
+# AUTO-GENERATED transition mapping - utils/transition_matcher.py
+# Floors: 0 (GF part 1upE.png) -> 1 (FF part 1upE.png)
+# Registration: dims+anchor(stairs_2~stairs_2)+icp, scale=0.6277, rotation=-0.34 deg, mirrored=False
+# Wall chamfer: 8.56 px, coverage 0.49, aligned transitions 1, residual 19.50 px
+# Acceptance rule: pair kept iff cost <= 0.1
+# WARNING: weak wall agreement (chamfer=8.555845457525589); registration may be unreliable
+# WARNING: fewer than 2 aligned transition pairs support the registration
+# Review before use; hand-edit like any mapping file.
+
+# cost=0.0155 confidence=0.84
+(0, GF part 1upE.png, stairs_2):(1, FF part 1upE.png, stairs_2)
+
+# UNMATCHED on floor 0: elevator_1 (best pairing cost exceeded the reject cost)
+# UNMATCHED on floor 0: stairs_1 (best pairing cost exceeded the reject cost)
+# UNMATCHED on floor 1: elevator_1 (best pairing cost exceeded the reject cost)
+# UNMATCHED on floor 1: stairs_1 (best pairing cost exceeded the reject cost)

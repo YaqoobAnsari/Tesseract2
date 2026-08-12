@@ -1,0 +1,16 @@
+# AUTO-GENERATED transition mapping - utils/transition_matcher.py
+# Floors: 1 (FF part 1upE.png) -> 2 (SF part 1upE.png)
+# Registration: dims+refined, scale=1.0000, rotation=0.00 deg, mirrored=False
+# Wall chamfer: 0.03 px, coverage 1.00, aligned transitions 3, residual 0.00 px
+# Acceptance rule: pair kept iff cost <= 0.1
+# Review before use; hand-edit like any mapping file.
+
+# cost=0.0000 confidence=1.00
+(1, FF part 1upE.png, elevator_1):(2, SF part 1upE.png, elevator_1)
+
+# cost=0.0000 confidence=1.00
+(1, FF part 1upE.png, stairs_1):(2, SF part 1upE.png, stairs_1)
+
+# cost=0.0000 confidence=1.00
+(1, FF part 1upE.png, stairs_2):(2, SF part 1upE.png, stairs_2)
+

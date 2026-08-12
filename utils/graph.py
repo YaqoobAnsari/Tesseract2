@@ -22,7 +22,7 @@ class BuildingGraph:
                                  Outdoors will always be stored as floor="NA".
         """
         self.graph = nx.Graph()
-        self.node_types = {"room": [], "door": [], "corridor": [], "outside": [], "transition": []}
+        self.node_types = {"room": [], "door": [], "corridor": [], "outside": [], "floor_transition": []}
         self.default_floor = default_floor  # used if caller doesn't pass floor_id
         self.property = {}
 
@@ -265,33 +265,33 @@ class BuildingGraph:
             "door": (0, 204, 102),        # Emerald Green
             "corridor": (255, 102, 255),  # Magenta
             "outside": (204, 51, 51),     # Crimson Red
-            "transition": (0, 0, 255),    # RED for stairs/elevator (no differentiation)
+            "floor_transition": (0, 0, 255),    # RED for stairs/elevator (no differentiation)
             "unknown": (128, 128, 128),   # Gray
 
             # edge strokes
             "room_edge": (255, 165, 0),      # Lighter Orange
             "corridor_edge": (51, 153, 255), # Medium Blue
             "outside_edge": (255, 0, 0),     # Bright Red
-            "transition_edge": (0, 0, 180),  # Deep RED for any edge touching transition
+            "floor_transition_edge": (0, 0, 180),  # Deep RED for any edge touching floor_transition
         }
 
         def _node_color(node_id: str, node_type: str):
             """Pick a color for the node; stairs/elevator both RED."""
             t = (node_type or "").lower()
-            if t in ("transition", "tranistion"):
-                return colors["transition"]
+            if t in ("floor_transition", "transition", "tranistion"):
+                return colors["floor_transition"]
             return colors.get(t, colors["unknown"])
 
         def _edge_color(type_u: str, type_v: str):
-            """Decide edge color; any transition involvement -> deep RED."""
+            """Decide edge color; any floor_transition involvement -> deep RED."""
             u = (type_u or "unknown").lower()
             v = (type_v or "unknown").lower()
             if "outside" in (u, v):
                 return colors["outside_edge"]
             if "corridor" in (u, v):
                 return colors["corridor_edge"]
-            if ("transition" in (u, v)) or ("tranistion" in (u, v)):
-                return colors["transition_edge"]
+            if ("floor_transition" in (u, v)) or ("transition" in (u, v)) or ("tranistion" in (u, v)):
+                return colors["floor_transition_edge"]
             return colors["room_edge"]
 
         # Step 1: Highlight regions if enabled
@@ -301,7 +301,7 @@ class BuildingGraph:
                     continue
                 x, y = data["position"]
                 node_type = data.get("type", "unknown")
-                if node_type in {"room", "door", "corridor", "outside", "transition", "tranistion"}:
+                if node_type in {"room", "door", "corridor", "outside", "floor_transition", "transition", "tranistion"}:
                     highlight_color = _node_color(node_id, node_type)
                     cv2.circle(overlay, (int(x), int(y)), threshold_radius, highlight_color, -1)
 
@@ -322,7 +322,7 @@ class BuildingGraph:
             t = (node_type or "").lower()
             if t == "corridor":
                 radius = 4
-            elif t in ("transition", "tranistion"):
+            elif t in ("floor_transition", "transition", "tranistion"):
                 radius = 9  # a touch larger for visibility
             else:
                 radius = 8
@@ -415,9 +415,13 @@ class BuildingGraph:
     def make_room_door_edges(self, image_path, bboxes):
         """
         Associate door bboxes to MAIN rooms via flood-overlap, then for each MAIN room
-        choose ONE anchor door (closest to the main room). Create exactly ONE edge from
-        that door to the CLOSEST node in the whole family (main or subnode). Do NOT create
-        direct edges to all subnodes; the rest will connect via shortest paths later.
+        choose ONE anchor door (closest to the main room). For r2c and exit doors,
+        create TWO edges: door -> closest family node (optimal entry point) and
+        door -> main room (funneling anchor). Subnode-to-door paths may therefore
+        legitimately bypass the main room through the closest-node edge; the
+        guaranteed property is completeness (every family node reaches every
+        family door) with linearly many intra-room edges, NOT that all paths
+        route through the main node. r2r doors get only the closest-node edge.
 
         Returns:
             dict: Mapping from bbox tuple -> list of associated MAIN room ids.
@@ -537,8 +541,10 @@ class BuildingGraph:
                             if _is_sub(n, d) and _parent(n, d) == rid and "position" in d]
 
             # (1) Pick the nearest r2c door as anchor (exactly ONE)
-            # Connect r2c door to the CLOSEST family node (main or subnode)
-            # The funneling will ensure all subnodes go through main room to reach the door
+            # Connect r2c door to the CLOSEST family node (main or subnode).
+            # Funneling then guarantees COMPLETENESS (every family node reaches
+            # the door) via the main-room-rooted tree plus this shortcut edge;
+            # paths from subnodes near the door may bypass the main room.
             anchor_door = None
             if r2c_doors:
                 rx, ry = _pos(rid)
@@ -562,14 +568,21 @@ class BuildingGraph:
 
                     if nearest_node is not None:
                         # Remove any existing edges from other family nodes to this door
+                        # EXCEPT main room (rid) which must remain connected for funneling
                         for other_node in family:
-                            if other_node != nearest_node and self.graph.has_edge(other_node, anchor_door):
+                            if other_node != nearest_node and other_node != rid and self.graph.has_edge(other_node, anchor_door):
                                 self.graph.remove_edge(other_node, anchor_door)
-                        
-                        # Connect door to closest family node
+
+                        # Connect door to closest family node (optimal door placement)
                         if not self.graph.has_edge(nearest_node, anchor_door):
                             self.graph.add_edge(nearest_node, anchor_door, weight=float(nearest_dist))
-                        
+
+                        # ALSO ensure main room is connected to door for funneling
+                        # This guarantees all subnodes can reach the door through main room
+                        if nearest_node != rid and not self.graph.has_edge(rid, anchor_door):
+                            main_dist = math.hypot(rx - dx, ry - dy)
+                            self.graph.add_edge(rid, anchor_door, weight=float(main_dist))
+
                         # Store which family node is closest to this door (for reference in funneling)
                         self.graph.nodes[anchor_door]["closest_family_node"] = nearest_node
 
@@ -586,7 +599,7 @@ class BuildingGraph:
                 if nearest_node is not None and not self.graph.has_edge(nearest_node, r2r_door):
                     self.graph.add_edge(nearest_node, r2r_door, weight=float(nearest_dist))
 
-            # (3) Also handle exit doors (connect to closest family node)
+            # (3) Also handle exit doors (connect to closest family node AND main room)
             for exit_door in exit_doors:
                 dx, dy = _pos(exit_door)
                 nearest_node, nearest_dist = None, float("inf")
@@ -596,8 +609,15 @@ class BuildingGraph:
                     if d < nearest_dist:
                         nearest_dist, nearest_node = d, nid
 
-                if nearest_node is not None and not self.graph.has_edge(nearest_node, exit_door):
-                    self.graph.add_edge(nearest_node, exit_door, weight=float(nearest_dist))
+                if nearest_node is not None:
+                    if not self.graph.has_edge(nearest_node, exit_door):
+                        self.graph.add_edge(nearest_node, exit_door, weight=float(nearest_dist))
+                    # Also ensure main room is connected to exit door for funneling
+                    if nearest_node != rid and not self.graph.has_edge(rid, exit_door):
+                        main_dist = math.hypot(rx - dx, ry - dy)
+                        self.graph.add_edge(rid, exit_door, weight=float(main_dist))
+                    # Store closest node for reference
+                    self.graph.nodes[exit_door]["closest_family_node"] = nearest_node
 
             # Store anchor for downstream (r2c door if available, otherwise None)
             self.graph.nodes[rid]["anchor_door"] = anchor_door
@@ -986,19 +1006,19 @@ class BuildingGraph:
 
     def connect_transitions(self):
         """
-        Connect transition nodes (stairs/elevators) to the graph by connecting them
+        Connect floor_transition nodes (stairs/elevators) to the graph by connecting them
         to nearby corridors or rooms. This ensures transitions appear in pre-pruning plots.
         """
-        print("\nConnecting transitions...")
-        
-        # Get all transition nodes
+        print("\nConnecting floor transitions...")
+
+        # Get all floor_transition nodes
         transition_nodes = [
             node for node, data in self.graph.nodes(data=True)
-            if data.get('type') == 'transition'
+            if data.get('type') == 'floor_transition'
         ]
         
         if not transition_nodes:
-            print("No transition nodes found.")
+            print("No floor_transition nodes found.")
             return
         
         # Get corridor nodes (both main and connect types)
@@ -1044,6 +1064,208 @@ class BuildingGraph:
                 print(f"No corridor nodes found within radius of {transition}")
         
         print(f"Connected {connected_count} transition nodes to the graph.")
+
+    def create_entry_point_doors(self, image_path, text_bboxes):
+        """
+        Create synthetic entry_point_door nodes connecting floor_transition nodes to corridors.
+
+        This method finds the wall boundary between floor transitions (stairs/elevators) and
+        their nearest corridor, then places a door node at the midpoint of that wall opening.
+
+        Algorithm:
+        1. For each floor_transition node
+        2. Find nearest corridor node
+        3. Trace line from transition toward corridor, find first wall pixel (excluding text bboxes)
+        4. Trace line from corridor toward transition, find first wall pixel (excluding text bboxes)
+        5. Place entry_door at midpoint between the two wall pixels
+        6. Connect: floor_transition ↔ entry_door ↔ corridor
+
+        Args:
+            image_path (str): Path to the floorplan image
+            text_bboxes (list): List of text bounding boxes to exclude from wall detection
+                               Format: [[x1, y1, x2, y2, x3, y3, x4, y4], ...]
+        """
+        import os
+        import cv2
+        import numpy as np
+        import math
+
+        if not os.path.exists(image_path):
+            print(f"Warning: Image not found for entry point door creation: {image_path}")
+            return
+
+        image = cv2.imread(image_path)
+        if image is None:
+            print(f"Warning: Could not load image: {image_path}")
+            return
+
+        H, W = image.shape[:2]
+
+        # Create wall mask (pixels below 240 brightness are walls)
+        gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+        wall_mask = (gray < 240).astype(np.uint8)  # 1 = wall, 0 = not wall
+
+        # Create text exclusion mask from bboxes
+        text_mask = np.zeros((H, W), dtype=np.uint8)
+        if text_bboxes:
+            for bbox in text_bboxes:
+                if len(bbox) >= 8:
+                    # bbox is [x1, y1, x2, y2, x3, y3, x4, y4]
+                    pts = np.array([
+                        [bbox[0], bbox[1]],
+                        [bbox[2], bbox[3]],
+                        [bbox[4], bbox[5]],
+                        [bbox[6], bbox[7]]
+                    ], dtype=np.int32)
+                    cv2.fillPoly(text_mask, [pts], 1)
+                elif len(bbox) == 4:
+                    # bbox is [x1, y1, x2, y2]
+                    x1, y1, x2, y2 = int(bbox[0]), int(bbox[1]), int(bbox[2]), int(bbox[3])
+                    cv2.rectangle(text_mask, (x1, y1), (x2, y2), 1, -1)
+
+        # Get floor_transition nodes
+        transition_nodes = [
+            (node_id, data)
+            for node_id, data in self.graph.nodes(data=True)
+            if data.get('type') == 'floor_transition' and 'position' in data
+        ]
+
+        if not transition_nodes:
+            print("No floor_transition nodes found for entry point door creation.")
+            return
+
+        # Get all corridor nodes
+        corridor_nodes = [
+            (node_id, data)
+            for node_id, data in self.graph.nodes(data=True)
+            if data.get('type') == 'corridor' and 'position' in data
+        ]
+
+        if not corridor_nodes:
+            print("No corridor nodes found for entry point door creation.")
+            return
+
+        def euclidean_distance(pos1, pos2):
+            return math.sqrt((pos1[0] - pos2[0]) ** 2 + (pos1[1] - pos2[1]) ** 2)
+
+        def trace_to_wall(start_xy, end_xy, wall_mask, text_mask):
+            """
+            Trace from start toward end, return first wall pixel not in text_mask.
+            Uses Bresenham-like line algorithm.
+
+            Returns: (x, y) of first wall pixel, or None if no wall found
+            """
+            x0, y0 = int(start_xy[0]), int(start_xy[1])
+            x1, y1 = int(end_xy[0]), int(end_xy[1])
+
+            dx = abs(x1 - x0)
+            dy = abs(y1 - y0)
+            sx = 1 if x0 < x1 else -1
+            sy = 1 if y0 < y1 else -1
+            err = dx - dy
+
+            x, y = x0, y0
+            max_steps = int(math.sqrt(dx**2 + dy**2)) + 1
+
+            for _ in range(max_steps):
+                # Check bounds
+                if not (0 <= x < W and 0 <= y < H):
+                    break
+
+                # Check if this is a wall pixel (not in text bbox)
+                if wall_mask[y, x] == 1 and text_mask[y, x] == 0:
+                    return (x, y)
+
+                # Check if we've reached the end
+                if x == x1 and y == y1:
+                    break
+
+                # Bresenham step
+                e2 = 2 * err
+                if e2 > -dy:
+                    err -= dy
+                    x += sx
+                if e2 < dx:
+                    err += dx
+                    y += sy
+
+            return None
+
+        entry_door_count = 0
+
+        for trans_id, trans_data in transition_nodes:
+            trans_pos = trans_data['position']
+            trans_x, trans_y = float(trans_pos[0]), float(trans_pos[1])
+
+            # Find nearest corridor node
+            nearest_corridor = None
+            nearest_dist = float('inf')
+            for corr_id, corr_data in corridor_nodes:
+                corr_pos = corr_data['position']
+                dist = euclidean_distance(trans_pos, corr_pos)
+                if dist < nearest_dist:
+                    nearest_dist = dist
+                    nearest_corridor = (corr_id, corr_data)
+
+            if nearest_corridor is None:
+                print(f"No corridor found near {trans_id}")
+                continue
+
+            corr_id, corr_data = nearest_corridor
+            corr_pos = corr_data['position']
+            corr_x, corr_y = float(corr_pos[0]), float(corr_pos[1])
+
+            # Trace from transition toward corridor to find first wall
+            wall_from_trans = trace_to_wall((trans_x, trans_y), (corr_x, corr_y), wall_mask, text_mask)
+
+            # Trace from corridor toward transition to find first wall
+            wall_from_corr = trace_to_wall((corr_x, corr_y), (trans_x, trans_y), wall_mask, text_mask)
+
+            if wall_from_trans is None and wall_from_corr is None:
+                # No wall found between them - they may already be connected
+                print(f"No wall found between {trans_id} and {corr_id}, skipping entry door")
+                continue
+
+            # Determine door position
+            if wall_from_trans is not None and wall_from_corr is not None:
+                # Place door at midpoint between the two wall pixels
+                door_x = (wall_from_trans[0] + wall_from_corr[0]) / 2
+                door_y = (wall_from_trans[1] + wall_from_corr[1]) / 2
+            elif wall_from_trans is not None:
+                # Only found wall from transition side
+                door_x, door_y = wall_from_trans
+            else:
+                # Only found wall from corridor side
+                door_x, door_y = wall_from_corr
+
+            # Create entry_door node
+            entry_door_count += 1
+            door_node_id = f"entry_door_{entry_door_count}"
+
+            # Add the door node
+            self.add_node(
+                door_node_id,
+                node_type="door",
+                position=(door_x, door_y),
+                floor_id=trans_data.get('floor', self.default_floor)
+            )
+
+            # Mark it as an entry point door
+            self.graph.nodes[door_node_id]["door_subtype"] = "entry_point"
+            self.graph.nodes[door_node_id]["connects_transition"] = trans_id
+            self.graph.nodes[door_node_id]["connects_corridor"] = corr_id
+
+            # Connect door to floor_transition
+            trans_to_door_dist = euclidean_distance((trans_x, trans_y), (door_x, door_y))
+            self.add_edge(trans_id, door_node_id, weight=trans_to_door_dist)
+
+            # Connect door to corridor
+            door_to_corr_dist = euclidean_distance((door_x, door_y), (corr_x, corr_y))
+            self.add_edge(door_node_id, corr_id, weight=door_to_corr_dist)
+
+            print(f"Created {door_node_id}: {trans_id} ↔ door @ ({door_x:.1f}, {door_y:.1f}) ↔ {corr_id}")
+
+        print(f"Created {entry_door_count} entry_point_door nodes for floor transitions.")
 
     def merge_nearby_nodes(self, threshold_room=50, threshold_door=30):
         """
@@ -1188,8 +1410,8 @@ class BuildingGraph:
         corridors  = [n for n, d in self.graph.nodes(data=True) if d.get('type') == 'corridor']
         exit_doors = [n for n, d in self.graph.nodes(data=True) if d.get('type') == 'door' and str(n).startswith("exit_door")]
 
-        # NEW: strictly 'transition' (no legacy 'tranistion')
-        transitions = [n for n, d in self.graph.nodes(data=True) if d.get('type') == 'transition']
+        # floor_transition nodes (stairs/elevators)
+        transitions = [n for n, d in self.graph.nodes(data=True) if d.get('type') == 'floor_transition']
 
         room_family = {rid: [rid] for rid in main_rooms}
         for n in subrooms:
@@ -1303,8 +1525,10 @@ class BuildingGraph:
             for rid in main_rooms:
                 try:
                     sp = nx.shortest_path(self.graph, source=rid, target=ed, weight='weight')
-                    if len(sp) < best_len:
-                        best_len, best_sp = len(sp), sp
+                    sp_cost = sum(self.graph[u][v].get('weight', 1.0)
+                                  for u, v in zip(sp[:-1], sp[1:]))
+                    if sp_cost < best_len:
+                        best_len, best_sp = sp_cost, sp
                 except nx.NetworkXNoPath:
                     continue
             if best_sp:
@@ -1597,10 +1821,12 @@ class BuildingGraph:
                     ed.pop("_temp_family_edge", None)
                     ed.pop("_family_owner", None)
 
-        # -------- For r2c doors: ensure ALL family nodes within radius are connected to main room --------
-        # This guarantees all subnodes can reach r2c doors through the main room
-        has_r2c_door = any(str(ext).startswith("r2c_door_") for ext, _ in ext_to_anchor)
-        if has_r2c_door and room_id in family:
+        # -------- For r2c and exit doors: ensure complete intra-room connectivity --------
+        # Guarantee: every family node reaches every family door (via the
+        # main-room-rooted tree or the closest-node shortcut edge), with a
+        # number of intra-room edges linear in the subnode count.
+        has_funneling_door = any(str(ext).startswith(("r2c_door_", "exit_door_")) for ext, _ in ext_to_anchor)
+        if has_funneling_door and room_id in family:
             # Ensure main room is connected to all subnodes within lattice radius
             for nid in family:
                 if nid == room_id:
@@ -1612,8 +1838,8 @@ class BuildingGraph:
                     if not self.graph.has_edge(room_id, nid):
                         # Add direct connection to main room to ensure connectivity
                         self.graph.add_edge(room_id, nid, weight=float(dist))
-            
-            # For r2c doors: keep connection to closest family node (optimal placement)
+
+            # For r2c and exit doors: keep connection to closest family node (optimal placement)
             # The funneling uses main room as anchor, so it adds main room -> door edge
             # We keep BOTH connections:
             # - closest family node -> door (optimal connection point, as user requested)
@@ -1622,10 +1848,10 @@ class BuildingGraph:
             # Note: If closest is a subnode, it will have a direct path to door
             # Other subnodes will go through main room to reach the door
             for ext, _ in ext_to_anchor:
-                if str(ext).startswith("r2c_door_"):
+                if str(ext).startswith(("r2c_door_", "exit_door_")):
                     # Get the closest family node (stored when door was initially connected)
                     closest_node = self.graph.nodes[ext].get("closest_family_node")
-                    
+
                     # Remove connections from subnodes that are NOT the closest one
                     # Keep the connection to closest node (optimal placement)
                     # Keep the connection to main room (funneling anchor)

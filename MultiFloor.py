@@ -77,7 +77,8 @@ ACADEMIC_COLORS = {
     'door': '#009E73',        # Bluish Green
     'corridor': '#CC79A7',    # Reddish Purple
     'outside': '#56B4E9',     # Sky Blue
-    'transition': '#D55E00',  # Vermillion
+    'floor_transition': '#D55E00',  # Vermillion (stairs/elevators)
+    'transition': '#D55E00',  # Legacy alias for floor_transition
     'unknown': '#999999',     # Gray
     'inter_floor': '#0072B2', # Blue
     'floor_1': '#E69F00',     # Orange
@@ -1023,8 +1024,8 @@ def plot_stacked_floors(merged_graph, floor_graphs, floor_image_map, connection_
             
             if pos:
                 color = ACADEMIC_COLORS.get(node_type, ACADEMIC_COLORS['unknown'])
-                size = 100 if node_type == 'transition' else 20
-                marker = '^' if node_type == 'transition' else 'o'
+                size = 100 if node_type in ('floor_transition', 'transition') else 20
+                marker = '^' if node_type in ('floor_transition', 'transition') else 'o'
                 ax.scatter(pos[0], pos[1], c=color, s=size, marker=marker, 
                           alpha=0.8, edgecolors='black', linewidths=0.5)
         
@@ -1064,8 +1065,8 @@ def plot_stacked_floors(merged_graph, floor_graphs, floor_image_map, connection_
                markersize=10, label='Room'),
         Line2D([0], [0], marker='o', color='w', markerfacecolor=ACADEMIC_COLORS['corridor'], 
                markersize=10, label='Corridor'),
-        Line2D([0], [0], marker='^', color='w', markerfacecolor=ACADEMIC_COLORS['transition'], 
-               markersize=12, label='Transition (Stairs/Elevator)'),
+        Line2D([0], [0], marker='^', color='w', markerfacecolor=ACADEMIC_COLORS['floor_transition'],
+               markersize=12, label='Floor Transition (Stairs/Elevator)'),
     ]
     
     # Add legend entries for each transition pair
@@ -1138,11 +1139,11 @@ def plot_3d_building(merged_graph, floor_image_map, connection_details, output_p
             z = floor_num * floor_height
             
             # Size and marker based on type
-            if node_type == 'transition':
+            if node_type in ('floor_transition', 'transition'):
                 size = 150  # Larger for visibility
                 marker = '^'
                 # Use pair-specific color if available
-                color = transition_node_colors.get(node_id, ACADEMIC_COLORS['transition'])
+                color = transition_node_colors.get(node_id, ACADEMIC_COLORS['floor_transition'])
             elif node_type == 'room':
                 size = 30
                 marker = 'o'
@@ -1213,10 +1214,10 @@ def plot_3d_building(merged_graph, floor_image_map, connection_details, output_p
     ax.set_title('3D Multi-Floor Building Graph\n(Color-coded Transition Pairs)', 
                 fontsize=14, fontweight='bold', pad=20)
     
-    # Legend with transition pair colors
+    # Legend with floor transition pair colors
     legend_elements = [
-        Line2D([0], [0], marker='^', color='w', markerfacecolor=ACADEMIC_COLORS['transition'], 
-               markersize=12, label='Transition Node (unpaired)'),
+        Line2D([0], [0], marker='^', color='w', markerfacecolor=ACADEMIC_COLORS['floor_transition'],
+               markersize=12, label='Floor Transition Node (unpaired)'),
         Line2D([0], [0], color='gray', linewidth=1, alpha=0.5, label='Intra-floor Edge'),
     ]
     
@@ -1343,7 +1344,7 @@ def plot_node_distribution(merged_graph, floor_image_map, output_path):
     Create a bar chart showing node distribution by type and floor.
     """
     floors = sorted(set(floor_image_map.values()))
-    node_types = ['room', 'corridor', 'door', 'transition', 'outside']
+    node_types = ['room', 'corridor', 'door', 'floor_transition', 'outside']
     
     # Count nodes
     counts = {floor: {t: 0 for t in node_types} for floor in floors}
@@ -1867,6 +1868,92 @@ def process_multi_floor(mapping_file_path=None, mapping_str=None, spatial_tolera
 
 
 # =============================================================================
+# AUTOMATIC TRANSITION MATCHING
+# =============================================================================
+
+def ensure_graphs_for_images(images, input_images_dir=INPUT_IMAGES_DIR,
+                             results_dir=RESULTS_DIR):
+    """Ensure single-floor graphs exist for a plain list of images.
+    Returns {image: json_path}."""
+    paths = {}
+    to_generate = []
+    for img in images:
+        exists, json_path = check_graph_exists(img, results_dir)
+        if exists:
+            paths[img] = json_path
+        else:
+            img_path = os.path.join(input_images_dir, img)
+            if not os.path.exists(img_path):
+                raise FileNotFoundError(f"Image not found: {img_path}")
+            to_generate.append(img)
+
+    if to_generate:
+        try:
+            from Main import make_graph
+        except ImportError:
+            raise RuntimeError("Could not import make_graph from Main.py")
+        for img in to_generate:
+            print(f"\nGenerating graph for: {img}")
+            make_graph(img)
+            exists, json_path = check_graph_exists(img, results_dir)
+            if not exists:
+                raise RuntimeError(f"Graph was not saved properly for {img}")
+            paths[img] = json_path
+
+    return paths
+
+
+def process_auto_match(image1, image2, floor1=None, floor2=None,
+                       reject_cost=None, dry_run=False):
+    """Infer the inter-floor transition mapping automatically, write it as a
+    standard mapping file, then run it through the normal validation and
+    merge pipeline (unless dry_run)."""
+    from utils.transition_matcher import auto_match, write_mapping_file, DEFAULT_REJECT_COST
+    if reject_cost is None:
+        reject_cost = DEFAULT_REJECT_COST
+
+    floor1 = detect_floor_from_filename(image1) if floor1 is None else floor1
+    floor2 = detect_floor_from_filename(image2) if floor2 is None else floor2
+    if floor1 == floor2:
+        raise ValueError(f"Both images resolve to floor {floor1}; auto-match "
+                         "needs two different floors (use --floors to override)")
+
+    print("\n" + "=" * 70)
+    print("AUTOMATIC TRANSITION MATCHING")
+    print("=" * 70)
+    print(f"  Floor {floor1}: {image1}")
+    print(f"  Floor {floor2}: {image2}")
+
+    graph_paths = ensure_graphs_for_images([image1, image2])
+    result = auto_match(
+        graph_paths[image1], os.path.join(INPUT_IMAGES_DIR, image1),
+        graph_paths[image2], os.path.join(INPUT_IMAGES_DIR, image2),
+        reject_cost=reject_cost,
+    )
+
+    if not result['matches']:
+        raise RuntimeError("No transition correspondences found - nothing to "
+                           "connect. Check the two floors share stairs/elevators, "
+                           "or raise --reject-cost.")
+
+    seq = f"AUTO_{get_floor_display_name(floor1)}_{get_floor_display_name(floor2)}"
+    mapping_path = os.path.join(BASE_PATH, "mappings", f"{seq}.txt")
+    write_mapping_file(result, floor1, image1, floor2, image2, mapping_path)
+    print(f"\n  Inferred mapping written to: {mapping_path}")
+
+    if dry_run:
+        print("  Dry run - stopping before merge. Review the mapping file above.")
+        return {'mapping_file': mapping_path, 'match_result': result}
+
+    # The six validation rules now verify the machine's answer instead of a
+    # human's input; the merge pipeline is unchanged.
+    pipeline_result = process_multi_floor(mapping_file_path=mapping_path)
+    pipeline_result['mapping_file'] = mapping_path
+    pipeline_result['match_result'] = result
+    return pipeline_result
+
+
+# =============================================================================
 # CLI ENTRY POINT
 # =============================================================================
 
@@ -1882,27 +1969,53 @@ Mapping Format:
 Examples:
     python MultiFloor.py --mapping-file mappings/FF_SF.txt
     python MultiFloor.py --mapping "(1, FF part 1upE.png, stairs_1):(2, SF part 1upE.png, stairs_1)"
+    python MultiFloor.py --auto-match "FF part 1upE.png:SF part 1upE.png"
+    python MultiFloor.py --auto-match "FF part 1upE.png:SF part 1upE.png" --auto-dry-run
 """
     )
-    
+
     parser.add_argument('--mapping-file', '-f', type=str, help='Path to mapping file (.txt)')
     parser.add_argument('--mapping', '-m', type=str, help='Inline mapping string')
+    parser.add_argument('--auto-match', '-a', type=str, metavar='IMG1:IMG2',
+                        help='Infer the transition mapping automatically from two '
+                             'floor images ("FLOOR1IMG.png:FLOOR2IMG.png")')
+    parser.add_argument('--floors', type=str, metavar='N1:N2',
+                        help='Override floor numbers for --auto-match (default: '
+                             'detected from filenames)')
+    parser.add_argument('--reject-cost', type=float, default=None,
+                        help='Auto-match: cost of leaving a transition unmatched '
+                             '(higher = force more pairings)')
+    parser.add_argument('--auto-dry-run', action='store_true',
+                        help='Auto-match: write the inferred mapping file and stop '
+                             'before merging')
     parser.add_argument('--spatial-tolerance', '-t', type=float, default=0.02)
-    
+
     args = parser.parse_args()
-    
-    if not args.mapping_file and not args.mapping:
-        parser.error("Either --mapping-file or --mapping must be provided")
-    
-    if args.mapping_file and args.mapping:
-        parser.error("Cannot use both --mapping-file and --mapping")
-    
+
+    provided = [bool(args.mapping_file), bool(args.mapping), bool(args.auto_match)]
+    if sum(provided) == 0:
+        parser.error("One of --mapping-file, --mapping, or --auto-match must be provided")
+    if sum(provided) > 1:
+        parser.error("Use only one of --mapping-file, --mapping, or --auto-match")
+
     try:
-        result = process_multi_floor(
-            mapping_file_path=args.mapping_file,
-            mapping_str=args.mapping,
-            spatial_tolerance=args.spatial_tolerance
-        )
+        if args.auto_match:
+            if ':' not in args.auto_match:
+                parser.error('--auto-match expects "IMG1.png:IMG2.png"')
+            image1, image2 = (s.strip() for s in args.auto_match.split(':', 1))
+            floor1 = floor2 = None
+            if args.floors:
+                floor1, floor2 = (int(s) for s in args.floors.split(':', 1))
+            result = process_auto_match(
+                image1, image2, floor1=floor1, floor2=floor2,
+                reject_cost=args.reject_cost, dry_run=args.auto_dry_run,
+            )
+        else:
+            result = process_multi_floor(
+                mapping_file_path=args.mapping_file,
+                mapping_str=args.mapping,
+                spatial_tolerance=args.spatial_tolerance
+            )
         print("\n✓ Multi-floor processing completed successfully!")
         return 0
     except Exception as e:
