@@ -1,0 +1,7 @@
+Node_ID	Position	Filled_Area
+outside_main_1	(np.float64(855.5), np.float64(272.5))	637311
+corridor_main_1	(np.float64(278.5), np.float64(216.5))	15713
+corridor_main_2	(np.float64(645.0), np.float64(973.0))	64423
+room_1	(np.float64(434.5), np.float64(709.5))	38452
+room_2	(np.float64(441.0), np.float64(852.0))	15711
+room_3	(np.float64(376.0), np.float64(961.0))	13037

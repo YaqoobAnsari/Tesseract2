@@ -1,0 +1,38 @@
+Door-knockout experiment (pre-pruning graphs, 20 draws/level)
+
+FF part 1upE:
+  random-all: 0%:1.000  10%:0.805  20%:0.626  30%:0.485  40%:0.338  50%:0.238
+    r2c-only: 0%:1.000  10%:0.829  20%:0.626  30%:0.492  40%:0.374  50%:0.273
+    c2c-only: 0%:1.000  10%:1.000  20%:0.991  30%:0.976  40%:0.979  50%:0.974
+
+FF part 2up:
+  random-all: 0%:1.000  10%:0.812  20%:0.578  30%:0.364  40%:0.240  50%:0.164
+    r2c-only: 0%:1.000  10%:0.848  20%:0.711  30%:0.547  40%:0.434  50%:0.328
+    c2c-only: 0%:1.000  10%:0.762  20%:0.754  30%:0.690  40%:0.743  50%:0.544
+
+FF part 3up:
+  random-all: 0%:1.000  10%:0.854  20%:0.751  30%:0.554  40%:0.424  50%:0.312
+    r2c-only: 0%:1.000  10%:0.905  20%:0.764  30%:0.657  40%:0.544  50%:0.435
+    c2c-only: 0%:1.000  10%:1.000  20%:1.000  30%:1.000  40%:1.000  50%:1.000
+
+Single c2c door sensitivity (delete one door alone):
+  FF part 1upE c2c_door_1: completeness 1.000 -> 0.941 (drop 0.059), exit reach change +0.029
+  FF part 1upE c2c_door_2: completeness 1.000 -> 1.000 (drop 0.000), exit reach change +0.000
+  FF part 1upE c2c_door_3: completeness 1.000 -> 1.000 (drop 0.000), exit reach change +0.000
+  FF part 1upE c2c_door_4: completeness 1.000 -> 1.000 (drop 0.000), exit reach change +0.000
+  FF part 1upE c2c_door_5: completeness 1.000 -> 1.000 (drop 0.000), exit reach change +0.000
+  FF part 2up c2c_door_1: completeness 1.000 -> 1.000 (drop 0.000), exit reach change +0.000
+  FF part 2up c2c_door_2: completeness 1.000 -> 1.000 (drop 0.000), exit reach change +0.000
+  FF part 2up c2c_door_3: completeness 1.000 -> 0.607 (drop 0.393), exit reach change +0.257
+  FF part 2up c2c_door_4: completeness 1.000 -> 1.000 (drop 0.000), exit reach change +0.000
+  FF part 2up c2c_door_5: completeness 1.000 -> 1.000 (drop 0.000), exit reach change +0.000
+  FF part 2up c2c_door_6: completeness 1.000 -> 0.489 (drop 0.511), exit reach change +0.543
+  FF part 3up c2c_door_1: completeness 1.000 -> 1.000 (drop 0.000), exit reach change +0.000
+  FF part 3up c2c_door_2: completeness 1.000 -> 1.000 (drop 0.000), exit reach change +0.000
+  FF part 3up c2c_door_3: completeness 1.000 -> 1.000 (drop 0.000), exit reach change +0.000
+  FF part 3up c2c_door_4: completeness 1.000 -> 1.000 (drop 0.000), exit reach change +0.000
+  FF part 3up c2c_door_5: completeness 1.000 -> 1.000 (drop 0.000), exit reach change +0.000
+  FF part 3up c2c_door_6: completeness 1.000 -> 1.000 (drop 0.000), exit reach change +0.000
+  FF part 3up c2c_door_7: completeness 1.000 -> 1.000 (drop 0.000), exit reach change +0.000
+
+NOTE: deletions are applied to the detector's OUTPUT (no door ground truth exists for these floors), so curves measure sensitivity relative to the current detector, not absolute recall. Entry doors (transition-serving, synthetic) are never deleted.

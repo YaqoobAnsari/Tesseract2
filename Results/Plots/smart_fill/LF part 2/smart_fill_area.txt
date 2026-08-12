@@ -1,0 +1,17 @@
+Node_ID	Position	Filled_Area
+room_1	(np.float64(1179.5), np.float64(408.5))	13596
+room_2	(np.float64(1061.5), np.float64(488.5))	13283
+room_3	(np.float64(315.5), np.float64(501.0))	14677
+room_4	(np.float64(586.5), np.float64(503.0))	9906
+room_5	(np.float64(896.0), np.float64(513.5))	14084
+room_6	(np.float64(747.5), np.float64(540.0))	13895
+room_7	(np.float64(558.0), np.float64(617.0))	1532
+room_8	(np.float64(640.5), np.float64(631.5))	9103
+room_9	(np.float64(556.0), np.float64(692.0))	2629
+room_10	(np.float64(1786.5), np.float64(708.0))	9812
+room_11	(np.float64(320.5), np.float64(888.5))	14663
+room_12	(np.float64(2056.0), np.float64(910.0))	11550
+room_13	(np.float64(906.5), np.float64(940.5))	12250
+room_14	(np.float64(1756.5), np.float64(967.0))	10796
+room_15	(np.float64(663.5), np.float64(1076.0))	7908
+room_16	(np.float64(794.0), np.float64(1090.0))	7430

@@ -1,0 +1,4 @@
+Accessibility routing - G_FF (floor 0 <-> floor 1, 102 room pairs)
+Reachable with all transitions:    102/102
+Reachable with stairs forbidden:   0/102
+No step-free routes exist between these floors: the merged graph has no elevator connection - an accessibility gap this analysis is designed to surface.

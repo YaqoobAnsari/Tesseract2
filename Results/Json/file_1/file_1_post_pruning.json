@@ -1,341 +1,956 @@
 {
-    "nodes": [
-        {
-            "id": "room_1",
-            "type": "room",
-            "position": [
-                116,
-                77
-            ]
-        },
-        {
-            "id": "room_2",
-            "type": "room",
-            "position": [
-                306,
-                88
-            ]
-        },
-        {
-            "id": "room_3",
-            "type": "room",
-            "position": [
-                263,
-                313
-            ]
-        },
-        {
-            "id": "exit_door_1",
-            "type": "door",
-            "position": [
-                482,
-                236
-            ]
-        },
-        {
-            "id": "r2c_door_1",
-            "type": "door",
-            "position": [
-                229,
-                233
-            ]
-        },
-        {
-            "id": "r2c_door_2",
-            "type": "door",
-            "position": [
-                209,
-                143
-            ]
-        },
-        {
-            "id": "r2c_door_3",
-            "type": "door",
-            "position": [
-                307,
-                146
-            ]
-        },
-        {
-            "id": "corridor_connect_62",
-            "type": "corridor",
-            "position": [
-                200,
-                160
-            ]
-        },
-        {
-            "id": "corridor_connect_63",
-            "type": "corridor",
-            "position": [
-                300,
-                160
-            ]
-        },
-        {
-            "id": "corridor_connect_88",
-            "type": "corridor",
-            "position": [
-                200,
-                180
-            ]
-        },
-        {
-            "id": "corridor_connect_89",
-            "type": "corridor",
-            "position": [
-                220,
-                180
-            ]
-        },
-        {
-            "id": "corridor_connect_90",
-            "type": "corridor",
-            "position": [
-                240,
-                180
-            ]
-        },
-        {
-            "id": "corridor_connect_91",
-            "type": "corridor",
-            "position": [
-                260,
-                180
-            ]
-        },
-        {
-            "id": "corridor_connect_92",
-            "type": "corridor",
-            "position": [
-                280,
-                180
-            ]
-        },
-        {
-            "id": "corridor_connect_94",
-            "type": "corridor",
-            "position": [
-                320,
-                180
-            ]
-        },
-        {
-            "id": "corridor_connect_95",
-            "type": "corridor",
-            "position": [
-                340,
-                180
-            ]
-        },
-        {
-            "id": "corridor_connect_96",
-            "type": "corridor",
-            "position": [
-                360,
-                180
-            ]
-        },
-        {
-            "id": "corridor_connect_97",
-            "type": "corridor",
-            "position": [
-                380,
-                180
-            ]
-        },
-        {
-            "id": "corridor_connect_98",
-            "type": "corridor",
-            "position": [
-                400,
-                180
-            ]
-        },
-        {
-            "id": "corridor_connect_99",
-            "type": "corridor",
-            "position": [
-                420,
-                180
-            ]
-        },
-        {
-            "id": "corridor_connect_100",
-            "type": "corridor",
-            "position": [
-                440,
-                180
-            ]
-        },
-        {
-            "id": "corridor_connect_126",
-            "type": "corridor",
-            "position": [
-                220,
-                200
-            ]
-        },
-        {
-            "id": "corridor_connect_138",
-            "type": "corridor",
-            "position": [
-                460,
-                200
-            ]
-        },
-        {
-            "id": "corridor_connect_139",
-            "type": "corridor",
-            "position": [
-                480,
-                200
-            ]
-        },
-        {
-            "id": "corridor_connect_163",
-            "type": "corridor",
-            "position": [
-                500,
-                220
-            ]
-        }
-    ],
-    "edges": [
-        {
-            "source": "room_1",
-            "target": "r2c_door_2",
-            "weight": 1
-        },
-        {
-            "source": "room_2",
-            "target": "r2c_door_3",
-            "weight": 1
-        },
-        {
-            "source": "room_3",
-            "target": "r2c_door_1",
-            "weight": 1
-        },
-        {
-            "source": "exit_door_1",
-            "target": "corridor_connect_163",
-            "weight": 1
-        },
-        {
-            "source": "r2c_door_1",
-            "target": "corridor_connect_126",
-            "weight": 1
-        },
-        {
-            "source": "r2c_door_2",
-            "target": "corridor_connect_62",
-            "weight": 1
-        },
-        {
-            "source": "r2c_door_3",
-            "target": "corridor_connect_63",
-            "weight": 1
-        },
-        {
-            "source": "corridor_connect_62",
-            "target": "corridor_connect_88",
-            "weight": 1
-        },
-        {
-            "source": "corridor_connect_62",
-            "target": "corridor_connect_89",
-            "weight": 1
-        },
-        {
-            "source": "corridor_connect_63",
-            "target": "corridor_connect_94",
-            "weight": 1
-        },
-        {
-            "source": "corridor_connect_63",
-            "target": "corridor_connect_92",
-            "weight": 1
-        },
-        {
-            "source": "corridor_connect_88",
-            "target": "corridor_connect_89",
-            "weight": 1
-        },
-        {
-            "source": "corridor_connect_88",
-            "target": "corridor_connect_126",
-            "weight": 1
-        },
-        {
-            "source": "corridor_connect_89",
-            "target": "corridor_connect_126",
-            "weight": 1
-        },
-        {
-            "source": "corridor_connect_89",
-            "target": "corridor_connect_90",
-            "weight": 1
-        },
-        {
-            "source": "corridor_connect_90",
-            "target": "corridor_connect_91",
-            "weight": 1
-        },
-        {
-            "source": "corridor_connect_90",
-            "target": "corridor_connect_126",
-            "weight": 1
-        },
-        {
-            "source": "corridor_connect_91",
-            "target": "corridor_connect_92",
-            "weight": 1
-        },
-        {
-            "source": "corridor_connect_94",
-            "target": "corridor_connect_95",
-            "weight": 1
-        },
-        {
-            "source": "corridor_connect_95",
-            "target": "corridor_connect_96",
-            "weight": 1
-        },
-        {
-            "source": "corridor_connect_96",
-            "target": "corridor_connect_97",
-            "weight": 1
-        },
-        {
-            "source": "corridor_connect_97",
-            "target": "corridor_connect_98",
-            "weight": 1
-        },
-        {
-            "source": "corridor_connect_98",
-            "target": "corridor_connect_99",
-            "weight": 1
-        },
-        {
-            "source": "corridor_connect_99",
-            "target": "corridor_connect_100",
-            "weight": 1
-        },
-        {
-            "source": "corridor_connect_100",
-            "target": "corridor_connect_138",
-            "weight": 1
-        },
-        {
-            "source": "corridor_connect_138",
-            "target": "corridor_connect_139",
-            "weight": 1
-        },
-        {
-            "source": "corridor_connect_139",
-            "target": "corridor_connect_163",
-            "weight": 1
-        }
-    ]
+  "nodes": [
+    {
+      "id": "room_1",
+      "type": "room",
+      "position": [
+        116.0,
+        77.0
+      ],
+      "floor": "1",
+      "pixels": [],
+      "room_area_px": 19094,
+      "room_eq_radius": 77.96030378848776,
+      "room_inradius": 38.523006439208984,
+      "room_num_subnode_candidates": 4,
+      "room_centroid_xy": [
+        125.34707237875773,
+        83.75306378967215
+      ],
+      "anchor_door": "r2c_door_2"
+    },
+    {
+      "id": "room_2",
+      "type": "room",
+      "position": [
+        306.5,
+        88.5
+      ],
+      "floor": "1",
+      "pixels": [],
+      "room_area_px": 8960,
+      "room_eq_radius": 53.404649424996364,
+      "room_inradius": 24.70359992980957,
+      "room_num_subnode_candidates": 1,
+      "room_centroid_xy": [
+        313.765625,
+        84.86171875
+      ],
+      "anchor_door": "r2c_door_3"
+    },
+    {
+      "id": "room_3",
+      "type": "room",
+      "position": [
+        263.5,
+        313.5
+      ],
+      "floor": "1",
+      "pixels": [],
+      "room_area_px": 18384,
+      "room_eq_radius": 76.49711725027818,
+      "room_inradius": 31.746706008911133,
+      "room_num_subnode_candidates": 4,
+      "room_centroid_xy": [
+        297.61069408181027,
+        295.022954743255
+      ],
+      "anchor_door": "r2c_door_1"
+    },
+    {
+      "id": "room_1_subnode_1",
+      "type": "room",
+      "position": [
+        127,
+        29
+      ],
+      "floor": "1",
+      "pixels": [],
+      "is_subnode": true,
+      "parent_room_id": "room_1"
+    },
+    {
+      "id": "room_1_subnode_2",
+      "type": "room",
+      "position": [
+        153,
+        87
+      ],
+      "floor": "1",
+      "pixels": [],
+      "is_subnode": true,
+      "parent_room_id": "room_1"
+    },
+    {
+      "id": "room_1_subnode_3",
+      "type": "room",
+      "position": [
+        122,
+        135
+      ],
+      "floor": "1",
+      "pixels": [],
+      "is_subnode": true,
+      "parent_room_id": "room_1"
+    },
+    {
+      "id": "room_1_subnode_4",
+      "type": "room",
+      "position": [
+        183,
+        136
+      ],
+      "floor": "1",
+      "pixels": [],
+      "is_subnode": true,
+      "parent_room_id": "room_1"
+    },
+    {
+      "id": "room_2_subnode_1",
+      "type": "room",
+      "position": [
+        316,
+        30
+      ],
+      "floor": "1",
+      "pixels": [],
+      "is_subnode": true,
+      "parent_room_id": "room_2"
+    },
+    {
+      "id": "room_3_subnode_1",
+      "type": "room",
+      "position": [
+        264,
+        292
+      ],
+      "floor": "1",
+      "pixels": [],
+      "is_subnode": true,
+      "parent_room_id": "room_3"
+    },
+    {
+      "id": "room_3_subnode_2",
+      "type": "room",
+      "position": [
+        386,
+        295
+      ],
+      "floor": "1",
+      "pixels": [],
+      "is_subnode": true,
+      "parent_room_id": "room_3"
+    },
+    {
+      "id": "room_3_subnode_3",
+      "type": "room",
+      "position": [
+        236,
+        343
+      ],
+      "floor": "1",
+      "pixels": [],
+      "is_subnode": true,
+      "parent_room_id": "room_3"
+    },
+    {
+      "id": "room_3_subnode_4",
+      "type": "room",
+      "position": [
+        298,
+        345
+      ],
+      "floor": "1",
+      "pixels": [],
+      "is_subnode": true,
+      "parent_room_id": "room_3"
+    },
+    {
+      "id": "exit_door_1",
+      "type": "door",
+      "position": [
+        482,
+        236
+      ],
+      "floor": "1",
+      "pixels": []
+    },
+    {
+      "id": "exit_door_2",
+      "type": "door",
+      "position": [
+        604,
+        236
+      ],
+      "floor": "1",
+      "pixels": []
+    },
+    {
+      "id": "exit_door_3",
+      "type": "door",
+      "position": [
+        642,
+        237
+      ],
+      "floor": "1",
+      "pixels": []
+    },
+    {
+      "id": "exit_door_4",
+      "type": "door",
+      "position": [
+        522,
+        237
+      ],
+      "floor": "1",
+      "pixels": []
+    },
+    {
+      "id": "exit_door_5",
+      "type": "door",
+      "position": [
+        723,
+        236
+      ],
+      "floor": "1",
+      "pixels": []
+    },
+    {
+      "id": "exit_door_6",
+      "type": "door",
+      "position": [
+        763,
+        235
+      ],
+      "floor": "1",
+      "pixels": []
+    },
+    {
+      "id": "r2c_door_1",
+      "type": "door",
+      "position": [
+        229,
+        233
+      ],
+      "floor": "1",
+      "pixels": [],
+      "closest_family_node": "room_3_subnode_1"
+    },
+    {
+      "id": "r2c_door_2",
+      "type": "door",
+      "position": [
+        209,
+        143
+      ],
+      "floor": "1",
+      "pixels": [],
+      "closest_family_node": "room_1_subnode_4"
+    },
+    {
+      "id": "r2c_door_3",
+      "type": "door",
+      "position": [
+        307,
+        146
+      ],
+      "floor": "1",
+      "pixels": [],
+      "closest_family_node": "room_2"
+    },
+    {
+      "id": "corridor_connect_62",
+      "type": "corridor",
+      "position": [
+        200,
+        160
+      ],
+      "floor": "1",
+      "pixels": []
+    },
+    {
+      "id": "corridor_connect_63",
+      "type": "corridor",
+      "position": [
+        300,
+        160
+      ],
+      "floor": "1",
+      "pixels": []
+    },
+    {
+      "id": "corridor_connect_88",
+      "type": "corridor",
+      "position": [
+        200,
+        180
+      ],
+      "floor": "1",
+      "pixels": []
+    },
+    {
+      "id": "corridor_connect_89",
+      "type": "corridor",
+      "position": [
+        220,
+        180
+      ],
+      "floor": "1",
+      "pixels": []
+    },
+    {
+      "id": "corridor_connect_90",
+      "type": "corridor",
+      "position": [
+        240,
+        180
+      ],
+      "floor": "1",
+      "pixels": []
+    },
+    {
+      "id": "corridor_connect_91",
+      "type": "corridor",
+      "position": [
+        260,
+        180
+      ],
+      "floor": "1",
+      "pixels": []
+    },
+    {
+      "id": "corridor_connect_92",
+      "type": "corridor",
+      "position": [
+        280,
+        180
+      ],
+      "floor": "1",
+      "pixels": []
+    },
+    {
+      "id": "corridor_connect_94",
+      "type": "corridor",
+      "position": [
+        320,
+        180
+      ],
+      "floor": "1",
+      "pixels": []
+    },
+    {
+      "id": "corridor_connect_95",
+      "type": "corridor",
+      "position": [
+        340,
+        180
+      ],
+      "floor": "1",
+      "pixels": []
+    },
+    {
+      "id": "corridor_connect_96",
+      "type": "corridor",
+      "position": [
+        360,
+        180
+      ],
+      "floor": "1",
+      "pixels": []
+    },
+    {
+      "id": "corridor_connect_97",
+      "type": "corridor",
+      "position": [
+        380,
+        180
+      ],
+      "floor": "1",
+      "pixels": []
+    },
+    {
+      "id": "corridor_connect_98",
+      "type": "corridor",
+      "position": [
+        400,
+        180
+      ],
+      "floor": "1",
+      "pixels": []
+    },
+    {
+      "id": "corridor_connect_99",
+      "type": "corridor",
+      "position": [
+        420,
+        180
+      ],
+      "floor": "1",
+      "pixels": []
+    },
+    {
+      "id": "corridor_connect_100",
+      "type": "corridor",
+      "position": [
+        440,
+        180
+      ],
+      "floor": "1",
+      "pixels": []
+    },
+    {
+      "id": "corridor_connect_126",
+      "type": "corridor",
+      "position": [
+        220,
+        200
+      ],
+      "floor": "1",
+      "pixels": []
+    },
+    {
+      "id": "corridor_connect_127",
+      "type": "corridor",
+      "position": [
+        240,
+        200
+      ],
+      "floor": "1",
+      "pixels": []
+    },
+    {
+      "id": "corridor_connect_137",
+      "type": "corridor",
+      "position": [
+        440,
+        200
+      ],
+      "floor": "1",
+      "pixels": []
+    },
+    {
+      "id": "corridor_connect_138",
+      "type": "corridor",
+      "position": [
+        460,
+        200
+      ],
+      "floor": "1",
+      "pixels": []
+    },
+    {
+      "id": "corridor_connect_139",
+      "type": "corridor",
+      "position": [
+        480,
+        200
+      ],
+      "floor": "1",
+      "pixels": []
+    },
+    {
+      "id": "corridor_connect_140",
+      "type": "corridor",
+      "position": [
+        500,
+        200
+      ],
+      "floor": "1",
+      "pixels": []
+    },
+    {
+      "id": "corridor_connect_141",
+      "type": "corridor",
+      "position": [
+        520,
+        200
+      ],
+      "floor": "1",
+      "pixels": []
+    },
+    {
+      "id": "corridor_connect_142",
+      "type": "corridor",
+      "position": [
+        540,
+        200
+      ],
+      "floor": "1",
+      "pixels": []
+    },
+    {
+      "id": "corridor_connect_143",
+      "type": "corridor",
+      "position": [
+        560,
+        200
+      ],
+      "floor": "1",
+      "pixels": []
+    },
+    {
+      "id": "corridor_connect_144",
+      "type": "corridor",
+      "position": [
+        580,
+        200
+      ],
+      "floor": "1",
+      "pixels": []
+    },
+    {
+      "id": "corridor_connect_145",
+      "type": "corridor",
+      "position": [
+        600,
+        200
+      ],
+      "floor": "1",
+      "pixels": []
+    },
+    {
+      "id": "corridor_connect_146",
+      "type": "corridor",
+      "position": [
+        620,
+        200
+      ],
+      "floor": "1",
+      "pixels": []
+    },
+    {
+      "id": "corridor_connect_147",
+      "type": "corridor",
+      "position": [
+        640,
+        200
+      ],
+      "floor": "1",
+      "pixels": []
+    },
+    {
+      "id": "corridor_connect_148",
+      "type": "corridor",
+      "position": [
+        660,
+        200
+      ],
+      "floor": "1",
+      "pixels": []
+    },
+    {
+      "id": "corridor_connect_149",
+      "type": "corridor",
+      "position": [
+        680,
+        200
+      ],
+      "floor": "1",
+      "pixels": []
+    },
+    {
+      "id": "corridor_connect_150",
+      "type": "corridor",
+      "position": [
+        700,
+        200
+      ],
+      "floor": "1",
+      "pixels": []
+    },
+    {
+      "id": "corridor_connect_151",
+      "type": "corridor",
+      "position": [
+        720,
+        200
+      ],
+      "floor": "1",
+      "pixels": []
+    },
+    {
+      "id": "corridor_connect_152",
+      "type": "corridor",
+      "position": [
+        740,
+        200
+      ],
+      "floor": "1",
+      "pixels": []
+    },
+    {
+      "id": "corridor_connect_153",
+      "type": "corridor",
+      "position": [
+        760,
+        200
+      ],
+      "floor": "1",
+      "pixels": []
+    },
+    {
+      "id": "corridor_connect_163",
+      "type": "corridor",
+      "position": [
+        500,
+        220
+      ],
+      "floor": "1",
+      "pixels": []
+    },
+    {
+      "id": "corridor_connect_165",
+      "type": "corridor",
+      "position": [
+        620,
+        220
+      ],
+      "floor": "1",
+      "pixels": []
+    }
+  ],
+  "edges": [
+    {
+      "source": "room_1",
+      "target": "r2c_door_2",
+      "weight": 114.03946685248927,
+      "distance": 114.03946685248927
+    },
+    {
+      "source": "room_1",
+      "target": "room_1_subnode_1",
+      "weight": 49.24428900898052,
+      "distance": 49.24428900898052
+    },
+    {
+      "source": "room_1",
+      "target": "room_1_subnode_3",
+      "weight": 58.309518948453004,
+      "distance": 58.309518948453004
+    },
+    {
+      "source": "room_2",
+      "target": "r2c_door_3",
+      "weight": 57.50217387195027,
+      "distance": 57.50217387195027
+    },
+    {
+      "source": "room_2",
+      "target": "room_2_subnode_1",
+      "weight": 59.26634795564849,
+      "distance": 59.26634795564849
+    },
+    {
+      "source": "room_3",
+      "target": "r2c_door_1",
+      "weight": 87.58139071743494,
+      "distance": 87.58139071743494
+    },
+    {
+      "source": "room_3",
+      "target": "room_3_subnode_3",
+      "weight": 40.329889660151565,
+      "distance": 40.329889660151565
+    },
+    {
+      "source": "room_3",
+      "target": "room_3_subnode_4",
+      "weight": 46.71723450719231,
+      "distance": 46.71723450719231
+    },
+    {
+      "source": "room_1_subnode_2",
+      "target": "room_1_subnode_4",
+      "weight": 57.4543296888929,
+      "distance": 57.4543296888929
+    },
+    {
+      "source": "room_1_subnode_4",
+      "target": "r2c_door_2",
+      "weight": 26.92582403567252,
+      "distance": 26.92582403567252
+    },
+    {
+      "source": "room_3_subnode_1",
+      "target": "r2c_door_1",
+      "weight": 68.60029154456998,
+      "distance": 68.60029154456998
+    },
+    {
+      "source": "room_3_subnode_2",
+      "target": "room_3_subnode_4",
+      "weight": 101.21264743103995,
+      "distance": 101.21264743103995
+    },
+    {
+      "source": "exit_door_1",
+      "target": "corridor_connect_163",
+      "weight": 24.08318915758459,
+      "distance": 24.08318915758459
+    },
+    {
+      "source": "exit_door_2",
+      "target": "corridor_connect_165",
+      "weight": 22.627416997969522,
+      "distance": 22.627416997969522
+    },
+    {
+      "source": "exit_door_3",
+      "target": "corridor_connect_165",
+      "weight": 27.80287754891569,
+      "distance": 27.80287754891569
+    },
+    {
+      "source": "exit_door_4",
+      "target": "corridor_connect_163",
+      "weight": 27.80287754891569,
+      "distance": 27.80287754891569
+    },
+    {
+      "source": "exit_door_5",
+      "target": "corridor_connect_151",
+      "weight": 36.124783736376884,
+      "distance": 36.124783736376884
+    },
+    {
+      "source": "exit_door_6",
+      "target": "corridor_connect_153",
+      "weight": 35.12833614050059,
+      "distance": 35.12833614050059
+    },
+    {
+      "source": "r2c_door_1",
+      "target": "corridor_connect_126",
+      "weight": 34.20526275297414,
+      "distance": 34.20526275297414
+    },
+    {
+      "source": "r2c_door_2",
+      "target": "corridor_connect_62",
+      "weight": 19.235384061671343,
+      "distance": 19.235384061671343
+    },
+    {
+      "source": "r2c_door_3",
+      "target": "corridor_connect_63",
+      "weight": 15.652475842498529,
+      "distance": 15.652475842498529
+    },
+    {
+      "source": "corridor_connect_62",
+      "target": "corridor_connect_88",
+      "weight": 20.0,
+      "distance": 20.0
+    },
+    {
+      "source": "corridor_connect_62",
+      "target": "corridor_connect_89",
+      "weight": 28.284271247461902,
+      "distance": 28.284271247461902
+    },
+    {
+      "source": "corridor_connect_63",
+      "target": "corridor_connect_94",
+      "weight": 28.284271247461902,
+      "distance": 28.284271247461902
+    },
+    {
+      "source": "corridor_connect_63",
+      "target": "corridor_connect_92",
+      "weight": 28.284271247461902,
+      "distance": 28.284271247461902
+    },
+    {
+      "source": "corridor_connect_88",
+      "target": "corridor_connect_126",
+      "weight": 28.284271247461902,
+      "distance": 28.284271247461902
+    },
+    {
+      "source": "corridor_connect_89",
+      "target": "corridor_connect_90",
+      "weight": 20.0,
+      "distance": 20.0
+    },
+    {
+      "source": "corridor_connect_90",
+      "target": "corridor_connect_91",
+      "weight": 20.0,
+      "distance": 20.0
+    },
+    {
+      "source": "corridor_connect_91",
+      "target": "corridor_connect_92",
+      "weight": 20.0,
+      "distance": 20.0
+    },
+    {
+      "source": "corridor_connect_91",
+      "target": "corridor_connect_127",
+      "weight": 28.284271247461902,
+      "distance": 28.284271247461902
+    },
+    {
+      "source": "corridor_connect_94",
+      "target": "corridor_connect_95",
+      "weight": 20.0,
+      "distance": 20.0
+    },
+    {
+      "source": "corridor_connect_95",
+      "target": "corridor_connect_96",
+      "weight": 20.0,
+      "distance": 20.0
+    },
+    {
+      "source": "corridor_connect_96",
+      "target": "corridor_connect_97",
+      "weight": 20.0,
+      "distance": 20.0
+    },
+    {
+      "source": "corridor_connect_97",
+      "target": "corridor_connect_98",
+      "weight": 20.0,
+      "distance": 20.0
+    },
+    {
+      "source": "corridor_connect_98",
+      "target": "corridor_connect_99",
+      "weight": 20.0,
+      "distance": 20.0
+    },
+    {
+      "source": "corridor_connect_99",
+      "target": "corridor_connect_100",
+      "weight": 20.0,
+      "distance": 20.0
+    },
+    {
+      "source": "corridor_connect_99",
+      "target": "corridor_connect_137",
+      "weight": 28.284271247461902,
+      "distance": 28.284271247461902
+    },
+    {
+      "source": "corridor_connect_100",
+      "target": "corridor_connect_138",
+      "weight": 28.284271247461902,
+      "distance": 28.284271247461902
+    },
+    {
+      "source": "corridor_connect_126",
+      "target": "corridor_connect_127",
+      "weight": 20.0,
+      "distance": 20.0
+    },
+    {
+      "source": "corridor_connect_137",
+      "target": "corridor_connect_138",
+      "weight": 20.0,
+      "distance": 20.0
+    },
+    {
+      "source": "corridor_connect_138",
+      "target": "corridor_connect_139",
+      "weight": 20.0,
+      "distance": 20.0
+    },
+    {
+      "source": "corridor_connect_139",
+      "target": "corridor_connect_140",
+      "weight": 20.0,
+      "distance": 20.0
+    },
+    {
+      "source": "corridor_connect_139",
+      "target": "corridor_connect_163",
+      "weight": 28.284271247461902,
+      "distance": 28.284271247461902
+    },
+    {
+      "source": "corridor_connect_140",
+      "target": "corridor_connect_141",
+      "weight": 20.0,
+      "distance": 20.0
+    },
+    {
+      "source": "corridor_connect_141",
+      "target": "corridor_connect_142",
+      "weight": 20.0,
+      "distance": 20.0
+    },
+    {
+      "source": "corridor_connect_142",
+      "target": "corridor_connect_143",
+      "weight": 20.0,
+      "distance": 20.0
+    },
+    {
+      "source": "corridor_connect_143",
+      "target": "corridor_connect_144",
+      "weight": 20.0,
+      "distance": 20.0
+    },
+    {
+      "source": "corridor_connect_144",
+      "target": "corridor_connect_145",
+      "weight": 20.0,
+      "distance": 20.0
+    },
+    {
+      "source": "corridor_connect_145",
+      "target": "corridor_connect_146",
+      "weight": 20.0,
+      "distance": 20.0
+    },
+    {
+      "source": "corridor_connect_145",
+      "target": "corridor_connect_165",
+      "weight": 28.284271247461902,
+      "distance": 28.284271247461902
+    },
+    {
+      "source": "corridor_connect_146",
+      "target": "corridor_connect_147",
+      "weight": 20.0,
+      "distance": 20.0
+    },
+    {
+      "source": "corridor_connect_147",
+      "target": "corridor_connect_148",
+      "weight": 20.0,
+      "distance": 20.0
+    },
+    {
+      "source": "corridor_connect_148",
+      "target": "corridor_connect_149",
+      "weight": 20.0,
+      "distance": 20.0
+    },
+    {
+      "source": "corridor_connect_149",
+      "target": "corridor_connect_150",
+      "weight": 20.0,
+      "distance": 20.0
+    },
+    {
+      "source": "corridor_connect_150",
+      "target": "corridor_connect_151",
+      "weight": 20.0,
+      "distance": 20.0
+    },
+    {
+      "source": "corridor_connect_151",
+      "target": "corridor_connect_152",
+      "weight": 20.0,
+      "distance": 20.0
+    },
+    {
+      "source": "corridor_connect_152",
+      "target": "corridor_connect_153",
+      "weight": 20.0,
+      "distance": 20.0
+    }
+  ]
 }

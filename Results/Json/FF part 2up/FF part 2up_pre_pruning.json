@@ -111,7 +111,7 @@
         673.9103921096945,
         152.99272311763292
       ],
-      "anchor_door": "exit_door_1"
+      "anchor_door": null
     },
     {
       "id": "room_7",
@@ -149,7 +149,7 @@
         1085.7692102657832,
         228.76814408651282
       ],
-      "anchor_door": "exit_door_7"
+      "anchor_door": null
     },
     {
       "id": "room_9",
@@ -281,7 +281,7 @@
         319.19418904008825,
         486.23023170283193
       ],
-      "anchor_door": "r2r_door_1"
+      "anchor_door": null
     },
     {
       "id": "room_16",
@@ -319,7 +319,7 @@
         225.3693786474425,
         505.8925506350841
       ],
-      "anchor_door": "r2r_door_2"
+      "anchor_door": null
     },
     {
       "id": "room_18",
@@ -413,7 +413,7 @@
         284.6815311522733,
         621.3949663218667
       ],
-      "anchor_door": "r2r_door_2"
+      "anchor_door": "r2c_door_11"
     },
     {
       "id": "room_23",
@@ -1970,7 +1970,8 @@
         152
       ],
       "floor": "Ground_Floor",
-      "pixels": []
+      "pixels": [],
+      "closest_family_node": "room_5"
     },
     {
       "id": "r2c_door_2",
@@ -1980,7 +1981,8 @@
         105
       ],
       "floor": "Ground_Floor",
-      "pixels": []
+      "pixels": [],
+      "closest_family_node": "room_3"
     },
     {
       "id": "r2c_door_3",
@@ -1990,7 +1992,8 @@
         194
       ],
       "floor": "Ground_Floor",
-      "pixels": []
+      "pixels": [],
+      "closest_family_node": "room_7"
     },
     {
       "id": "r2c_door_4",
@@ -2000,7 +2003,8 @@
         105
       ],
       "floor": "Ground_Floor",
-      "pixels": []
+      "pixels": [],
+      "closest_family_node": "room_2"
     },
     {
       "id": "r2c_door_5",
@@ -2010,7 +2014,8 @@
         105
       ],
       "floor": "Ground_Floor",
-      "pixels": []
+      "pixels": [],
+      "closest_family_node": "room_1"
     },
     {
       "id": "r2c_door_6",
@@ -2020,7 +2025,8 @@
         404
       ],
       "floor": "Ground_Floor",
-      "pixels": []
+      "pixels": [],
+      "closest_family_node": "room_10_subnode_8"
     },
     {
       "id": "r2c_door_7",
@@ -2030,7 +2036,8 @@
         304
       ],
       "floor": "Ground_Floor",
-      "pixels": []
+      "pixels": [],
+      "closest_family_node": "room_9"
     },
     {
       "id": "r2c_door_8",
@@ -2040,7 +2047,8 @@
         384
       ],
       "floor": "Ground_Floor",
-      "pixels": []
+      "pixels": [],
+      "closest_family_node": "room_12"
     },
     {
       "id": "r2c_door_9",
@@ -2050,17 +2058,19 @@
         493
       ],
       "floor": "Ground_Floor",
-      "pixels": []
+      "pixels": [],
+      "closest_family_node": "room_14"
     },
     {
       "id": "r2c_door_10",
       "type": "door",
       "position": [
-        1569,
-        459
+        1568,
+        460
       ],
       "floor": "Ground_Floor",
-      "pixels": []
+      "pixels": [],
+      "closest_family_node": "room_16"
     },
     {
       "id": "r2c_door_11",
@@ -2070,7 +2080,8 @@
         698
       ],
       "floor": "Ground_Floor",
-      "pixels": []
+      "pixels": [],
+      "closest_family_node": "room_22_subnode_6"
     },
     {
       "id": "r2c_door_12",
@@ -2080,7 +2091,8 @@
         565
       ],
       "floor": "Ground_Floor",
-      "pixels": []
+      "pixels": [],
+      "closest_family_node": "room_21"
     },
     {
       "id": "r2c_door_13",
@@ -2090,7 +2102,8 @@
         566
       ],
       "floor": "Ground_Floor",
-      "pixels": []
+      "pixels": [],
+      "closest_family_node": "room_20_subnode_1"
     },
     {
       "id": "r2c_door_14",
@@ -2100,7 +2113,8 @@
         523
       ],
       "floor": "Ground_Floor",
-      "pixels": []
+      "pixels": [],
+      "closest_family_node": "room_11_subnode_13"
     },
     {
       "id": "r2c_door_15",
@@ -2110,7 +2124,8 @@
         684
       ],
       "floor": "Ground_Floor",
-      "pixels": []
+      "pixels": [],
+      "closest_family_node": "room_31_subnode_1"
     },
     {
       "id": "r2c_door_16",
@@ -2120,7 +2135,8 @@
         624
       ],
       "floor": "Ground_Floor",
-      "pixels": []
+      "pixels": [],
+      "closest_family_node": "room_23"
     },
     {
       "id": "r2c_door_17",
@@ -2140,7 +2156,8 @@
         704
       ],
       "floor": "Ground_Floor",
-      "pixels": []
+      "pixels": [],
+      "closest_family_node": "room_25"
     },
     {
       "id": "r2c_door_19",
@@ -2150,7 +2167,8 @@
         544
       ],
       "floor": "Ground_Floor",
-      "pixels": []
+      "pixels": [],
+      "closest_family_node": "room_18"
     },
     {
       "id": "r2c_door_20",
@@ -2160,7 +2178,8 @@
         710
       ],
       "floor": "Ground_Floor",
-      "pixels": []
+      "pixels": [],
+      "closest_family_node": "room_26"
     },
     {
       "id": "r2c_door_21",
@@ -2170,7 +2189,8 @@
         621
       ],
       "floor": "Ground_Floor",
-      "pixels": []
+      "pixels": [],
+      "closest_family_node": "room_24"
     },
     {
       "id": "r2c_door_22",
@@ -2180,7 +2200,8 @@
         956
       ],
       "floor": "Ground_Floor",
-      "pixels": []
+      "pixels": [],
+      "closest_family_node": "room_35_subnode_3"
     },
     {
       "id": "r2c_door_23",
@@ -2190,7 +2211,8 @@
         839
       ],
       "floor": "Ground_Floor",
-      "pixels": []
+      "pixels": [],
+      "closest_family_node": "room_29_subnode_8"
     },
     {
       "id": "r2c_door_24",
@@ -2220,7 +2242,8 @@
         899
       ],
       "floor": "Ground_Floor",
-      "pixels": []
+      "pixels": [],
+      "closest_family_node": "room_28_subnode_11"
     },
     {
       "id": "r2c_door_27",
@@ -2230,7 +2253,8 @@
         847
       ],
       "floor": "Ground_Floor",
-      "pixels": []
+      "pixels": [],
+      "closest_family_node": "room_33_subnode_3"
     },
     {
       "id": "r2c_door_28",
@@ -2240,17 +2264,19 @@
         784
       ],
       "floor": "Ground_Floor",
-      "pixels": []
+      "pixels": [],
+      "closest_family_node": "room_30"
     },
     {
       "id": "r2c_door_29",
       "type": "door",
       "position": [
-        1571,
+        1570,
         703
       ],
       "floor": "Ground_Floor",
-      "pixels": []
+      "pixels": [],
+      "closest_family_node": "room_27"
     },
     {
       "id": "r2c_door_30",
@@ -2260,7 +2286,8 @@
         994
       ],
       "floor": "Ground_Floor",
-      "pixels": []
+      "pixels": [],
+      "closest_family_node": "room_32"
     },
     {
       "id": "r2c_door_31",
@@ -2280,7 +2307,8 @@
         963
       ],
       "floor": "Ground_Floor",
-      "pixels": []
+      "pixels": [],
+      "closest_family_node": "room_34"
     },
     {
       "id": "r2r_door_1",
@@ -13736,6 +13764,18 @@
     },
     {
       "source": "room_6",
+      "target": "exit_door_1",
+      "weight": 86.880665282904,
+      "distance": 86.880665282904
+    },
+    {
+      "source": "room_6",
+      "target": "exit_door_3",
+      "weight": 116.48712375194093,
+      "distance": 116.48712375194093
+    },
+    {
+      "source": "room_6",
       "target": "room_6_subnode_1",
       "weight": 59.508402768012516,
       "distance": 59.508402768012516
@@ -13778,15 +13818,39 @@
     },
     {
       "source": "room_10",
+      "target": "r2c_door_6",
+      "weight": 121.62442188968464,
+      "distance": 121.62442188968464
+    },
+    {
+      "source": "room_10",
       "target": "room_10_subnode_2",
       "weight": 45.721985958617324,
       "distance": 45.721985958617324
     },
     {
       "source": "room_10",
+      "target": "room_10_subnode_3",
+      "weight": 65.9128212110512,
+      "distance": 65.9128212110512
+    },
+    {
+      "source": "room_10",
+      "target": "room_10_subnode_4",
+      "weight": 39.85599076675927,
+      "distance": 39.85599076675927
+    },
+    {
+      "source": "room_10",
       "target": "room_10_subnode_7",
       "weight": 61.241325916410396,
       "distance": 61.241325916410396
+    },
+    {
+      "source": "room_11",
+      "target": "r2c_door_14",
+      "weight": 189.0568697508768,
+      "distance": 189.0568697508768
     },
     {
       "source": "room_11",
@@ -13799,6 +13863,12 @@
       "target": "room_11_subnode_6",
       "weight": 67.79749257900325,
       "distance": 67.79749257900325
+    },
+    {
+      "source": "room_11",
+      "target": "room_11_subnode_8",
+      "weight": 36.00694377477767,
+      "distance": 36.00694377477767
     },
     {
       "source": "room_11",
@@ -13839,8 +13909,8 @@
     {
       "source": "room_16",
       "target": "r2c_door_10",
-      "weight": 20.402205763103165,
-      "distance": 20.402205763103165
+      "weight": 19.00657780874821,
+      "distance": 19.00657780874821
     },
     {
       "source": "room_17",
@@ -13868,9 +13938,21 @@
     },
     {
       "source": "room_20",
+      "target": "r2c_door_13",
+      "weight": 75.10825520540335,
+      "distance": 75.10825520540335
+    },
+    {
+      "source": "room_20",
       "target": "room_20_subnode_1",
       "weight": 44.84696199298231,
       "distance": 44.84696199298231
+    },
+    {
+      "source": "room_20",
+      "target": "room_20_subnode_2",
+      "weight": 30.80990100600779,
+      "distance": 30.80990100600779
     },
     {
       "source": "room_21",
@@ -13880,9 +13962,15 @@
     },
     {
       "source": "room_22",
-      "target": "room_22_subnode_1",
-      "weight": 43.41658669218482,
-      "distance": 43.41658669218482
+      "target": "r2c_door_11",
+      "weight": 127.98828071350908,
+      "distance": 127.98828071350908
+    },
+    {
+      "source": "room_22",
+      "target": "room_22_subnode_2",
+      "weight": 47.4236228055175,
+      "distance": 47.4236228055175
     },
     {
       "source": "room_22",
@@ -13901,6 +13989,18 @@
       "target": "room_22_subnode_6",
       "weight": 69.77105417004964,
       "distance": 69.77105417004964
+    },
+    {
+      "source": "room_22",
+      "target": "room_22_subnode_1",
+      "weight": 43.41658669218482,
+      "distance": 43.41658669218482
+    },
+    {
+      "source": "room_22",
+      "target": "room_22_subnode_3",
+      "weight": 61.0,
+      "distance": 61.0
     },
     {
       "source": "room_23",
@@ -13947,8 +14047,20 @@
     {
       "source": "room_27",
       "target": "r2c_door_29",
-      "weight": 27.189152248645048,
-      "distance": 27.189152248645048
+      "weight": 26.348624252510795,
+      "distance": 26.348624252510795
+    },
+    {
+      "source": "room_28",
+      "target": "exit_door_10",
+      "weight": 155.6574765310038,
+      "distance": 155.6574765310038
+    },
+    {
+      "source": "room_28",
+      "target": "r2c_door_26",
+      "weight": 153.84163935683992,
+      "distance": 153.84163935683992
     },
     {
       "source": "room_28",
@@ -13958,15 +14070,57 @@
     },
     {
       "source": "room_28",
+      "target": "room_28_subnode_6",
+      "weight": 45.89389937671455,
+      "distance": 45.89389937671455
+    },
+    {
+      "source": "room_28",
       "target": "room_28_subnode_7",
       "weight": 33.04920573932148,
       "distance": 33.04920573932148
+    },
+    {
+      "source": "room_28",
+      "target": "room_28_subnode_8",
+      "weight": 65.17860078277225,
+      "distance": 65.17860078277225
+    },
+    {
+      "source": "room_29",
+      "target": "r2c_door_23",
+      "weight": 113.30600160626973,
+      "distance": 113.30600160626973
+    },
+    {
+      "source": "room_29",
+      "target": "room_29_subnode_2",
+      "weight": 41.42764777295472,
+      "distance": 41.42764777295472
+    },
+    {
+      "source": "room_29",
+      "target": "room_29_subnode_3",
+      "weight": 51.800096525006595,
+      "distance": 51.800096525006595
+    },
+    {
+      "source": "room_29",
+      "target": "room_29_subnode_4",
+      "weight": 53.77034498680476,
+      "distance": 53.77034498680476
     },
     {
       "source": "room_29",
       "target": "room_29_subnode_5",
       "weight": 22.14158982548453,
       "distance": 22.14158982548453
+    },
+    {
+      "source": "room_29",
+      "target": "room_29_subnode_7",
+      "weight": 71.31795005466716,
+      "distance": 71.31795005466716
     },
     {
       "source": "room_30",
@@ -13976,9 +14130,39 @@
     },
     {
       "source": "room_31",
+      "target": "r2c_door_15",
+      "weight": 166.90116836020053,
+      "distance": 166.90116836020053
+    },
+    {
+      "source": "room_31",
       "target": "room_31_subnode_5",
       "weight": 46.14108798023731,
       "distance": 46.14108798023731
+    },
+    {
+      "source": "room_31",
+      "target": "room_31_subnode_6",
+      "weight": 53.74011537017761,
+      "distance": 53.74011537017761
+    },
+    {
+      "source": "room_31",
+      "target": "room_31_subnode_8",
+      "weight": 50.695167422546305,
+      "distance": 50.695167422546305
+    },
+    {
+      "source": "room_31",
+      "target": "room_31_subnode_9",
+      "weight": 23.430749027719962,
+      "distance": 23.430749027719962
+    },
+    {
+      "source": "room_31",
+      "target": "room_31_subnode_10",
+      "weight": 69.42621983083913,
+      "distance": 69.42621983083913
     },
     {
       "source": "room_31",
@@ -14000,6 +14184,24 @@
     },
     {
       "source": "room_33",
+      "target": "r2c_door_27",
+      "weight": 89.0968574081039,
+      "distance": 89.0968574081039
+    },
+    {
+      "source": "room_33",
+      "target": "room_33_subnode_1",
+      "weight": 68.89303302947258,
+      "distance": 68.89303302947258
+    },
+    {
+      "source": "room_33",
+      "target": "room_33_subnode_2",
+      "weight": 31.56342820417326,
+      "distance": 31.56342820417326
+    },
+    {
+      "source": "room_33",
       "target": "room_33_subnode_3",
       "weight": 61.12487218800543,
       "distance": 61.12487218800543
@@ -14011,10 +14213,34 @@
       "distance": 44.51123453691214
     },
     {
+      "source": "room_33",
+      "target": "room_33_subnode_5",
+      "weight": 35.75262228144951,
+      "distance": 35.75262228144951
+    },
+    {
+      "source": "room_33",
+      "target": "room_33_subnode_6",
+      "weight": 74.82813641939775,
+      "distance": 74.82813641939775
+    },
+    {
       "source": "room_34",
       "target": "r2c_door_32",
       "weight": 65.50763314301624,
       "distance": 65.50763314301624
+    },
+    {
+      "source": "room_35",
+      "target": "r2c_door_22",
+      "weight": 66.38712224520656,
+      "distance": 66.38712224520656
+    },
+    {
+      "source": "room_35",
+      "target": "room_35_subnode_1",
+      "weight": 21.5,
+      "distance": 21.5
     },
     {
       "source": "room_35",
@@ -14174,6 +14400,12 @@
     },
     {
       "source": "room_6_subnode_2",
+      "target": "exit_door_3",
+      "weight": 49.01020301937138,
+      "distance": 49.01020301937138
+    },
+    {
+      "source": "room_6_subnode_2",
       "target": "room_6_subnode_3",
       "weight": 63.12685640834652,
       "distance": 63.12685640834652
@@ -14198,21 +14430,9 @@
     },
     {
       "source": "room_10_subnode_4",
-      "target": "room_10_subnode_7",
-      "weight": 54.70831746635972,
-      "distance": 54.70831746635972
-    },
-    {
-      "source": "room_10_subnode_5",
-      "target": "room_10_subnode_8",
-      "weight": 63.631753079732135,
-      "distance": 63.631753079732135
-    },
-    {
-      "source": "room_10_subnode_6",
-      "target": "room_10_subnode_7",
-      "weight": 61.032778078668514,
-      "distance": 61.032778078668514
+      "target": "room_10_subnode_6",
+      "weight": 55.80322571321482,
+      "distance": 55.80322571321482
     },
     {
       "source": "room_10_subnode_7",
@@ -14228,9 +14448,9 @@
     },
     {
       "source": "room_11_subnode_1",
-      "target": "room_11_subnode_4",
-      "weight": 58.180752831155424,
-      "distance": 58.180752831155424
+      "target": "room_11_subnode_2",
+      "weight": 56.0,
+      "distance": 56.0
     },
     {
       "source": "room_11_subnode_2",
@@ -14246,33 +14466,27 @@
     },
     {
       "source": "room_11_subnode_4",
-      "target": "room_11_subnode_7",
-      "weight": 59.53990258641679,
-      "distance": 59.53990258641679
+      "target": "room_11_subnode_5",
+      "weight": 62.03224967708329,
+      "distance": 62.03224967708329
+    },
+    {
+      "source": "room_11_subnode_6",
+      "target": "room_11_subnode_9",
+      "weight": 51.0,
+      "distance": 51.0
     },
     {
       "source": "room_11_subnode_7",
-      "target": "room_11_subnode_10",
-      "weight": 60.53924347066124,
-      "distance": 60.53924347066124
+      "target": "room_11_subnode_8",
+      "weight": 63.071388124885914,
+      "distance": 63.071388124885914
     },
     {
       "source": "room_11_subnode_8",
-      "target": "room_11_subnode_11",
-      "weight": 62.16912416947821,
-      "distance": 62.16912416947821
-    },
-    {
-      "source": "room_11_subnode_9",
-      "target": "room_11_subnode_12",
-      "weight": 60.92618484691127,
-      "distance": 60.92618484691127
-    },
-    {
-      "source": "room_11_subnode_10",
-      "target": "room_11_subnode_13",
-      "weight": 64.40496875241847,
-      "distance": 64.40496875241847
+      "target": "room_11_subnode_10",
+      "weight": 58.52349955359813,
+      "distance": 58.52349955359813
     },
     {
       "source": "room_11_subnode_11",
@@ -14287,22 +14501,22 @@
       "distance": 59.682493245507096
     },
     {
+      "source": "room_11_subnode_11",
+      "target": "room_11_subnode_14",
+      "weight": 59.682493245507096,
+      "distance": 59.682493245507096
+    },
+    {
+      "source": "room_11_subnode_12",
+      "target": "room_11_subnode_15",
+      "weight": 55.072679252057455,
+      "distance": 55.072679252057455
+    },
+    {
       "source": "room_11_subnode_13",
       "target": "r2c_door_14",
       "weight": 86.40023148117139,
       "distance": 86.40023148117139
-    },
-    {
-      "source": "room_11_subnode_13",
-      "target": "room_11_subnode_14",
-      "weight": 62.0,
-      "distance": 62.0
-    },
-    {
-      "source": "room_11_subnode_14",
-      "target": "room_11_subnode_15",
-      "weight": 61.29437168288782,
-      "distance": 61.29437168288782
     },
     {
       "source": "room_15_subnode_1",
@@ -14323,12 +14537,6 @@
       "distance": 56.61271941887264
     },
     {
-      "source": "room_20_subnode_1",
-      "target": "room_20_subnode_2",
-      "weight": 59.0,
-      "distance": 59.0
-    },
-    {
       "source": "room_22_subnode_1",
       "target": "r2r_door_2",
       "weight": 35.510561809129406,
@@ -14336,15 +14544,21 @@
     },
     {
       "source": "room_22_subnode_1",
-      "target": "room_22_subnode_2",
-      "weight": 59.00847396772772,
-      "distance": 59.00847396772772
+      "target": "r2r_door_1",
+      "weight": 65.79513659838392,
+      "distance": 65.79513659838392
     },
     {
       "source": "room_22_subnode_1",
       "target": "room_22_subnode_3",
       "weight": 55.80322571321482,
       "distance": 55.80322571321482
+    },
+    {
+      "source": "room_22_subnode_6",
+      "target": "r2c_door_11",
+      "weight": 64.8459713474939,
+      "distance": 64.8459713474939
     },
     {
       "source": "room_28_subnode_1",
@@ -14360,6 +14574,12 @@
     },
     {
       "source": "room_28_subnode_3",
+      "target": "exit_door_10",
+      "weight": 53.31041174104736,
+      "distance": 53.31041174104736
+    },
+    {
+      "source": "room_28_subnode_3",
       "target": "room_28_subnode_5",
       "weight": 56.0357029044876,
       "distance": 56.0357029044876
@@ -14371,34 +14591,22 @@
       "distance": 61.71709649683789
     },
     {
-      "source": "room_28_subnode_6",
-      "target": "room_28_subnode_7",
-      "weight": 59.36328831862332,
-      "distance": 59.36328831862332
-    },
-    {
       "source": "room_28_subnode_7",
       "target": "room_28_subnode_9",
       "weight": 57.8013840664737,
       "distance": 57.8013840664737
     },
     {
-      "source": "room_28_subnode_8",
-      "target": "room_28_subnode_9",
-      "weight": 57.0087712549569,
-      "distance": 57.0087712549569
+      "source": "room_28_subnode_9",
+      "target": "room_28_subnode_10",
+      "weight": 62.177166226839255,
+      "distance": 62.177166226839255
     },
     {
       "source": "room_28_subnode_9",
       "target": "room_28_subnode_11",
       "weight": 59.53990258641679,
       "distance": 59.53990258641679
-    },
-    {
-      "source": "room_28_subnode_10",
-      "target": "room_28_subnode_11",
-      "weight": 58.077534382926416,
-      "distance": 58.077534382926416
     },
     {
       "source": "room_28_subnode_11",
@@ -14408,45 +14616,21 @@
     },
     {
       "source": "room_29_subnode_1",
-      "target": "room_29_subnode_4",
-      "weight": 60.41522986797286,
-      "distance": 60.41522986797286
-    },
-    {
-      "source": "room_29_subnode_2",
-      "target": "room_29_subnode_5",
-      "weight": 63.56099432828282,
-      "distance": 63.56099432828282
-    },
-    {
-      "source": "room_29_subnode_3",
-      "target": "room_29_subnode_5",
-      "weight": 60.207972893961475,
-      "distance": 60.207972893961475
+      "target": "room_29_subnode_2",
+      "weight": 62.289646009589745,
+      "distance": 62.289646009589745
     },
     {
       "source": "room_29_subnode_4",
-      "target": "room_29_subnode_7",
-      "weight": 54.70831746635972,
-      "distance": 54.70831746635972
+      "target": "room_29_subnode_6",
+      "weight": 55.80322571321482,
+      "distance": 55.80322571321482
     },
     {
       "source": "room_29_subnode_5",
       "target": "room_29_subnode_8",
       "weight": 57.4543296888929,
       "distance": 57.4543296888929
-    },
-    {
-      "source": "room_29_subnode_6",
-      "target": "room_29_subnode_7",
-      "weight": 61.032778078668514,
-      "distance": 61.032778078668514
-    },
-    {
-      "source": "room_29_subnode_7",
-      "target": "room_29_subnode_8",
-      "weight": 61.00819617067857,
-      "distance": 61.00819617067857
     },
     {
       "source": "room_29_subnode_8",
@@ -14462,57 +14646,33 @@
     },
     {
       "source": "room_31_subnode_1",
-      "target": "room_31_subnode_2",
-      "weight": 58.42088667591412,
-      "distance": 58.42088667591412
-    },
-    {
-      "source": "room_31_subnode_1",
-      "target": "room_31_subnode_4",
-      "weight": 61.05735008989499,
-      "distance": 61.05735008989499
-    },
-    {
-      "source": "room_31_subnode_1",
       "target": "room_31_subnode_5",
       "weight": 57.271284253105414,
       "distance": 57.271284253105414
     },
     {
       "source": "room_31_subnode_2",
-      "target": "room_31_subnode_3",
-      "weight": 59.0,
-      "distance": 59.0
-    },
-    {
-      "source": "room_31_subnode_2",
-      "target": "room_31_subnode_6",
-      "weight": 54.20332093147061,
-      "distance": 54.20332093147061
+      "target": "room_31_subnode_5",
+      "weight": 56.4003546088143,
+      "distance": 56.4003546088143
     },
     {
       "source": "room_31_subnode_3",
-      "target": "room_31_subnode_7",
-      "weight": 56.08029957123981,
-      "distance": 56.08029957123981
+      "target": "room_31_subnode_6",
+      "weight": 56.859475903318,
+      "distance": 56.859475903318
     },
     {
-      "source": "room_31_subnode_5",
-      "target": "room_31_subnode_8",
-      "weight": 59.033888572581766,
-      "distance": 59.033888572581766
-    },
-    {
-      "source": "room_31_subnode_5",
-      "target": "room_31_subnode_9",
-      "weight": 69.33974329343886,
-      "distance": 69.33974329343886
+      "source": "room_31_subnode_4",
+      "target": "room_31_subnode_5",
+      "weight": 56.0,
+      "distance": 56.0
     },
     {
       "source": "room_31_subnode_6",
-      "target": "room_31_subnode_10",
-      "weight": 60.03332407921454,
-      "distance": 60.03332407921454
+      "target": "room_31_subnode_7",
+      "weight": 61.00819617067857,
+      "distance": 61.00819617067857
     },
     {
       "source": "room_31_subnode_11",
@@ -14533,46 +14693,16 @@
       "distance": 65.30696746902278
     },
     {
-      "source": "room_33_subnode_1",
-      "target": "room_33_subnode_2",
-      "weight": 62.289646009589745,
-      "distance": 62.289646009589745
-    },
-    {
-      "source": "room_33_subnode_2",
-      "target": "room_33_subnode_3",
-      "weight": 58.42088667591412,
-      "distance": 58.42088667591412
-    },
-    {
       "source": "room_33_subnode_3",
       "target": "r2c_door_27",
       "weight": 29.732137494637012,
       "distance": 29.732137494637012
     },
     {
-      "source": "room_33_subnode_3",
-      "target": "room_33_subnode_5",
-      "weight": 60.207972893961475,
-      "distance": 60.207972893961475
-    },
-    {
-      "source": "room_33_subnode_5",
-      "target": "room_33_subnode_6",
-      "weight": 57.14017850864661,
-      "distance": 57.14017850864661
-    },
-    {
       "source": "room_33_subnode_5",
       "target": "room_33_subnode_7",
       "weight": 57.4543296888929,
       "distance": 57.4543296888929
-    },
-    {
-      "source": "room_35_subnode_1",
-      "target": "room_35_subnode_2",
-      "weight": 56.0357029044876,
-      "distance": 56.0357029044876
     },
     {
       "source": "room_35_subnode_2",
@@ -14750,13 +14880,13 @@
     },
     {
       "source": "c2c_door_4",
-      "target": "corridor_connect_404",
+      "target": "corridor_connect_390",
       "weight": 36.87817782917155,
       "distance": 36.87817782917155
     },
     {
       "source": "c2c_door_4",
-      "target": "corridor_connect_390",
+      "target": "corridor_connect_404",
       "weight": 36.87817782917155,
       "distance": 36.87817782917155
     },
@@ -14865,8 +14995,8 @@
     {
       "source": "r2c_door_10",
       "target": "corridor_connect_193",
-      "weight": 40.024992192379,
-      "distance": 40.024992192379
+      "weight": 40.792156108742276,
+      "distance": 40.792156108742276
     },
     {
       "source": "r2c_door_11",
@@ -14979,8 +15109,8 @@
     {
       "source": "r2c_door_29",
       "target": "corridor_connect_387",
-      "weight": 74.63243262818116,
-      "distance": 74.63243262818116
+      "weight": 73.68174807915459,
+      "distance": 73.68174807915459
     },
     {
       "source": "r2c_door_30",

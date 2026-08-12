@@ -1,0 +1,95 @@
+{
+  "nodes": [
+    {
+      "id": "room_1",
+      "type": "room",
+      "position": [
+        434.5,
+        709.5
+      ],
+      "floor": "1",
+      "pixels": []
+    },
+    {
+      "id": "room_2",
+      "type": "room",
+      "position": [
+        441.0,
+        852.0
+      ],
+      "floor": "1",
+      "pixels": []
+    },
+    {
+      "id": "room_3",
+      "type": "room",
+      "position": [
+        376.0,
+        961.0
+      ],
+      "floor": "1",
+      "pixels": []
+    },
+    {
+      "id": "corridor_main_1",
+      "type": "corridor",
+      "position": [
+        278.5,
+        216.5
+      ],
+      "floor": "1",
+      "pixels": []
+    },
+    {
+      "id": "corridor_main_2",
+      "type": "corridor",
+      "position": [
+        645.0,
+        973.0
+      ],
+      "floor": "1",
+      "pixels": []
+    },
+    {
+      "id": "outside_main_1",
+      "type": "outside",
+      "position": [
+        855.5,
+        272.5
+      ],
+      "floor": "NA",
+      "pixels": []
+    },
+    {
+      "id": "stairs_1",
+      "type": "floor_transition",
+      "position": [
+        473.5,
+        394.0
+      ],
+      "floor": "1",
+      "pixels": []
+    },
+    {
+      "id": "stairs_2",
+      "type": "floor_transition",
+      "position": [
+        697.75,
+        702.75
+      ],
+      "floor": "1",
+      "pixels": []
+    },
+    {
+      "id": "elevator_1",
+      "type": "floor_transition",
+      "position": [
+        709.5,
+        830.0
+      ],
+      "floor": "1",
+      "pixels": []
+    }
+  ],
+  "edges": []
+}

@@ -7,7 +7,7 @@
         379.5,
         107.5
       ],
-      "floor": "Ground_Floor",
+      "floor": "1",
       "pixels": []
     },
     {
@@ -17,7 +17,7 @@
         530.0,
         291.5
       ],
-      "floor": "Ground_Floor",
+      "floor": "1",
       "pixels": []
     },
     {
@@ -27,7 +27,7 @@
         1424.0,
         387.0
       ],
-      "floor": "Ground_Floor",
+      "floor": "1",
       "pixels": []
     },
     {
@@ -37,7 +37,7 @@
         531.5,
         405.5
       ],
-      "floor": "Ground_Floor",
+      "floor": "1",
       "pixels": []
     },
     {
@@ -47,7 +47,7 @@
         1106.5,
         426.5
       ],
-      "floor": "Ground_Floor",
+      "floor": "1",
       "pixels": []
     },
     {
@@ -57,7 +57,7 @@
         1741.75,
         429.25
       ],
-      "floor": "Ground_Floor",
+      "floor": "1",
       "pixels": []
     },
     {
@@ -67,7 +67,7 @@
         206.5,
         505.5
       ],
-      "floor": "Ground_Floor",
+      "floor": "1",
       "pixels": []
     },
     {
@@ -77,7 +77,7 @@
         534.5,
         507.5
       ],
-      "floor": "Ground_Floor",
+      "floor": "1",
       "pixels": []
     },
     {
@@ -87,7 +87,7 @@
         206.5,
         610.5
       ],
-      "floor": "Ground_Floor",
+      "floor": "1",
       "pixels": []
     },
     {
@@ -97,7 +97,7 @@
         533.0,
         612.0
       ],
-      "floor": "Ground_Floor",
+      "floor": "1",
       "pixels": []
     },
     {
@@ -107,7 +107,7 @@
         206.5,
         712.5
       ],
-      "floor": "Ground_Floor",
+      "floor": "1",
       "pixels": []
     },
     {
@@ -117,7 +117,7 @@
         531.5,
         712.5
       ],
-      "floor": "Ground_Floor",
+      "floor": "1",
       "pixels": []
     },
     {
@@ -127,7 +127,7 @@
         1616.0,
         808.5
       ],
-      "floor": "Ground_Floor",
+      "floor": "1",
       "pixels": []
     },
     {
@@ -137,7 +137,7 @@
         206.5,
         813.0
       ],
-      "floor": "Ground_Floor",
+      "floor": "1",
       "pixels": []
     },
     {
@@ -147,7 +147,7 @@
         533.0,
         813.0
       ],
-      "floor": "Ground_Floor",
+      "floor": "1",
       "pixels": []
     },
     {
@@ -157,7 +157,7 @@
         1173.5,
         828.0
       ],
-      "floor": "Ground_Floor",
+      "floor": "1",
       "pixels": []
     },
     {
@@ -167,7 +167,7 @@
         206.5,
         919.5
       ],
-      "floor": "Ground_Floor",
+      "floor": "1",
       "pixels": []
     },
     {
@@ -177,7 +177,7 @@
         531.5,
         919.5
       ],
-      "floor": "Ground_Floor",
+      "floor": "1",
       "pixels": []
     },
     {
@@ -187,7 +187,7 @@
         1629.5,
         949.5
       ],
-      "floor": "Ground_Floor",
+      "floor": "1",
       "pixels": []
     },
     {
@@ -197,7 +197,7 @@
         533.0,
         1024.0
       ],
-      "floor": "Ground_Floor",
+      "floor": "1",
       "pixels": []
     },
     {
@@ -207,7 +207,7 @@
         206.5,
         1024.0
       ],
-      "floor": "Ground_Floor",
+      "floor": "1",
       "pixels": []
     },
     {
@@ -217,7 +217,7 @@
         1631.0,
         1050.0
       ],
-      "floor": "Ground_Floor",
+      "floor": "1",
       "pixels": []
     },
     {
@@ -227,7 +227,7 @@
         1270.5,
         1077.5
       ],
-      "floor": "Ground_Floor",
+      "floor": "1",
       "pixels": []
     },
     {
@@ -237,7 +237,7 @@
         530.0,
         1120.0
       ],
-      "floor": "Ground_Floor",
+      "floor": "1",
       "pixels": []
     },
     {
@@ -247,7 +247,7 @@
         206.5,
         1132.0
       ],
-      "floor": "Ground_Floor",
+      "floor": "1",
       "pixels": []
     },
     {
@@ -257,7 +257,7 @@
         1632.5,
         1150.5
       ],
-      "floor": "Ground_Floor",
+      "floor": "1",
       "pixels": []
     },
     {
@@ -267,7 +267,7 @@
         1634.0,
         1252.0
       ],
-      "floor": "Ground_Floor",
+      "floor": "1",
       "pixels": []
     },
     {
@@ -277,7 +277,7 @@
         548.0,
         1263.0
       ],
-      "floor": "Ground_Floor",
+      "floor": "1",
       "pixels": []
     },
     {
@@ -287,7 +287,7 @@
         205.0,
         1299.5
       ],
-      "floor": "Ground_Floor",
+      "floor": "1",
       "pixels": []
     },
     {
@@ -297,7 +297,7 @@
         680.5,
         1299.5
       ],
-      "floor": "Ground_Floor",
+      "floor": "1",
       "pixels": []
     },
     {
@@ -307,7 +307,7 @@
         793.5,
         1299.5
       ],
-      "floor": "Ground_Floor",
+      "floor": "1",
       "pixels": []
     },
     {
@@ -317,7 +317,7 @@
         890.5,
         1299.5
       ],
-      "floor": "Ground_Floor",
+      "floor": "1",
       "pixels": []
     },
     {
@@ -327,7 +327,7 @@
         1038.0,
         1299.5
       ],
-      "floor": "Ground_Floor",
+      "floor": "1",
       "pixels": []
     },
     {
@@ -337,7 +337,7 @@
         543.5,
         1361.5
       ],
-      "floor": "Ground_Floor",
+      "floor": "1",
       "pixels": []
     },
     {
@@ -347,7 +347,7 @@
         469.0,
         223.0
       ],
-      "floor": "Ground_Floor",
+      "floor": "1",
       "pixels": []
     },
     {
@@ -357,7 +357,7 @@
         177.5,
         405.5
       ],
-      "floor": "Ground_Floor",
+      "floor": "1",
       "pixels": []
     },
     {
@@ -367,7 +367,7 @@
         1427.0,
         680.5
       ],
-      "floor": "Ground_Floor",
+      "floor": "1",
       "pixels": []
     },
     {
@@ -377,7 +377,7 @@
         1220.0,
         735.0
       ],
-      "floor": "Ground_Floor",
+      "floor": "1",
       "pixels": []
     },
     {
@@ -387,7 +387,7 @@
         1757.0,
         737.0
       ],
-      "floor": "Ground_Floor",
+      "floor": "1",
       "pixels": []
     },
     {
@@ -402,32 +402,32 @@
     },
     {
       "id": "stairs_1",
-      "type": "transition",
+      "type": "floor_transition",
       "position": [
         233.5,
         338.5
       ],
-      "floor": "Ground_Floor",
+      "floor": "1",
       "pixels": []
     },
     {
       "id": "stairs_2",
-      "type": "transition",
+      "type": "floor_transition",
       "position": [
         1804.0,
         802.0
       ],
-      "floor": "Ground_Floor",
+      "floor": "1",
       "pixels": []
     },
     {
       "id": "elevator_1",
-      "type": "transition",
+      "type": "floor_transition",
       "position": [
         1579.0,
         1377.0
       ],
-      "floor": "Ground_Floor",
+      "floor": "1",
       "pixels": []
     }
   ],

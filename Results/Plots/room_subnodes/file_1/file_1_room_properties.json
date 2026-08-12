@@ -1,0 +1,32 @@
+{
+  "room_1": {
+    "area_px": 19094,
+    "centroid_xy": [
+      125.34707237875773,
+      83.75306378967215
+    ],
+    "eq_radius_px": 77.96030378848776,
+    "inradius_px": 38.523006439208984,
+    "num_candidates": 4
+  },
+  "room_2": {
+    "area_px": 8960,
+    "centroid_xy": [
+      313.765625,
+      84.86171875
+    ],
+    "eq_radius_px": 53.404649424996364,
+    "inradius_px": 24.70359992980957,
+    "num_candidates": 1
+  },
+  "room_3": {
+    "area_px": 18384,
+    "centroid_xy": [
+      297.61069408181027,
+      295.022954743255
+    ],
+    "eq_radius_px": 76.49711725027818,
+    "inradius_px": 31.746706008911133,
+    "num_candidates": 4
+  }
+}

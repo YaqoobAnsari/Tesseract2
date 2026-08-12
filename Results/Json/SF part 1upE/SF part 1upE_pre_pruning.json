@@ -707,7 +707,7 @@
     },
     {
       "id": "stairs_1",
-      "type": "transition",
+      "type": "floor_transition",
       "position": [
         233.5,
         338.5
@@ -717,7 +717,7 @@
     },
     {
       "id": "stairs_2",
-      "type": "transition",
+      "type": "floor_transition",
       "position": [
         1804.0,
         802.0
@@ -727,7 +727,7 @@
     },
     {
       "id": "elevator_1",
-      "type": "transition",
+      "type": "floor_transition",
       "position": [
         1579.0,
         1377.0
@@ -22093,6 +22093,45 @@
       ],
       "floor": "NA",
       "pixels": []
+    },
+    {
+      "id": "entry_door_1",
+      "type": "door",
+      "position": [
+        237.0,
+        373.0
+      ],
+      "floor": "2",
+      "pixels": [],
+      "door_subtype": "entry_point",
+      "connects_transition": "stairs_1",
+      "connects_corridor": "corridor_connect_59"
+    },
+    {
+      "id": "entry_door_2",
+      "type": "door",
+      "position": [
+        1801.5,
+        763.5
+      ],
+      "floor": "2",
+      "pixels": [],
+      "door_subtype": "entry_point",
+      "connects_transition": "stairs_2",
+      "connects_corridor": "corridor_connect_266"
+    },
+    {
+      "id": "entry_door_3",
+      "type": "door",
+      "position": [
+        1609.5,
+        1379.0
+      ],
+      "floor": "2",
+      "pixels": [],
+      "door_subtype": "entry_point",
+      "connects_transition": "elevator_1",
+      "connects_corridor": "corridor_connect_800"
     }
   ],
   "edges": [
@@ -22914,21 +22953,21 @@
     },
     {
       "source": "stairs_1",
-      "target": "corridor_connect_59",
-      "weight": 61.84254199173899,
-      "distance": 61.84254199173899
+      "target": "entry_door_1",
+      "weight": 34.677081768799404,
+      "distance": 34.677081768799404
     },
     {
       "source": "stairs_2",
-      "target": "corridor_connect_266",
-      "weight": 62.12889826803627,
-      "distance": 62.12889826803627
+      "target": "entry_door_2",
+      "weight": 38.58108344772085,
+      "distance": 38.58108344772085
     },
     {
       "source": "elevator_1",
-      "target": "corridor_connect_800",
-      "weight": 41.10960958218893,
-      "distance": 41.10960958218893
+      "target": "entry_door_3",
+      "weight": 30.56550343115585,
+      "distance": 30.56550343115585
     },
     {
       "source": "room_1_subnode_1",
@@ -25221,6 +25260,12 @@
       "target": "corridor_connect_71",
       "weight": 28.284271247461902,
       "distance": 28.284271247461902
+    },
+    {
+      "source": "corridor_connect_59",
+      "target": "entry_door_1",
+      "weight": 27.16615541441225,
+      "distance": 27.16615541441225
     },
     {
       "source": "corridor_connect_60",
@@ -29007,6 +29052,12 @@
       "target": "corridor_connect_267",
       "weight": 20.0,
       "distance": 20.0
+    },
+    {
+      "source": "corridor_connect_266",
+      "target": "entry_door_2",
+      "weight": 23.547823678633232,
+      "distance": 23.547823678633232
     },
     {
       "source": "corridor_connect_267",
@@ -39597,6 +39648,12 @@
       "target": "corridor_connect_801",
       "weight": 20.0,
       "distance": 20.0
+    },
+    {
+      "source": "corridor_connect_800",
+      "target": "entry_door_3",
+      "weight": 10.547511554864494,
+      "distance": 10.547511554864494
     },
     {
       "source": "corridor_connect_801",

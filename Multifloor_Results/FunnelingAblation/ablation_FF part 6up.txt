@@ -1,0 +1,26 @@
+Funneling ablation - FF part 6up.png
+families: 20  subnodes: 120  exits: 2
+
+Intra-family room-room edges: 120 for 120 subnodes across 20 families (linear-property ratio 1.00; fully-connected would need 1751)
+
+       variant   nodes   edges  complete  mean route px  p90 route px  stretch  query ms
+          full     791     988     1.000         1171.3        2167.9    1.000      0.35
+     funneling     791     875     1.000         1223.1        2177.8    1.153      0.31
+  one-per-room     671     752     1.000         1194.4        1834.2    1.171      0.28
+
+Per-family intra-room edges (family, subnodes, edges):
+     room_18  n= 48  edges= 48
+      room_2  n= 29  edges= 29
+     room_21  n= 10  edges= 10
+      room_1  n=  6  edges=  6
+     room_15  n=  6  edges=  6
+     room_20  n=  6  edges=  6
+      room_3  n=  3  edges=  3
+     room_10  n=  3  edges=  3
+      room_5  n=  2  edges=  2
+      room_4  n=  1  edges=  1
+      room_8  n=  1  edges=  1
+      room_9  n=  1  edges=  1
+     room_11  n=  1  edges=  1
+     room_12  n=  1  edges=  1
+     room_17  n=  1  edges=  1

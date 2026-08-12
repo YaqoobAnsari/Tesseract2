@@ -1,0 +1,11 @@
+Corridor density ablation - FF part 1upE.png
+Reference spacing: 20px (default)
+
+ spacing  nodes  corridor  edges  complete exit_reach  mean route  route err vs 20px
+      80    339        66    351     0.492 0.7058823529411765      2166.3           163.309%
+      60    375       101    413     1.000        1.0       988.5             4.626%
+      40    478       202    576     1.000        1.0       975.0             3.620%
+      30    627       352    801     1.000        1.0       947.3             2.275%
+      20    878       602   1118     1.000        1.0       954.2             0.000%
+
+NOTE: route error is measured on rooms present at both densities, as |route - route_ref| / route_ref for the room-to-nearest-exit task.

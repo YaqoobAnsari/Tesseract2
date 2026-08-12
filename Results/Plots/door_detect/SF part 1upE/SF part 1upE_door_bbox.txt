@@ -1,0 +1,405 @@
+Detection 1:
+  Bounding Box: [np.int32(418), np.int32(196), np.int32(446), np.int32(243)]
+  Confidence Score: 1.00
+  Label: 1
+
+Detection 2:
+  Bounding Box: [np.int32(494), np.int32(197), np.int32(524), np.int32(238)]
+  Confidence Score: 0.97
+  Label: 1
+
+Detection 3:
+  Bounding Box: [np.int32(494), np.int32(196), np.int32(521), np.int32(234)]
+  Confidence Score: 1.00
+  Label: 1
+
+Detection 4:
+  Bounding Box: [np.int32(81), np.int32(383), np.int32(113), np.int32(435)]
+  Confidence Score: 1.00
+  Label: 1
+
+Detection 5:
+  Bounding Box: [np.int32(418), np.int32(425), np.int32(452), np.int32(453)]
+  Confidence Score: 1.00
+  Label: 1
+
+Detection 6:
+  Bounding Box: [np.int32(418), np.int32(321), np.int32(452), np.int32(349)]
+  Confidence Score: 1.00
+  Label: 1
+
+Detection 7:
+  Bounding Box: [np.int32(280), np.int32(379), np.int32(312), np.int32(438)]
+  Confidence Score: 0.99
+  Label: 1
+
+Detection 8:
+  Bounding Box: [np.int32(1271), np.int32(324), np.int32(1301), np.int32(370)]
+  Confidence Score: 1.00
+  Label: 1
+
+Detection 9:
+  Bounding Box: [np.int32(1274), np.int32(372), np.int32(1300), np.int32(413)]
+  Confidence Score: 1.00
+  Label: 1
+
+Detection 10:
+  Bounding Box: [np.int32(1226), np.int32(428), np.int32(1256), np.int32(473)]
+  Confidence Score: 0.98
+  Label: 1
+
+Detection 11:
+  Bounding Box: [np.int32(1545), np.int32(497), np.int32(1572), np.int32(519)]
+  Confidence Score: 0.99
+  Label: 1
+
+Detection 12:
+  Bounding Box: [np.int32(418), np.int32(632), np.int32(451), np.int32(660)]
+  Confidence Score: 1.00
+  Label: 1
+
+Detection 13:
+  Bounding Box: [np.int32(419), np.int32(528), np.int32(450), np.int32(555)]
+  Confidence Score: 1.00
+  Label: 1
+
+Detection 14:
+  Bounding Box: [np.int32(281), np.int32(631), np.int32(317), np.int32(660)]
+  Confidence Score: 1.00
+  Label: 1
+
+Detection 15:
+  Bounding Box: [np.int32(282), np.int32(528), np.int32(315), np.int32(556)]
+  Confidence Score: 1.00
+  Label: 1
+
+Detection 16:
+  Bounding Box: [np.int32(419), np.int32(735), np.int32(445), np.int32(750)]
+  Confidence Score: 0.98
+  Label: 1
+
+Detection 17:
+  Bounding Box: [np.int32(1170), np.int32(712), np.int32(1197), np.int32(750)]
+  Confidence Score: 0.99
+  Label: 1
+
+Detection 18:
+  Bounding Box: [np.int32(1283), np.int32(550), np.int32(1336), np.int32(586)]
+  Confidence Score: 1.00
+  Label: 1
+
+Detection 19:
+  Bounding Box: [np.int32(1243), np.int32(709), np.int32(1273), np.int32(740)]
+  Confidence Score: 1.00
+  Label: 1
+
+Detection 20:
+  Bounding Box: [np.int32(1168), np.int32(710), np.int32(1196), np.int32(737)]
+  Confidence Score: 1.00
+  Label: 1
+
+Detection 21:
+  Bounding Box: [np.int32(1235), np.int32(591), np.int32(1266), np.int32(649)]
+  Confidence Score: 1.00
+  Label: 1
+
+Detection 22:
+  Bounding Box: [np.int32(1227), np.int32(470), np.int32(1256), np.int32(518)]
+  Confidence Score: 1.00
+  Label: 1
+
+Detection 23:
+  Bounding Box: [np.int32(1544), np.int32(496), np.int32(1573), np.int32(544)]
+  Confidence Score: 1.00
+  Label: 1
+
+Detection 24:
+  Bounding Box: [np.int32(1579), np.int32(591), np.int32(1613), np.int32(646)]
+  Confidence Score: 1.00
+  Label: 1
+
+Detection 25:
+  Bounding Box: [np.int32(1627), np.int32(637), np.int32(1650), np.int32(664)]
+  Confidence Score: 1.00
+  Label: 1
+
+Detection 26:
+  Bounding Box: [np.int32(1578), np.int32(703), np.int32(1608), np.int32(750)]
+  Confidence Score: 0.99
+  Label: 1
+
+Detection 27:
+  Bounding Box: [np.int32(1578), np.int32(590), np.int32(1616), np.int32(649)]
+  Confidence Score: 1.00
+  Label: 1
+
+Detection 28:
+  Bounding Box: [np.int32(1627), np.int32(637), np.int32(1652), np.int32(662)]
+  Confidence Score: 1.00
+  Label: 1
+
+Detection 29:
+  Bounding Box: [np.int32(1759), np.int32(637), np.int32(1795), np.int32(661)]
+  Confidence Score: 0.98
+  Label: 1
+
+Detection 30:
+  Bounding Box: [np.int32(1673), np.int32(638), np.int32(1714), np.int32(662)]
+  Confidence Score: 0.97
+  Label: 1
+
+Detection 31:
+  Bounding Box: [np.int32(1716), np.int32(637), np.int32(1757), np.int32(661)]
+  Confidence Score: 0.97
+  Label: 1
+
+Detection 32:
+  Bounding Box: [np.int32(1802), np.int32(638), np.int32(1847), np.int32(662)]
+  Confidence Score: 0.95
+  Label: 1
+
+Detection 33:
+  Bounding Box: [np.int32(1868), np.int32(638), np.int32(1888), np.int32(660)]
+  Confidence Score: 1.00
+  Label: 1
+
+Detection 34:
+  Bounding Box: [np.int32(1824), np.int32(638), np.int32(1845), np.int32(661)]
+  Confidence Score: 1.00
+  Label: 1
+
+Detection 35:
+  Bounding Box: [np.int32(1845), np.int32(637), np.int32(1866), np.int32(660)]
+  Confidence Score: 1.00
+  Label: 1
+
+Detection 36:
+  Bounding Box: [np.int32(1901), np.int32(711), np.int32(1928), np.int32(738)]
+  Confidence Score: 1.00
+  Label: 1
+
+Detection 37:
+  Bounding Box: [np.int32(418), np.int32(735), np.int32(450), np.int32(762)]
+  Confidence Score: 1.00
+  Label: 1
+
+Detection 38:
+  Bounding Box: [np.int32(283), np.int32(838), np.int32(317), np.int32(866)]
+  Confidence Score: 1.00
+  Label: 1
+
+Detection 39:
+  Bounding Box: [np.int32(282), np.int32(734), np.int32(317), np.int32(762)]
+  Confidence Score: 1.00
+  Label: 1
+
+Detection 40:
+  Bounding Box: [np.int32(418), np.int32(837), np.int32(451), np.int32(864)]
+  Confidence Score: 1.00
+  Label: 1
+
+Detection 41:
+  Bounding Box: [np.int32(419), np.int32(940), np.int32(452), np.int32(969)]
+  Confidence Score: 1.00
+  Label: 1
+
+Detection 42:
+  Bounding Box: [np.int32(283), np.int32(941), np.int32(317), np.int32(969)]
+  Confidence Score: 1.00
+  Label: 1
+
+Detection 43:
+  Bounding Box: [np.int32(1168), np.int32(712), np.int32(1195), np.int32(760)]
+  Confidence Score: 1.00
+  Label: 1
+
+Detection 44:
+  Bounding Box: [np.int32(1242), np.int32(709), np.int32(1273), np.int32(754)]
+  Confidence Score: 1.00
+  Label: 1
+
+Detection 45:
+  Bounding Box: [np.int32(1168), np.int32(710), np.int32(1196), np.int32(758)]
+  Confidence Score: 1.00
+  Label: 1
+
+Detection 46:
+  Bounding Box: [np.int32(1243), np.int32(732), np.int32(1272), np.int32(758)]
+  Confidence Score: 0.91
+  Label: 1
+
+Detection 47:
+  Bounding Box: [np.int32(1532), np.int32(766), np.int32(1558), np.int32(799)]
+  Confidence Score: 1.00
+  Label: 1
+
+Detection 48:
+  Bounding Box: [np.int32(1523), np.int32(927), np.int32(1557), np.int32(955)]
+  Confidence Score: 1.00
+  Label: 1
+
+Detection 49:
+  Bounding Box: [np.int32(1578), np.int32(703), np.int32(1609), np.int32(763)]
+  Confidence Score: 1.00
+  Label: 1
+
+Detection 50:
+  Bounding Box: [np.int32(1577), np.int32(703), np.int32(1611), np.int32(758)]
+  Confidence Score: 0.92
+  Label: 1
+
+Detection 51:
+  Bounding Box: [np.int32(1899), np.int32(737), np.int32(1928), np.int32(766)]
+  Confidence Score: 1.00
+  Label: 1
+
+Detection 52:
+  Bounding Box: [np.int32(1901), np.int32(712), np.int32(1928), np.int32(743)]
+  Confidence Score: 1.00
+  Label: 1
+
+Detection 53:
+  Bounding Box: [np.int32(283), np.int32(941), np.int32(318), np.int32(969)]
+  Confidence Score: 1.00
+  Label: 1
+
+Detection 54:
+  Bounding Box: [np.int32(418), np.int32(941), np.int32(451), np.int32(969)]
+  Confidence Score: 1.00
+  Label: 1
+
+Detection 55:
+  Bounding Box: [np.int32(419), np.int32(1148), np.int32(451), np.int32(1175)]
+  Confidence Score: 1.00
+  Label: 1
+
+Detection 56:
+  Bounding Box: [np.int32(283), np.int32(1147), np.int32(317), np.int32(1175)]
+  Confidence Score: 1.00
+  Label: 1
+
+Detection 57:
+  Bounding Box: [np.int32(418), np.int32(1043), np.int32(451), np.int32(1071)]
+  Confidence Score: 1.00
+  Label: 1
+
+Detection 58:
+  Bounding Box: [np.int32(281), np.int32(1044), np.int32(316), np.int32(1072)]
+  Confidence Score: 1.00
+  Label: 1
+
+Detection 59:
+  Bounding Box: [np.int32(1523), np.int32(1029), np.int32(1558), np.int32(1058)]
+  Confidence Score: 1.00
+  Label: 1
+
+Detection 60:
+  Bounding Box: [np.int32(1523), np.int32(1133), np.int32(1557), np.int32(1161)]
+  Confidence Score: 1.00
+  Label: 1
+
+Detection 61:
+  Bounding Box: [np.int32(1523), np.int32(927), np.int32(1557), np.int32(954)]
+  Confidence Score: 1.00
+  Label: 1
+
+Detection 62:
+  Bounding Box: [np.int32(233), np.int32(1395), np.int32(260), np.int32(1425)]
+  Confidence Score: 0.99
+  Label: 1
+
+Detection 63:
+  Bounding Box: [np.int32(415), np.int32(1279), np.int32(448), np.int32(1308)]
+  Confidence Score: 1.00
+  Label: 1
+
+Detection 64:
+  Bounding Box: [np.int32(418), np.int32(1147), np.int32(451), np.int32(1175)]
+  Confidence Score: 1.00
+  Label: 1
+
+Detection 65:
+  Bounding Box: [np.int32(283), np.int32(1147), np.int32(318), np.int32(1176)]
+  Confidence Score: 1.00
+  Label: 1
+
+Detection 66:
+  Bounding Box: [np.int32(417), np.int32(1322), np.int32(450), np.int32(1351)]
+  Confidence Score: 1.00
+  Label: 1
+
+Detection 67:
+  Bounding Box: [np.int32(464), np.int32(1236), np.int32(506), np.int32(1263)]
+  Confidence Score: 1.00
+  Label: 1
+
+Detection 68:
+  Bounding Box: [np.int32(421), np.int32(1237), np.int32(454), np.int32(1263)]
+  Confidence Score: 0.96
+  Label: 1
+
+Detection 69:
+  Bounding Box: [np.int32(464), np.int32(1236), np.int32(509), np.int32(1262)]
+  Confidence Score: 1.00
+  Label: 1
+
+Detection 70:
+  Bounding Box: [np.int32(652), np.int32(1389), np.int32(680), np.int32(1425)]
+  Confidence Score: 1.00
+  Label: 1
+
+Detection 71:
+  Bounding Box: [np.int32(755), np.int32(1391), np.int32(783), np.int32(1425)]
+  Confidence Score: 1.00
+  Label: 1
+
+Detection 72:
+  Bounding Box: [np.int32(858), np.int32(1389), np.int32(886), np.int32(1425)]
+  Confidence Score: 0.99
+  Label: 1
+
+Detection 73:
+  Bounding Box: [np.int32(1073), np.int32(1229), np.int32(1107), np.int32(1258)]
+  Confidence Score: 1.00
+  Label: 1
+
+Detection 74:
+  Bounding Box: [np.int32(1525), np.int32(1236), np.int32(1558), np.int32(1264)]
+  Confidence Score: 1.00
+  Label: 1
+
+Detection 75:
+  Bounding Box: [np.int32(1522), np.int32(1134), np.int32(1556), np.int32(1160)]
+  Confidence Score: 1.00
+  Label: 1
+
+Detection 76:
+  Bounding Box: [np.int32(233), np.int32(1394), np.int32(260), np.int32(1429)]
+  Confidence Score: 1.00
+  Label: 1
+
+Detection 77:
+  Bounding Box: [np.int32(233), np.int32(1395), np.int32(260), np.int32(1429)]
+  Confidence Score: 1.00
+  Label: 1
+
+Detection 78:
+  Bounding Box: [np.int32(653), np.int32(1391), np.int32(680), np.int32(1425)]
+  Confidence Score: 1.00
+  Label: 1
+
+Detection 79:
+  Bounding Box: [np.int32(541), np.int32(1519), np.int32(595), np.int32(1549)]
+  Confidence Score: 1.00
+  Label: 1
+
+Detection 80:
+  Bounding Box: [np.int32(755), np.int32(1391), np.int32(783), np.int32(1424)]
+  Confidence Score: 1.00
+  Label: 1
+
+Detection 81:
+  Bounding Box: [np.int32(859), np.int32(1391), np.int32(886), np.int32(1425)]
+  Confidence Score: 1.00
+  Label: 1
+

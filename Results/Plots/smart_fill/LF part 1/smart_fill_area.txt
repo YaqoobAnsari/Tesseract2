@@ -1,0 +1,4 @@
+Node_ID	Position	Filled_Area
+room_1	(np.float64(434.5), np.float64(709.5))	14242
+room_2	(np.float64(441.0), np.float64(852.0))	8590
+room_3	(np.float64(376.0), np.float64(961.0))	7264

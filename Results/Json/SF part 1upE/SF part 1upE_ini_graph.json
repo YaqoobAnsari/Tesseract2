@@ -402,7 +402,7 @@
     },
     {
       "id": "stairs_1",
-      "type": "transition",
+      "type": "floor_transition",
       "position": [
         233.5,
         338.5
@@ -412,7 +412,7 @@
     },
     {
       "id": "stairs_2",
-      "type": "transition",
+      "type": "floor_transition",
       "position": [
         1804.0,
         802.0
@@ -422,7 +422,7 @@
     },
     {
       "id": "elevator_1",
-      "type": "transition",
+      "type": "floor_transition",
       "position": [
         1579.0,
         1377.0

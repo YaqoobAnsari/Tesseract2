@@ -1,0 +1,165 @@
+{
+  "nodes": [
+    {
+      "id": "room_1",
+      "type": "room",
+      "position": [
+        1179.5,
+        408.5
+      ],
+      "floor": "1",
+      "pixels": []
+    },
+    {
+      "id": "room_2",
+      "type": "room",
+      "position": [
+        1061.5,
+        488.5
+      ],
+      "floor": "1",
+      "pixels": []
+    },
+    {
+      "id": "room_3",
+      "type": "room",
+      "position": [
+        315.5,
+        501.0
+      ],
+      "floor": "1",
+      "pixels": []
+    },
+    {
+      "id": "room_4",
+      "type": "room",
+      "position": [
+        586.5,
+        503.0
+      ],
+      "floor": "1",
+      "pixels": []
+    },
+    {
+      "id": "room_5",
+      "type": "room",
+      "position": [
+        896.0,
+        513.5
+      ],
+      "floor": "1",
+      "pixels": []
+    },
+    {
+      "id": "room_6",
+      "type": "room",
+      "position": [
+        747.5,
+        540.0
+      ],
+      "floor": "1",
+      "pixels": []
+    },
+    {
+      "id": "room_7",
+      "type": "room",
+      "position": [
+        558.0,
+        617.0
+      ],
+      "floor": "1",
+      "pixels": []
+    },
+    {
+      "id": "room_8",
+      "type": "room",
+      "position": [
+        640.5,
+        631.5
+      ],
+      "floor": "1",
+      "pixels": []
+    },
+    {
+      "id": "room_9",
+      "type": "room",
+      "position": [
+        556.0,
+        692.0
+      ],
+      "floor": "1",
+      "pixels": []
+    },
+    {
+      "id": "room_10",
+      "type": "room",
+      "position": [
+        1786.5,
+        708.0
+      ],
+      "floor": "1",
+      "pixels": []
+    },
+    {
+      "id": "room_11",
+      "type": "room",
+      "position": [
+        320.5,
+        888.5
+      ],
+      "floor": "1",
+      "pixels": []
+    },
+    {
+      "id": "room_12",
+      "type": "room",
+      "position": [
+        2056.0,
+        910.0
+      ],
+      "floor": "1",
+      "pixels": []
+    },
+    {
+      "id": "room_13",
+      "type": "room",
+      "position": [
+        906.5,
+        940.5
+      ],
+      "floor": "1",
+      "pixels": []
+    },
+    {
+      "id": "room_14",
+      "type": "room",
+      "position": [
+        1756.5,
+        967.0
+      ],
+      "floor": "1",
+      "pixels": []
+    },
+    {
+      "id": "room_15",
+      "type": "room",
+      "position": [
+        663.5,
+        1076.0
+      ],
+      "floor": "1",
+      "pixels": []
+    },
+    {
+      "id": "room_16",
+      "type": "room",
+      "position": [
+        794.0,
+        1090.0
+      ],
+      "floor": "1",
+      "pixels": []
+    }
+  ],
+  "edges": []
+}

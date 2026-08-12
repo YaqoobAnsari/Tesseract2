@@ -1,0 +1,16 @@
+Text label detection/recognition accuracy
+(ground truth hand-enumerated from the drawings - see script header; verify before quoting)
+
+FF part 1upE: 43 ground-truth labels, 43 detections
+  detection rate:   1.000 (43/43)
+  recognition rate: 0.953 (41/43)
+  misread: '1011' -> '101'
+  misread: '1022' -> '022'
+  confidence: min 0.955, mean 0.986
+
+GF part 1upE: 9 ground-truth labels, 9 detections
+  detection rate:   1.000 (9/9)
+  recognition rate: 1.000 (9/9)
+  confidence: min 0.967, mean 0.990
+
+Failure consequence: misread numeric labels still yield room nodes (any numeric token is treated as a room identifier), so connectivity is preserved and only the room NAME is wrong. A label undetected entirely leaves its region without a semantic seed: the region is then not instantiated as a room/corridor (cf. the unlabeled 'FF part 1up' variant, which yields zero transitions because 'Stairs'/'Elev' labels are absent).
