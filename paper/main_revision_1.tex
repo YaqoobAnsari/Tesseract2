@@ -1,11 +1,11 @@
-%% Tesseract++: Journal Extension (ACM TSAS) - REVISION 1, coloured working copy
+%% Tesseract++: Journal Extension (ACM TSAS) - REVISION 1, colored working copy
 %% Extended from: "Tesseract: Unfolding Navigable Graph Representations from Low-Semantic Floor Plans"
 %%
 %% Colour code (see revision_macros.tex and paper/README.md):
 %%   \rone{}  Reviewer 1 (blue)   \rtwo{}   Reviewer 2 (green)
 %%   \rthree{} Reviewer 3 (purple) \rall{}  editor / multiple (vermilion)
 %%   \rdel{}  deletions (struck out here, absent in the clean copy)
-%% Uncoloured new text = editorial improvements not tied to a reviewer.
+%% Uncolored new text = editorial improvements not tied to a reviewer.
 %% Float discipline: every figure/table is sourced immediately at its first
 %% reference with [t] placement.
 
@@ -27,7 +27,7 @@
 \usepackage{subcaption}
 \usepackage{tikz}
 \usetikzlibrary{positioning}
-\input{revision_macros}   % per-reviewer revision colouring (see README)
+\input{revision_macros}   % per-reviewer revision coloring (see README)
 
 % Custom commands
 \newcommand{\tesseract}{\textsc{Tesseract++}}
@@ -126,7 +126,7 @@ Indoor navigation depends on structured representations of architectural layouts
 
 Legacy floorplans dominate the available documentation. Existing approaches to indoor map generation often require manual annotation, assume access to Building Information Models (BIM), or rely on sensor-based simultaneous localization and mapping (SLAM). Vast repositories of institutional, commercial, and residential floorplans instead exist as raster images with minimal semantic markup. These drawings contain text annotations identifying rooms and spaces, standard symbols for doors, and dark strokes for walls. They lack the structured connectivity information that navigation applications require.
 
-This manuscript substantially extends our prior conference publication~\cite{tesseract_conference}, which introduced the core single-floor parsing pipeline. \rthree{The extension centres on two contributions. First, a multi-floor graph construction module that infers vertical correspondences between floors automatically, registers adjacent floor drawings into a common frame, and merges per-floor graphs into a unified building representation. Second, a room-family representation with distance-transform subnodes and a funneling construction whose connectivity guarantee we state and prove. The remaining additions support these two contributions:}
+This manuscript substantially extends our prior conference publication~\cite{tesseract_conference}, which introduced the core single-floor parsing pipeline. \rthree{The extension centers on two contributions. First, a multi-floor graph construction module that infers vertical correspondences between floors automatically, registers adjacent floor drawings into a common frame, and merges per-floor graphs into a unified building representation. Second, a room-family representation with distance-transform subnodes and a funneling construction whose connectivity guarantee we state and prove. The remaining additions support these two contributions:}
 \begin{itemize}
     \item \rall{Automatic inter-floor transition matching, formulated as wall-evidence registration followed by optimal assignment with a rejection option, with hand-written mappings retained as an override.}
     \item \rone{A proven funneling guarantee, complete intra-room connectivity at linear intra-room edge cost, validated by a three-way ablation against dense and single-node room encodings.}
@@ -136,7 +136,7 @@ This manuscript substantially extends our prior conference publication~\cite{tes
 
 \tesseract{} operates as a modular pipeline. Given raster floorplan images with text annotations and standard architectural conventions, it produces typed, attributed graphs in which nodes represent spatial regions and edges encode traversability with geometric distance weights. Text detection and semantic interpretation identify labeled regions. Flood-fill segmentation with subnode placement encodes spatial extent. Door detection and classification establish connectivity. Graph construction with pruning produces well-conditioned outputs for pathfinding algorithms.
 
-A hierarchical room representation underlies the graph construction. Rooms in architectural floorplans may span large areas with complex shapes, yet navigation requires fine-grained spatial encoding. Each semantic room therefore contains a designated main node and multiple subnodes sampled on a hexagonal grid within the room boundary. \rone{Room-family funneling connects each family through a shortest-path tree rooted at the main node, plus a single shortcut edge from each door to its closest family node. This construction guarantees that every subnode reaches every room door while spending only linearly many intra-room edges. Subnodes adjacent to a door exit directly rather than detouring through the room centre.}
+A hierarchical room representation underlies the graph construction. Rooms in architectural floorplans may span large areas with complex shapes, yet navigation requires fine-grained spatial encoding. Each semantic room therefore contains a designated main node and multiple subnodes sampled on a hexagonal grid within the room boundary. \rone{Room-family funneling connects each family through a shortest-path tree rooted at the main node, plus a single shortcut edge from each door to its closest family node. This construction guarantees that every subnode reaches every room door while spending only linearly many intra-room edges. Subnodes adjacent to a door exit directly rather than detouring through the room center.}
 
 \rall{Multi-floor construction no longer depends on hand-written correspondences. The system registers adjacent floor drawings using wall-mask evidence and a drawing-scale prior bootstrapped from detected door widths. It then solves a global assignment problem over the detected stairs and elevators, with an explicit rejection option so that shafts without a counterpart remain unmatched. Validation rules that previously checked a human's input now verify the machine's answer. Two elements remain metadata-assisted by design. Floor indices are read from a filename convention, and a hand-written mapping file can override the inferred correspondence.}
 
@@ -178,7 +178,7 @@ BIM and IFC models encode complete vertical structure~\cite{bim_survey, ifc}, bu
 \rone{The underlying representation is raster image space, and the pixel is the atomic unit of every pipeline stage.} \tesseract{} accepts floorplan images satisfying the following assumptions:
 
 \begin{enumerate}
-    \item \textbf{Text annotations}. Rooms and spaces carry text labels, and \rtwo{semantic classes are seeded exclusively by these labels rather than by fill colours}. Table~\ref{tab:vocabulary} lists the recognized vocabulary.
+    \item \textbf{Text annotations}. Rooms and spaces carry text labels, and \rtwo{semantic classes are seeded exclusively by these labels rather than by fill colors}. Table~\ref{tab:vocabulary} lists the recognized vocabulary.
     \item \textbf{Architectural symbols}. Doors follow standard drafting conventions with arc symbols indicating swing direction.
     \item \textbf{Wall encoding}. Walls appear as dark strokes recoverable by intensity thresholding.
     \item \textbf{Floor naming}. For multi-floor processing, filenames encode floor identity, with FF, SF, and TF denoting the first, second, and third floors, B1 and B2 denoting basements, and numeric prefixes mapping directly.
@@ -186,14 +186,14 @@ BIM and IFC models encode complete vertical structure~\cite{bim_survey, ifc}, bu
 
 \begin{table}[t]
 \centering
-\caption{\rtwo{Label vocabulary. Interpretation is case-insensitive, and every semantic class must be present for door classification to proceed.}}
+\caption{\rtwo{Label vocabulary. Interpretation is case-insensitive with single-edit fuzzy matching, and every semantic class must be present for door classification to proceed.}}
 \label{tab:vocabulary}
 \begin{tabular}{ll}
 \toprule
 Label on drawing & Interpreted as \\
 \midrule
 any numeric token (\eg, 1001) & room, with the number as its name \\
-hall & corridor region \\
+hall, hallway, corridor, passage & corridor region \\
 na & outside or non-navigable region \\
 stairs, stair, staircase & stairs transition node \\
 elev, elevator, lift & elevator transition node \\
@@ -299,7 +299,7 @@ Text regions are located with the CRAFT detector~\cite{craft}. CRAFT predicts a 
 
 Detected regions are recognized by a sequence model. \rone{The recognizer combines a Visual Geometry Group (VGG) convolutional feature extractor, a bidirectional Long Short-Term Memory (BiLSTM) sequence encoder, and a Connectionist Temporal Classification (CTC) decoder~\cite{crnn, ctc}.} Each cropped region is normalized before decoding.
 
-\rone{Recognition output is normalized by semantic context rather than by generic spell correction. Tokens are matched case-insensitively against the closed label vocabulary of Table~\ref{tab:vocabulary}, so a vocabulary word must be recognized exactly after case folding. Room identifiers are expected to be numeric, so alphabetic look-alikes inside otherwise numeric tokens are mapped to digits, which resolves confusions such as the letter O for the digit zero.}
+\rone{Recognition output is normalized by semantic context rather than by generic spell correction. Tokens are matched against the closed label vocabulary of Table~\ref{tab:vocabulary} with case folding and single-edit fuzzy tolerance. An alphabetic token of three or more characters matches a vocabulary word within Levenshtein distance one, which absorbs single-character OCR confusions such as nna for na. A token within distance one of words from two different classes is rejected as ambiguous. Numeric tokens never fuzzy-match because they are room identifiers, and alphabetic look-alikes inside otherwise numeric tokens are instead mapped to digits, which resolves confusions such as the letter O for the digit zero.}
 
 \subsection{Semantic Interpretation}
 \label{sec:interpretation}
@@ -355,7 +355,7 @@ Door symbols are detected with Faster R-CNN~\cite{faster_rcnn} using a ResNet-50
 \subsection{Door Classification}
 \label{subsec:door_classification}
 
-Detected doors are classified by the regions they connect. Room-to-corridor doors are the primary access points. Room-to-room doors connect suites directly. Corridor-to-corridor doors join corridor sections through fire doors and dividers. \rtwo{Exit doors connect an interior space to an outdoor region and are the objects of egress analysis.} Classification uses spatial proximity, and each door takes the type implied by its two nearest non-door nodes.
+Detected doors are classified by the regions they connect. Room-to-corridor doors are the primary access points. Room-to-room doors connect suites directly. Corridor-to-corridor doors join corridor sections through fire doors and dividers. \rtwo{Exit doors connect an interior space to an outdoor region and anchor egress analysis.} Classification uses spatial proximity, and each door takes the type implied by its two nearest non-door nodes.
 
 \subsection{Room-Family Funneling}
 \label{subsec:funneling}
@@ -386,7 +386,7 @@ Detected doors are classified by the regions they connect. Room-to-corridor door
 \rone{The marked edge set is a union of shortest paths in $L$ from every node of $F$ to a common anchor $a \in F$. A union of root-directed shortest paths is a tree spanning $F$, hence connected with exactly $|F| - 1 = |S|$ edges, and fewer if global pruning later removes leaf subnodes. Every door $d \in D_r$ retains the edge $(c_d, d)$ with $c_d \in F$, so any $u \in F$ reaches $d$ via the tree path $u \rightsquigarrow c_d$ followed by that edge.}
 \end{proof}
 
-\rone{We state the guarantee precisely because it differs from the conference phrasing. Paths are not forced through the main node. A subnode adjacent to a door exits directly through the closest-node edge $(c_d, d)$, and on our primary evaluation floor 69 of 186 subnode-to-door shortest paths bypass the main node. This behaviour is intentional. The property downstream routing needs is completeness at linear cost, and the shortcut edge strictly improves realized path lengths. Section~\ref{subsec:graph_eval} quantifies the trade-off with a three-way ablation.}
+\rone{We state the guarantee precisely because it differs from the conference phrasing. Paths are not forced through the main node. A subnode adjacent to a door exits directly through the closest-node edge $(c_d, d)$, and on our primary evaluation floor 69 of 186 subnode-to-door shortest paths bypass the main node. This behavior is intentional. The property downstream routing needs is completeness at linear cost, and the shortcut edge strictly improves realized path lengths. Section~\ref{subsec:graph_eval} quantifies the trade-off with a three-way ablation.}
 
 \paragraph{Construction and Pruning Complexity.}
 \rone{Funneling runs one Dijkstra per family node on the lattice $L$, which costs $O(|F|^2 \log |F|)$ per room with small constants because hexagonal packing bounds the lattice degree by six. Global pruning then computes bidirectional Dijkstra shortest paths for all $\binom{R}{2}$ main-room pairs, $|X| \cdot R$ exit-door pairs, and $|T| \cdot R$ transition pairs, where $R$, $|X|$, and $|T|$ count main rooms, exit doors, and transitions. On the primary evaluation floor with $R = 34$, $|X| = 2$, $|T| = 3$, and 2{,}139 pre-pruning nodes, this amounts to 963 shortest-path computations completing in 2.0 seconds single-threaded. Pruning is therefore not the bottleneck, since door detection dominates at about 21 seconds.}
@@ -443,10 +443,10 @@ Floor identity comes from a filename convention. The tokens FF, SF, and TF map t
 \rall{The central multi-floor question is which stairs and elevators on adjacent floors are the same physical shaft. The conference system delegated this question to a hand-written mapping file. The revised system answers it automatically in two stages, registration and assignment.}
 
 \paragraph{Registration.}
-\rall{Registration estimates a similarity transform that maps one floor's pixel frame onto the other. Candidate transforms come from four generators, namely pairs of same-kind transition correspondences with mirrored variants, per-image dimension normalization anchored on single candidate pairs, phase correlation of the wall masks at four drawing orientations, and a drawing-scale prior obtained from detected door widths, since interior door leaves follow a standardized width of about 0.9 metres. Candidates outside a plausibility gate on scale and rotation are discarded. Remaining candidates are ranked by wall evidence, a symmetric chamfer distance between glyph-filtered wall masks that is gated on mutual coverage, with a small bonus per one-to-one aligned transition pair. The winning transform is refined by least squares on its aligned pairs and by iterative closest point on wall ink.}
+\rall{Registration estimates a similarity transform that maps one floor's pixel frame onto the other. Candidate transforms come from four generators, namely pairs of same-kind transition correspondences with mirrored variants, per-image dimension normalization anchored on single candidate pairs, phase correlation of the wall masks at four drawing orientations, and a drawing-scale prior obtained from detected door widths, since interior door leaves follow a standardized width of about 0.9 meters. Candidates outside a plausibility gate on scale and rotation are discarded. Remaining candidates are ranked by wall evidence, a symmetric chamfer distance between glyph-filtered wall masks that is gated on mutual coverage, with a small bonus per one-to-one aligned transition pair. The winning transform is refined by least squares on its aligned pairs and by iterative closest point on wall ink.}
 
 \paragraph{Assignment with rejection.}
-\rall{Matching is a global assignment problem rather than a chain of local decisions. Each candidate pair of transitions receives a cost with three terms, the distance between the registered positions, a heavy penalty for pairing stairs with elevators, and a light term comparing graph-context features such as corridor density and distance to exits. The Hungarian solver runs on this cost matrix augmented with a rejection slot per shaft, and a pair is accepted only if its cost stays below the rejection price. Shafts whose best pairing exceeds that price remain unmatched, which is the desired behaviour for a stairwell that terminates or an elevator that serves only some floors.}
+\rall{Matching is a global assignment problem rather than a chain of local decisions. Each candidate pair of transitions receives a cost with three terms, the distance between the registered positions, a heavy penalty for pairing stairs with elevators, and a light term comparing graph-context features such as corridor density and distance to exits. The Hungarian solver runs on this cost matrix augmented with a rejection slot per shaft, and a pair is accepted only if its cost stays below the rejection price. Shafts whose best pairing exceeds that price remain unmatched, which is the desired behavior for a stairwell that terminates or an elevator that serves only some floors.}
 
 \paragraph{Provenance and verification.}
 \rall{The inferred correspondence is written as a standard mapping file with full provenance, including the registration transform, wall-agreement score, coverage, and per-match cost and confidence. Explicit warnings flag weak wall agreement, mirrored registration, and correspondences supported by fewer than two aligned pairs. The validation rules of the conference system, namely image existence, floor adjacency, one-to-one mapping, and node typing, now verify the machine's answer instead of a human's input. A hand-written mapping file remains available as an override and takes precedence when provided.}
@@ -454,7 +454,7 @@ Floor identity comes from a filename convention. The tokens FF, SF, and TF map t
 \subsection{Inter-Floor Edge Weights}
 \label{subsec:interfloor_edges}
 
-\rthree{Inter-floor edges carry modeled vertical travel instead of a nominal cost. The weight is the product of a travel factor, the storey height, and the drawing scale in pixels per metre. The scale is bootstrapped from the median short side of detected door boxes under the standardized 0.9-metre leaf width, the storey height defaults to 4 metres, and the travel factor is 2.2 for stairs and 1.0 for elevators. The estimated scales are independently consistent across floors of our evaluation building, 31.1 versus 32.2 pixels per metre, which supports the bootstrap. When no scale can be estimated the system falls back to a unit weight and emits a warning.}
+\rthree{Inter-floor edges carry modeled vertical travel instead of a nominal cost. The weight is the product of a travel factor, the story height, and the drawing scale in pixels per meter. The scale is bootstrapped from the median short side of detected door boxes under the standardized 0.9-meter leaf width, the story height defaults to 4 meters, and the travel factor is 2.2 for stairs and 1.0 for elevators. The estimated scales are independently consistent across floors of our evaluation building, 31.1 versus 32.2 pixels per meter, which supports the bootstrap. When no scale can be estimated the system falls back to a unit weight and emits a warning.}
 
 \subsection{Connectivity Verification}
 \label{subsec:verification}
@@ -529,7 +529,7 @@ Ten smaller plans & various & 2--6 each & 0--6 each & 0 \\
 \subsection{Graph Quality, Ablations, and Pruning}
 \label{subsec:graph_eval}
 
-Graph quality is measured with an exhaustive metric layer. Completeness is the fraction of unordered main-room pairs connected by a path, exit reachability is the fraction of main rooms that reach at least one exit door, and both are computed from the full component structure rather than from samples. Most processed sections are fully connected, and three sections are fragmented as built, with completeness between 0.51 and 0.76, which quantifies the corridor-door failure mode on real output.
+Graph quality is measured with an exhaustive metric layer. Completeness is the fraction of unordered main-room pairs connected by a path, exit reachability is the fraction of main rooms that reach at least one exit door, and both are computed from the full component structure rather than from samples. Most processed sections are fully connected. Three sections, among them section D of Table~\ref{tab:dataset}, are fragmented as built with completeness between 0.51 and 0.76, which quantifies the corridor-door failure mode on real output.
 
 \paragraph{Funneling Ablation.}
 \rone{Three intra-room connectivity strategies are compared on the same floors, namely dense wiring from every family node to every family door, funneling, and a single node per room.} Table~\ref{tab:funneling} reports the outcome. \rtwo{All variants achieve complete family-to-door connectivity, and they differ in cost and route quality. Funneling retains 167 intra-room edges against 1{,}869 for dense wiring on section A, at a route stretch of 7.2\% over the dense reference, while the single-node variant pays 13.5\% and forfeits intra-room spatial fidelity. A second floor yields exactly one intra-room edge per subnode, which matches Proposition~\ref{prop:funneling}.}
@@ -610,12 +610,12 @@ B & \tesseract{} & 712 & 928 & 1.000 & 1.231 & 0.36 \\
 \label{subsec:multi_eval}
 
 \paragraph{Matching Robustness.}
-\rall{The automatic matcher is evaluated under controlled perturbations of a real floor. A synthetic counterpart floor is generated by a known similarity transform plus five pixels of position jitter, so correctness is exact by construction. Matching accuracy is 1.000 across every sweep, namely translations to 400 pixels, rotations to 30 degrees, scale changes from 0.7 to 1.4, twin-shaft separations down to 25 pixels, and shaft-deletion tests in which the deleted shaft's partner must remain unmatched. A greedy nearest-neighbour baseline degrades to 0.75 accuracy on close twins. Median registration recovery error is 0.5 pixels under translation, 4.4 under rotation, and 4.9 under scale.} Figure~\ref{fig:matcher} shows the accuracy panels and Figure~\ref{fig:regerr} the recovery envelope.
+\rall{The automatic matcher is evaluated under controlled perturbations of a real floor. A synthetic counterpart floor is generated by a known similarity transform plus five pixels of position jitter, so correctness is exact by construction. Matching accuracy is 1.000 across every sweep, namely translations to 400 pixels, rotations to 30 degrees, scale changes from 0.7 to 1.4, twin-shaft separations down to 25 pixels, and shaft-deletion tests in which the deleted shaft's partner must remain unmatched. A greedy nearest-neighbor baseline degrades to 0.75 accuracy on close twins. Median registration recovery error is 0.5 pixels under translation, 4.4 under rotation, and 4.9 under scale.} Figure~\ref{fig:matcher} shows the accuracy panels and Figure~\ref{fig:regerr} the recovery envelope.
 
 \begin{figure}[t]
 \centering
 \includegraphics[width=\textwidth]{figures/matcher_eval.png}
-\caption{\rall{Matching accuracy under synthetic perturbation. The assignment matcher holds 1.000 throughout while the nearest-neighbour baseline collapses as twin shafts approach.}}
+\caption{\rall{Matching accuracy under synthetic perturbation. The assignment matcher holds 1.000 throughout while the nearest-neighbor baseline collapses as twin shafts approach.}}
 \label{fig:matcher}
 \end{figure}
 
@@ -627,7 +627,7 @@ B & \tesseract{} & 712 & 928 & 1.000 & 1.231 & 0.36 \\
 \end{figure}
 
 \paragraph{Cross-Floor Case Study.}
-\rall{A genuinely different floor pair exercises the conservative behaviour. Matching the ground-floor section against the first-floor section, two drawings with different crops and extents, the door-width prior fixes the relative scale at 1.036, registration selects a single supported correspondence at a confidence of 0.83, and every remaining shaft on both floors is rejected rather than force-paired. The system flags the weak wall agreement and the single supporting pair in the mapping provenance, which is exactly the reviewable outcome intended for partially overlapping sections.}
+\rall{A genuinely different floor pair exercises the conservative behavior. Matching the ground-floor section against the first-floor section, two drawings with different crops and extents, the door-width prior fixes the relative scale at 1.036, registration selects a single supported correspondence at a confidence of 0.83, and every remaining shaft on both floors is rejected rather than force-paired. The system flags the weak wall agreement and the single supporting pair in the mapping provenance, which is exactly the reviewable outcome intended for partially overlapping sections.}
 
 \paragraph{Merged Graphs.}
 The merged two-floor graphs are fully connected, and every room reaches every other room and at least one exit. \rthree{With modeled vertical travel weights the measured step-free detour ratio corrects from 2.02 to 1.79, which shows that nominal unit weights had inflated cross-floor route costs.}
@@ -711,7 +711,7 @@ Quantitative evaluation remains limited by the absence of standardized floorplan
 
 We presented \tesseract{}, an end-to-end system that extracts navigable graph representations from annotated building floorplans. The pipeline integrates text detection, semantic interpretation, spatial segmentation, door detection, and typed graph construction, and it extends to multi-floor buildings through automatic transition matching and validated merging.
 
-The revision establishes four main results. \rone{Room-family funneling carries a proven guarantee of complete intra-room connectivity at linear intra-room edge cost, and an ablation places it at the size-quality sweet spot.} \rall{Vertical correspondences are inferred automatically through registration and assignment with rejection, with perfect accuracy under controlled perturbation and conservative, warning-guarded behaviour on partially overlapping real sections.} \rall{Graph routes stay within 4.7\% of exact free-space geodesics on the primary evaluation floor, and pruning removes 59\% of nodes and 82\% of edges at zero measured route cost.} \rthree{A structure-only medial-axis baseline confirms that the typed construction wins on size, completeness, route quality, and query time simultaneously.}
+The revision establishes four main results. \rone{Room-family funneling carries a proven guarantee of complete intra-room connectivity at linear intra-room edge cost, and an ablation places it at the size-quality sweet spot.} \rall{Vertical correspondences are inferred automatically through registration and assignment with rejection, with perfect accuracy under controlled perturbation and conservative, warning-guarded behavior on partially overlapping real sections.} \rall{Graph routes stay within 4.7\% of exact free-space geodesics on the primary evaluation floor, and pruning removes 59\% of nodes and 82\% of edges at zero measured route cost.} \rthree{A structure-only medial-axis baseline confirms that the typed construction wins on size, completeness, route quality, and query time simultaneously.}
 
 Future work includes image-guided repair of bridge doors, extension to non-annotated floorplans through learned segmentation, directional edge attributes, and standardized benchmarks for floorplan-to-graph evaluation.
 
@@ -740,7 +740,7 @@ Future work includes image-guided repair of bridge doors, extension to non-annot
 The wall threshold is 240 on the grayscale intensity. Room subnodes use hexagonal spacing of 60 pixels with a 10-pixel wall padding and 4-pixel jitter. Corridor sampling defaults to a 20-pixel grid, configurable per run. Outdoor sampling uses a 40-pixel grid.
 
 \subsection{Matching Parameters}
-Wall masks for registration are downsampled to 400 pixels on the long side, and connected components below 30 square pixels are removed as glyphs. Alignment counts a pair within 2\% of the image diagonal. Plausibility gates accept scales between 0.4 and 2.5 and rotations up to 60 degrees, and chamfer scoring requires at least 25\% mutual coverage. The rejection price is 0.10, and the cost weights are 1.0 for position, 1.0 for kind mismatch, and 0.05 for graph context. Inter-floor weights use a 0.9-metre door leaf, a 4-metre storey height, and travel factors of 2.2 for stairs and 1.0 for elevators.
+Wall masks for registration are downsampled to 400 pixels on the long side, and connected components below 30 square pixels are removed as glyphs. Alignment counts a pair within 2\% of the image diagonal. Plausibility gates accept scales between 0.4 and 2.5 and rotations up to 60 degrees, and chamfer scoring requires at least 25\% mutual coverage. The rejection price is 0.10, and the cost weights are 1.0 for position, 1.0 for kind mismatch, and 0.05 for graph context. Inter-floor weights use a 0.9-meter door leaf, a 4-meter story height, and travel factors of 2.2 for stairs and 1.0 for elevators.
 
 \section{Additional Visualizations}
 \label{app:visualizations}

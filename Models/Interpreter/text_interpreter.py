@@ -1194,22 +1194,17 @@ def interpret_bboxes(image_path, bbox_text_file, results_dir):
     outside_bboxes = []
     transition_bboxes = []  # NEW
 
-    # Normalize helper for transitions to standard keys (optional, kept as-is for now)
-    transition_aliases = {
-        'stairs': 'stairs', 'stair': 'stairs', 'staircase': 'stairs',
-        'elev': 'elevator', 'elevator': 'elevator', 'lift': 'elevator'
-    }
-
     for result in results:
         bbox = result['bbox']
         text = result['text'].lower()
 
-        if text == 'hall':
+        cls = fuzzy_vocab_class(text)
+        if cls == 'corridor':
             hallway_bboxes.append(bbox)
-        elif text == 'na':
+        elif cls == 'outside':
             outside_bboxes.append(bbox)
-        elif text in transition_aliases:
-            transition_bboxes.append(bbox)  # we keep just bboxes here; the label remains in results file
+        elif cls in ('stairs', 'elevator'):
+            transition_bboxes.append(bbox)  # bboxes only; the label remains in results file
         else:
             room_bboxes.append(bbox)
 
@@ -1236,6 +1231,66 @@ def interpret_bboxes(image_path, bbox_text_file, results_dir):
     # NOTE: Return now includes `transition_bboxes` (new 4th element)
     return room_bboxes, hallway_bboxes, outside_bboxes, transition_bboxes, result_file_path
 
+# ---------------------------------------------------------------------------
+# Fuzzy label vocabulary
+# ---------------------------------------------------------------------------
+# Closed vocabulary of semantic label words, mapped to their classes.
+VOCAB_CLASSES = {
+    'hall': 'corridor', 'hallway': 'corridor', 'corridor': 'corridor',
+    'passage': 'corridor',
+    'na': 'outside',
+    'stairs': 'stairs', 'stair': 'stairs', 'staircase': 'stairs',
+    'elev': 'elevator', 'elevator': 'elevator', 'lift': 'elevator',
+}
+
+
+def _edit_distance(a, b):
+    """Plain Levenshtein distance (small strings, DP)."""
+    if a == b:
+        return 0
+    if not a or not b:
+        return max(len(a), len(b))
+    prev = list(range(len(b) + 1))
+    for i, ca in enumerate(a, 1):
+        cur = [i]
+        for j, cb in enumerate(b, 1):
+            cur.append(min(prev[j] + 1, cur[j - 1] + 1,
+                           prev[j - 1] + (ca != cb)))
+        prev = cur
+    return prev[-1]
+
+
+def fuzzy_vocab_class(token):
+    """Resolve a recognized token to a semantic vocabulary class.
+
+    Matching is case-insensitive. An exact vocabulary word matches first.
+    Alphabetic tokens of three or more characters additionally match any
+    vocabulary word within Levenshtein distance one, which absorbs
+    single-character OCR confusions such as 'nna' for 'na' or 'stai' for
+    'stair'. A token that sits within distance one of words from two
+    different classes is treated as ambiguous and rejected. Numeric tokens
+    never match, since they are room identifiers.
+
+    Returns one of 'corridor', 'outside', 'stairs', 'elevator', or None.
+    """
+    t = (token or '').lower().strip()
+    if not t or any(ch.isdigit() for ch in t):
+        return None
+    if t in VOCAB_CLASSES:
+        return VOCAB_CLASSES[t]
+    if len(t) < 3:
+        return None
+    best = None
+    for word, cls in VOCAB_CLASSES.items():
+        if abs(len(t) - len(word)) > 1:
+            continue
+        if _edit_distance(t, word) == 1:
+            if best is not None and best != cls:
+                return None
+            best = cls
+    return best
+
+
 def parse_transition_labels(results_txt_path):
     """
     Parse lines like:
@@ -1261,6 +1316,10 @@ def parse_transition_labels(results_txt_path):
             bbox_str = m.group(1)
             text = m.group(2).strip().lower()
             norm = alias_map.get(text)
+            if norm is None:
+                # fuzzy fallback for single-character OCR confusions
+                cls = fuzzy_vocab_class(text)
+                norm = cls if cls in ("stairs", "elevator") else None
             if norm is None:
                 continue  # ignore non-transition words here
 
