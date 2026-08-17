@@ -3,7 +3,7 @@ Multi-Floor Connection Summary
 Total inter-floor connections: 1
 
 Connections:
-  0_stairs_2 ↔ 1_stairs_2
+  0_stairs_1 ↔ 1_stairs_1
     Floors: 0 → 1
-    Positions: (697.75, 702.75) → (1804.0, 802.0)
+    Positions: (473.5, 394.0) → (233.5, 338.5)
 
