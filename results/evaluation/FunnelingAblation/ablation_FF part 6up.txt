@@ -5,8 +5,8 @@ Intra-family room-room edges: 120 for 120 subnodes across 20 families (linear-pr
 
        variant   nodes   edges  complete  mean route px  p90 route px  stretch  query ms
           full     791     988     1.000         1171.3        2167.9    1.000      0.35
-     funneling     791     875     1.000         1223.1        2177.8    1.153      0.33
-  one-per-room     671     752     1.000         1194.4        1834.2    1.171      0.28
+     funneling     791     875     1.000         1223.1        2177.8    1.153      0.32
+  one-per-room     671     752     1.000         1194.4        1834.2    1.171      0.27
 
 Per-family intra-room edges (family, subnodes, edges):
      room_18  n= 48  edges= 48

@@ -4,9 +4,9 @@ families: 34  subnodes: 198  exits: 2
 Intra-family room-room edges: 167 for 198 subnodes across 34 families (linear-property ratio 0.84; fully-connected would need 1869)
 
        variant   nodes   edges  complete  mean route px  p90 route px  stretch  query ms
-          full     875    1266     1.000          904.4        1269.1    1.000      0.44
-     funneling     875    1111     1.000          962.4        1276.1    1.072      0.37
-  one-per-room     677     911     1.000          986.2        1242.8    1.135      0.30
+          full     878    1273     1.000          904.1        1269.1    1.000      0.44
+     funneling     878    1118     1.000          962.2        1276.1    1.072      0.40
+  one-per-room     680     918     1.000          986.0        1242.8    1.135      0.35
 
 Per-family intra-room edges (family, subnodes, edges):
       room_5  n= 31  edges= 30
