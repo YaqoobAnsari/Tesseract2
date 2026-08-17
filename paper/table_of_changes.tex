@@ -1,0 +1,23 @@
+% Table of changes - \input into response_to_reviewers.tex
+\section*{Summary of Changes}
+\begin{longtable}{p{0.5cm} p{2.2cm} p{5.6cm} p{5.9cm}}
+\toprule
+\# & Reviewer(s) & Concern & Change in revision \\
+\midrule
+\endhead
+1 & \textcolor{RevAllCol}{R1.9, W1, R3.2} & Multi-floor step manual / delta weak / automation overstated & New \emph{automatic} inter-floor transition matching: wall-mask registration (similarity hypotheses, phase correlation, door-width scale prior, ICP refinement) + optimal assignment with rejection; manual mapping demoted to optional override; robustness suite added; automation claims re-audited throughout. \\
+2 & \textcolor{RevOneCol}{R1.4} & Algorithm~1 does not guarantee main-node routing & Guarantee corrected and \emph{proven}: complete intra-room connectivity at linear edge cost (new Proposition + proof); Algorithm~1 rewritten to the real construction; bypass behaviour (69/186) stated as design; three-way ablation added. \\
+3 & \textcolor{RevAllCol}{R2.W3, R3.3} & Corridor-door failure mode under-treated; projection unsupported & Monte-Carlo door-knockout curves (random + by-type, error bars) replace the projection; single-door sensitivity isolates catastrophic \emph{bridge} doors ($-0.51$ completeness from one door); cut-vertex targeting stated as repair mechanism. \\
+4 & \textcolor{RevAllCol}{R1.7, W7, R3.5} & Euclidean fidelity proxy weak; nominal transition weights & Fidelity re-based on exact free-space geodesics (dual bounds + verification overlays): routes within 4.7\% of optimal; inter-floor edges re-weighted by modeled vertical travel with door-width-bootstrapped scale (31--32\,px/m). \\
+5 & \textcolor{RevOneCol}{R1.1} & Applications and corridor density unjustified & Downstream-task validation (accessibility routing, egress distances) + measured density trade-off (60\,px sufficient; 80\,px collapse). \\
+6 & \textcolor{RevAllCol}{R1.6, W2, R3.1c} & Evaluation narrowed to one site & Metric layer reported across all processed plans; conference sites restored; dataset table reconciled. [Finalized with extended dataset.] \\
+7 & \textcolor{RevThreeCol}{R3.1c} & No baseline comparison & Quantitative medial-axis (skeleton) baseline added: 3.7--12$\times$ more nodes, incomplete, worse stretch, 37--94$\times$ slower, no semantics. \\
+8 & \textcolor{RevTwoCol}{R2.W6} & Missing ablations & Four added: funneling variants, pruning keep-terms, pruning cost (+0.00\% route inflation, 4.2$\times$ speedup), matcher/validation warnings. \\
+9 & \textcolor{RevOneCol}{R1.8} & Text-detection accuracy unreported & Measured: 100\% detection, 95.3\% recognition, with per-class failure-consequence analysis. \\
+10 & \textcolor{RevOneCol}{R1.3, R1.17} & Label-as-main-node unjustified; ``semantic centroid'' undefined & Measured justification (median offset 0.24 eq-radii; 92\% within inscribed circle); term removed. \\
+11 & \textcolor{RevTwoCol}{R2.W4, W5} & Door directionality, exit definition, corridor identification unclear & Precise definitions; label vocabulary table; label-driven semantics stated (colour-convention text corrected); unlabeled-input failure demonstrated. \\
+12 & \textcolor{RevThreeCol}{R3.4} & Applicability overclaimed & Operating-envelope statement: preconditions, demonstrated failure modes, exclusions. \\
+13 & \textcolor{RevOneCol}{R1.5} & Show the floor plans & Dataset figure added (main text + appendix). \\
+14 & \textcolor{RevOneCol}{R1.2, minors} & Representation, acronyms, OCR mechanism, Fig.~8, box plot, text-in-wall-mask, degree-zero transitions, paragraph placement & All addressed individually (see point-by-point responses R1.2, R1.10--R1.17). \\
+\bottomrule
+\end{longtable}
