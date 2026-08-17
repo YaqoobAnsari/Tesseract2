@@ -1,5 +1,5 @@
 Accessibility routing - FF_SF (floor 1 <-> floor 2, 200 room pairs)
 Reachable with all transitions:    200/200
 Reachable with stairs forbidden:   200/200
-Step-free detour ratio (accessible/normal): mean 2.023, p90 3.931
-Example: 1_room_1 -> 2_room_11  normal 1262px, accessible 5588px
+Step-free detour ratio (accessible/normal): mean 1.789, p90 3.318
+Example: 1_room_1 -> 2_room_11  normal 1535px, accessible 5711px

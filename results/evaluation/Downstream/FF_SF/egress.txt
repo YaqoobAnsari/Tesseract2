@@ -1,5 +1,5 @@
 Egress distances - FF_SF (4 exit doors, 68 main rooms)
 Rooms with an egress path: 68/68 (unreachable: 0)
-Distance to nearest exit (px): mean 955, median 901, p90 1503, max 1784
+Distance to nearest exit (px): mean 954, median 901, p90 1503, max 1784
 
 NOTE: distances are in pixels (no metres-per-pixel scale exists in the pipeline yet) and are measurements, not an evaluation - the egress ERROR distribution requires a hand-built ground-truth graph for at least one floor, which does not yet exist for these images.

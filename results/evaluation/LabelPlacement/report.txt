@@ -1,0 +1,22 @@
+Label position vs geometric room centroid (main-node placement)
+Rooms measured: 172 across 9 processed floors
+
+Offset (px):            mean 18.1, median 17.8, p90 27.4, max 73.9
+Offset / eq. radius:    mean 0.27, median 0.24, p90 0.51, max 0.98
+Label within the room's inscribed circle of the centroid: 158/172 (92%)
+
+Reading: offset/radius < 1 means the label sits within one
+equivalent-radius of the centroid - i.e. architectural labels are
+placed centrally in practice, so using them as main-node positions
+is empirically sound. Rooms where the ratio exceeds 1 are the
+counter-examples worth inspecting (listed below).
+
+Worst offsets:
+    FF part 3upE   room_26  offset 46px  ratio 0.98
+    FF part 3upE   room_18  offset 18px  ratio 0.92
+     FF part 2up   room_13  offset 23px  ratio 0.87
+    FF part 3upE   room_21  offset 16px  ratio 0.84
+     FF part 2up   room_32  offset 34px  ratio 0.80
+    FF part 3upE   room_24  offset 45px  ratio 0.74
+    FF part 3upE   room_10  offset 27px  ratio 0.62
+     FF part 2up   room_18  offset 24px  ratio 0.59

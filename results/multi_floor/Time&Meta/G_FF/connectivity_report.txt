@@ -2,8 +2,8 @@ Connectivity Verification Report
 ==================================================
 Fully Connected: Yes
 Connected Components: 1
-Largest Component: 921 nodes
+Largest Component: 924 nodes
 
 Floor-wise Connectivity:
-  Floor 0: 3 connected, 0 disconnected
   Floor 1: 15 connected, 0 disconnected
+  Floor 0: 3 connected, 0 disconnected

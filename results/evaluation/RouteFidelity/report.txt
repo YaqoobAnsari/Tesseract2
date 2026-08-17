@@ -1,0 +1,21 @@
+Route fidelity: graph routes vs free-space geodesics
+
+FF part 1upE: 98 pairs (88 scored vs full free space, 88 vs interior-only)
+  stretch vs FULL free space (permissive lower bound):     mean 1.047, median 1.037, p90 1.093
+  stretch vs INTERIOR-ONLY (conservative reference):       mean 1.047, median 1.037, p90 1.093
+  geodesic/euclid: mean 1.665, p90 2.210, max 3.333
+
+FF part 2up: 380 pairs (359 scored vs full free space, 124 vs interior-only)
+  stretch vs FULL free space (permissive lower bound):     mean 2.300, median 1.890, p90 4.211
+  stretch vs INTERIOR-ONLY (conservative reference):       mean 1.237, median 1.106, p90 1.552
+  geodesic/euclid: mean 1.348, p90 1.639, max 3.178
+
+Reading: the two references bracket the truth. The FULL free-space
+geodesic is permissive (may shortcut through semantically outdoor
+space); the INTERIOR-ONLY geodesic is conservative (excludes the
+pipeline's semantic outside class, and cannot score pairs whose
+only connection runs outdoors). Graph route fidelity lies between
+the two stretch numbers. 'geodesic/euclid' well above 1 shows why
+straight-line Euclidean is a weak reference (walls force real
+detours). Overlays under overlays/ show geodesic (orange dots) vs
+graph route (blue line) for author verification.

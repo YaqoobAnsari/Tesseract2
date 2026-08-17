@@ -106,3 +106,49 @@ Headline: `FF part 1upE` — **100% detection (43/43), 95.3% recognition
 unaffected. `GF part 1upE` — 9/9 and 9/9. A label missed *entirely* leaves
 its region without a semantic seed (the unlabeled `FF part 1up` variant
 produces zero transitions).
+
+## Label placement — `evaluate_label_placement.py`
+
+Offset between each room's label position (used as the main node) and the
+geometric centroid of its flood-filled region, over 172 rooms on 9 floors.
+
+Headline: median offset **0.24 equivalent-radii** (18 px), 92% of labels
+inside the room's inscribed circle, worst case 0.98 radii — architectural
+labels are empirically central, so using them as main-node positions is
+sound.
+
+## Inter-floor edge weights (MultiFloor)
+
+Inter-floor edges now carry vertical-travel weights instead of a nominal
+1.0: `factor x storey height (4 m) x px-per-metre`, with the drawing scale
+bootstrapped from detected door widths (median short side / 0.9 m; FF
+31.1 px/m, GF 32.2 px/m — independently consistent). Stairs factor 2.2,
+elevator 1.0; falls back to 1.0 with a warning when no scale is available.
+Corrected FF↔SF step-free detour: 2.02× → **1.79× mean**. The same
+door-width scale also feeds registration as a prior (`scale_hints`), which
+re-adjudicated the ambiguous GF↔FF pair (three weak hypotheses disagree —
+flagged for author judgment).
+
+## Route fidelity — `evaluate_route_fidelity.py`
+
+Graph routes vs free-space geodesics (true shortest walkable paths through
+non-wall pixels, doorways opened), with two bracketing references: FULL
+free space (permissive) and INTERIOR-only (the pipeline's semantic
+outside class excluded). Verification overlays rendered per pair.
+
+Headline: `FF part 1upE` — stretch **1.047 mean / 1.093 p90** against both
+references. `FF part 2up` — 1.24 (interior) to 2.30 (full): the gap
+quantifies sparse outdoor routing. `geodesic/euclid` runs 1.35–1.67 mean
+(max 3.3×) — the measured reason straight-line Euclidean was a weak
+fidelity reference.
+
+## Skeleton baseline — `evaluate_baseline_skeleton.py`
+
+Structure-only medial-axis routing backbone, granted Tesseract++'s own
+room/exit detections, scored on the same pairs against the same geodesic
+reference.
+
+Headline: the skeleton needs **3.7–12× more nodes**, is **incomplete**
+(0.78–0.83; it fragments at doorway gaps), has worse stretch (1.23/1.38 vs
+1.05/1.23), and is 37–94× slower per query — and expresses none of the
+typed downstream tasks (accessibility, egress, multi-floor merging).

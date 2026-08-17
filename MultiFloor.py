@@ -674,15 +674,58 @@ def merge_floor_graphs(floor_graphs, floor_image_map):
     return merged_graph, node_id_mapping
 
 
-def connect_transitions_across_floors(merged_graph, node_id_mapping, transition_mapping, floor_image_map):
-    """Connect transition nodes across floors based on mapping."""
+def estimate_px_per_m(image_name):
+    """Estimate the drawing scale (pixels per metre) from detected door
+    widths: interior door leaves are a standardized ~0.9 m, so the median
+    short side of the detected door boxes anchors the scale. Returns None
+    when no door detections exist for the image."""
+    stem = os.path.splitext(image_name)[0]
+    bbox_file = os.path.join(RESULTS_DIR, "Plots", "door_detect", stem,
+                             f"{stem}_door_bbox.txt")
+    if not os.path.exists(bbox_file):
+        return None
+    sides = []
+    with open(bbox_file) as f:
+        for line in f:
+            m = re.search(r"Bounding Box: \[np\.int\d+\((\d+)\), np\.int\d+\((\d+)\), "
+                          r"np\.int\d+\((\d+)\), np\.int\d+\((\d+)\)\]", line)
+            if m:
+                x1, y1, x2, y2 = map(int, m.groups())
+                sides.append(min(abs(x2 - x1), abs(y2 - y1)))
+    if not sides:
+        return None
+    return float(np.median(sides)) / 0.9
+
+
+DOOR_LEAF_M = 0.9          # standardized interior door width used as scale anchor
+FLOOR_HEIGHT_M = 4.0       # assumed storey height
+STAIRS_TRAVEL_FACTOR = 2.2  # slant + landings vs vertical rise
+ELEVATOR_TRAVEL_FACTOR = 1.0
+
+
+def connect_transitions_across_floors(merged_graph, node_id_mapping, transition_mapping, floor_image_map,
+                                      floor_height_m=FLOOR_HEIGHT_M, legacy_unit_weights=False):
+    """Connect transition nodes across floors based on mapping.
+
+    Inter-floor edge weights model actual vertical travel instead of a
+    nominal 1.0: weight = travel_factor x floor_height x (px per metre),
+    with the scale bootstrapped from detected door widths on the two
+    floors. Falls back to weight 1.0 (with a warning) when no scale can
+    be estimated, or when legacy_unit_weights is set."""
     print(f"\n{'=' * 70}")
     print("CONNECTING TRANSITIONS ACROSS FLOORS")
     print("=" * 70)
-    
+
+    # Per-image scale estimates (px/m), cached.
+    pxm_cache = {}
+    def pxm_of(img):
+        if img not in pxm_cache:
+            pxm_cache[img] = estimate_px_per_m(img)
+        return pxm_cache[img]
+
     connections_created = 0
     connection_details = []
-    
+
     for (src_floor, src_image, src_node), targets in transition_mapping.items():
         src_merged_id = node_id_mapping.get((src_image, src_node))
         
@@ -705,16 +748,29 @@ def connect_transitions_across_floors(merged_graph, node_id_mapping, transition_
                     continue
             
             tgt_pos = merged_graph.graph.nodes[tgt_merged_id].get('position')
-            
-            # Create inter-floor edge
+
+            # Vertical-travel weight: factor x storey height x drawing scale.
+            factor = (STAIRS_TRAVEL_FACTOR if str(src_node).startswith('stairs')
+                      else ELEVATOR_TRAVEL_FACTOR)
+            scales = [s for s in (pxm_of(src_image), pxm_of(tgt_image)) if s]
+            if legacy_unit_weights or not scales:
+                if not scales and not legacy_unit_weights:
+                    print(f"  ⚠ No door-based scale estimate for "
+                          f"{src_image}/{tgt_image}; using legacy weight 1.0")
+                weight = 1.0
+            else:
+                pxm = float(np.mean(scales))
+                weight = factor * abs(src_floor - tgt_floor) * floor_height_m * pxm
+
             merged_graph.graph.add_edge(
                 src_merged_id, tgt_merged_id,
-                weight=1.0,
+                weight=weight,
+                distance=weight,
                 edge_type='inter_floor',
                 src_floor=src_floor,
                 tgt_floor=tgt_floor
             )
-            
+
             connections_created += 1
             connection_details.append({
                 'src': src_merged_id,
@@ -722,10 +778,18 @@ def connect_transitions_across_floors(merged_graph, node_id_mapping, transition_
                 'src_floor': src_floor,
                 'tgt_floor': tgt_floor,
                 'src_pos': src_pos,
-                'tgt_pos': tgt_pos
+                'tgt_pos': tgt_pos,
+                'weight_px': weight,
             })
-            
-            print(f"  ✓ Connected: {src_merged_id} (Floor {src_floor}) ↔ {tgt_merged_id} (Floor {tgt_floor})")
+
+            print(f"  ✓ Connected: {src_merged_id} (Floor {src_floor}) ↔ {tgt_merged_id} "
+                  f"(Floor {tgt_floor})  weight={weight:.1f}px")
+
+    if pxm_cache:
+        for img, s in pxm_cache.items():
+            if s:
+                print(f"  Scale estimate: {img}: {s:.1f} px/m "
+                      f"(median detected door short-side / {DOOR_LEAF_M} m)")
     
     print(f"\n  Total inter-floor connections: {connections_created}")
     
@@ -1917,10 +1981,20 @@ def process_auto_match(image1, image2, floor1=None, floor2=None,
     print(f"  Floor {floor2}: {image2}")
 
     graph_paths = ensure_graphs_for_images([image1, image2])
+
+    # Door-width scale prior: independent px/m estimates for both drawings
+    # give the expected floor2->floor1 scale, fed to registration as a hint.
+    pxm1, pxm2 = estimate_px_per_m(image1), estimate_px_per_m(image2)
+    scale_hints = []
+    if pxm1 and pxm2:
+        scale_hints.append(pxm1 / pxm2)
+        print(f"  Door-width scale prior: {pxm1:.1f} px/m vs {pxm2:.1f} px/m "
+              f"-> expected scale {pxm1 / pxm2:.3f}")
+
     result = auto_match(
         graph_paths[image1], os.path.join(INPUT_IMAGES_DIR, image1),
         graph_paths[image2], os.path.join(INPUT_IMAGES_DIR, image2),
-        reject_cost=reject_cost,
+        reject_cost=reject_cost, scale_hints=scale_hints,
     )
 
     if not result['matches']:

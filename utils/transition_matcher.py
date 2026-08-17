@@ -323,7 +323,7 @@ def _one_to_one_aligned(t1, t2, tr, align_thresh):
 # REGISTRATION
 # =============================================================================
 
-def _generate_hypotheses(floor1, floor2, walls1, walls2):
+def _generate_hypotheses(floor1, floor2, walls1, walls2, scale_hints=None):
     t1, t2 = floor1['transitions'], floor2['transitions']
     candidate_pairs = [(i, j) for i, a in enumerate(t1)
                        for j, b in enumerate(t2) if a['kind'] == b['kind']]
@@ -334,12 +334,18 @@ def _generate_hypotheses(floor1, floor2, walls1, walls2):
                     + floor1['size'][1] / floor2['size'][1])
     hyps.append(('dims', _make_transform(s_dims, 0.0)))
 
-    # (b) dims anchored on each single candidate pair (fixes crop shifts).
-    for i, j in candidate_pairs:
-        p1 = t1[i]['pos'][0] + 1j * t1[i]['pos'][1]
-        p2 = t2[j]['pos'][0] + 1j * t2[j]['pos'][1]
-        hyps.append((f'dims+anchor({t1[i]["id"]}~{t2[j]["id"]})',
-                     _make_transform(s_dims, p1 - s_dims * p2)))
+    # (b) scale candidates (canvas dims + any externally supplied hints,
+    # e.g. a door-width-derived px/m ratio), each anchored on every single
+    # candidate pair (fixes crop shifts).
+    scale_candidates = [('dims', s_dims)]
+    for k, s in enumerate(scale_hints or []):
+        scale_candidates.append((f'hint{k}', float(s)))
+    for label, s in scale_candidates:
+        for i, j in candidate_pairs:
+            p1 = t1[i]['pos'][0] + 1j * t1[i]['pos'][1]
+            p2 = t2[j]['pos'][0] + 1j * t2[j]['pos'][1]
+            hyps.append((f'{label}+anchor({t1[i]["id"]}~{t2[j]["id"]})',
+                         _make_transform(s, p1 - s * p2)))
 
     # (c) two-pair similarity fits, plain and mirrored.
     for (i1, j1), (i2, j2) in combinations(candidate_pairs, 2):
@@ -354,13 +360,15 @@ def _generate_hypotheses(floor1, floor2, walls1, walls2):
             if tr is not None:
                 hyps.append((name + ('+mirror' if mirror else ''), tr))
 
-    # (d) phase correlation of the wall masks at dims scale, tried at the
-    # four CAD-typical orientations plus a mirrored variant.
-    for deg in (0.0, 90.0, 180.0, 270.0):
-        a = s_dims * np.exp(1j * math.radians(deg))
-        tr_phase = _phase_at(walls1, walls2, floor1, floor2, a, mirror=False)
-        if tr_phase is not None:
-            hyps.append((f'phase@{int(deg)}', tr_phase))
+    # (d) phase correlation of the wall masks, tried at the four
+    # CAD-typical orientations for every scale candidate, plus a mirrored
+    # variant at dims scale.
+    for label, s in scale_candidates:
+        for deg in (0.0, 90.0, 180.0, 270.0):
+            a = s * np.exp(1j * math.radians(deg))
+            tr_phase = _phase_at(walls1, walls2, floor1, floor2, a, mirror=False)
+            if tr_phase is not None:
+                hyps.append((f'phase-{label}@{int(deg)}', tr_phase))
     tr_phase = _phase_at(walls1, walls2, floor1, floor2,
                          complex(s_dims), mirror=True)
     if tr_phase is not None:
@@ -452,7 +460,7 @@ def _icp_polish(walls1, walls2, tr, iterations=8, trim=3.0):
     return tr
 
 
-def register_floors(floor1, floor2, verbose=True):
+def register_floors(floor1, floor2, verbose=True, scale_hints=None):
     """Estimate the similarity transform mapping floor-2 pixel coordinates
     into the floor-1 frame. Returns (transform, report)."""
     t1, t2 = floor1['transitions'], floor2['transitions']
@@ -466,7 +474,8 @@ def register_floors(floor1, floor2, verbose=True):
     walls1 = prep(floor1['image'])
     walls2 = prep(floor2['image'])
 
-    hyps = _generate_hypotheses(floor1, floor2, walls1, walls2)
+    hyps = _generate_hypotheses(floor1, floor2, walls1, walls2,
+                                scale_hints=scale_hints)
 
     def evaluate(tr):
         chamfer, coverage = _sym_chamfer(walls1, walls2, tr)
@@ -597,9 +606,10 @@ def solve_assignment(C, reject_cost=DEFAULT_REJECT_COST):
 
 
 def match_transitions(floor1, floor2, reject_cost=DEFAULT_REJECT_COST,
-                      weights=None, verbose=True):
+                      weights=None, verbose=True, scale_hints=None):
     """Full pipeline on two loaded floors. Returns a result dict."""
-    transform, reg_report = register_floors(floor1, floor2, verbose=verbose)
+    transform, reg_report = register_floors(floor1, floor2, verbose=verbose,
+                                            scale_hints=scale_hints)
     C = build_cost_matrix(floor1, floor2, transform, weights=weights)
     matches, um1, um2 = solve_assignment(C, reject_cost=reject_cost)
 
@@ -700,7 +710,8 @@ def write_mapping_file(result, floor1_num, image1, floor2_num, image2, out_path)
 
 
 def auto_match(json1, image1_path, json2, image2_path,
-               reject_cost=DEFAULT_REJECT_COST, weights=None, verbose=True):
+               reject_cost=DEFAULT_REJECT_COST, weights=None, verbose=True,
+               scale_hints=None):
     """Convenience wrapper: load both floors from files and match."""
     floor1 = load_floor(json1, image1_path)
     floor2 = load_floor(json2, image2_path)
@@ -710,4 +721,5 @@ def auto_match(json1, image1_path, json2, image2_path,
         print(f"  Floor 2: {len(floor2['transitions'])} transition(s) "
               f"{[t['id'] for t in floor2['transitions']]}")
     return match_transitions(floor1, floor2, reject_cost=reject_cost,
-                             weights=weights, verbose=verbose)
+                             weights=weights, verbose=verbose,
+                             scale_hints=scale_hints)

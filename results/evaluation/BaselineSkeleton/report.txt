@@ -1,0 +1,17 @@
+Medial-axis (skeleton) baseline vs Tesseract++ typed graph
+
+FF part 1upE (88 scored pairs):
+                 nodes   edges  complete exit_reach  stretch mean     p90  query ms
+      skeleton    3248    2029     0.829      0.912         1.233   1.361     14.24
+   tesseract++     878    1118     1.000        1.0         1.047   1.093      0.38
+
+FF part 2up (123 scored pairs):
+                 nodes   edges  complete exit_reach  stretch mean     p90  query ms
+      skeleton    8598    6959     0.782      0.943         1.381   1.595     33.98
+   tesseract++     712     928     1.000        1.0         1.231   1.471      0.36
+
+The skeleton is granted Tesseract++'s own room/exit detections, so
+this isolates routing structure. Regardless of route quality, the
+skeleton has no typed rooms/doors/corridors/transitions: none of
+the downstream tasks (accessibility routing, egress semantics,
+automatic multi-floor merging) are expressible on it.

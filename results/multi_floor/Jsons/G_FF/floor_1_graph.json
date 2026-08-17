@@ -5581,6 +5581,26 @@
       "pixels": []
     },
     {
+      "id": "corridor_connect_414",
+      "type": "corridor",
+      "position": [
+        1460,
+        960
+      ],
+      "floor": "1",
+      "pixels": []
+    },
+    {
+      "id": "corridor_connect_415",
+      "type": "corridor",
+      "position": [
+        1480,
+        960
+      ],
+      "floor": "1",
+      "pixels": []
+    },
+    {
       "id": "corridor_connect_416",
       "type": "corridor",
       "position": [
@@ -5651,10 +5671,10 @@
       "pixels": []
     },
     {
-      "id": "corridor_connect_432",
+      "id": "corridor_connect_433",
       "type": "corridor",
       "position": [
-        1460,
+        1480,
         980
       ],
       "floor": "1",
@@ -5725,16 +5745,6 @@
       "type": "corridor",
       "position": [
         1440,
-        1000
-      ],
-      "floor": "1",
-      "pixels": []
-    },
-    {
-      "id": "corridor_connect_449",
-      "type": "corridor",
-      "position": [
-        1480,
         1000
       ],
       "floor": "1",
@@ -6491,6 +6501,16 @@
       "pixels": []
     },
     {
+      "id": "corridor_connect_565",
+      "type": "corridor",
+      "position": [
+        1460,
+        1180
+      ],
+      "floor": "1",
+      "pixels": []
+    },
+    {
       "id": "corridor_connect_566",
       "type": "corridor",
       "position": [
@@ -6575,6 +6595,16 @@
       "type": "corridor",
       "position": [
         1440,
+        1200
+      ],
+      "floor": "1",
+      "pixels": []
+    },
+    {
+      "id": "corridor_connect_578",
+      "type": "corridor",
+      "position": [
+        1480,
         1200
       ],
       "floor": "1",
@@ -10470,7 +10500,7 @@
     },
     {
       "source": "r2c_door_33",
-      "target": "corridor_connect_629",
+      "target": "corridor_connect_608",
       "weight": 42.20189569201838,
       "distance": 42.20189569201838
     },
@@ -10735,6 +10765,12 @@
     {
       "source": "corridor_connect_81",
       "target": "corridor_connect_86",
+      "weight": 20.0,
+      "distance": 20.0
+    },
+    {
+      "source": "corridor_connect_81",
+      "target": "corridor_connect_82",
       "weight": 20.0,
       "distance": 20.0
     },
@@ -12695,6 +12731,12 @@
       "distance": 20.0
     },
     {
+      "source": "corridor_connect_361",
+      "target": "corridor_connect_388",
+      "weight": 28.284271247461902,
+      "distance": 28.284271247461902
+    },
+    {
       "source": "corridor_connect_363",
       "target": "corridor_connect_390",
       "weight": 28.284271247461902,
@@ -12827,10 +12869,22 @@
       "distance": 20.0
     },
     {
+      "source": "corridor_connect_387",
+      "target": "corridor_connect_414",
+      "weight": 28.284271247461902,
+      "distance": 28.284271247461902
+    },
+    {
       "source": "corridor_connect_388",
       "target": "corridor_connect_389",
       "weight": 20.0,
       "distance": 20.0
+    },
+    {
+      "source": "corridor_connect_388",
+      "target": "corridor_connect_415",
+      "weight": 28.284271247461902,
+      "distance": 28.284271247461902
     },
     {
       "source": "corridor_connect_389",
@@ -12959,8 +13013,14 @@
       "distance": 20.0
     },
     {
-      "source": "corridor_connect_413",
-      "target": "corridor_connect_432",
+      "source": "corridor_connect_414",
+      "target": "corridor_connect_433",
+      "weight": 28.284271247461902,
+      "distance": 28.284271247461902
+    },
+    {
+      "source": "corridor_connect_415",
+      "target": "corridor_connect_434",
       "weight": 28.284271247461902,
       "distance": 28.284271247461902
     },
@@ -13031,8 +13091,8 @@
       "distance": 20.0
     },
     {
-      "source": "corridor_connect_432",
-      "target": "corridor_connect_449",
+      "source": "corridor_connect_433",
+      "target": "corridor_connect_450",
       "weight": 28.284271247461902,
       "distance": 28.284271247461902
     },
@@ -13101,12 +13161,6 @@
       "target": "corridor_connect_461",
       "weight": 20.0,
       "distance": 20.0
-    },
-    {
-      "source": "corridor_connect_449",
-      "target": "corridor_connect_464",
-      "weight": 28.284271247461902,
-      "distance": 28.284271247461902
     },
     {
       "source": "corridor_connect_450",
@@ -13740,6 +13794,12 @@
     },
     {
       "source": "corridor_connect_552",
+      "target": "corridor_connect_565",
+      "weight": 28.284271247461902,
+      "distance": 28.284271247461902
+    },
+    {
+      "source": "corridor_connect_552",
       "target": "corridor_connect_563",
       "weight": 28.284271247461902,
       "distance": 28.284271247461902
@@ -13811,6 +13871,12 @@
       "distance": 20.0
     },
     {
+      "source": "corridor_connect_565",
+      "target": "corridor_connect_578",
+      "weight": 28.284271247461902,
+      "distance": 28.284271247461902
+    },
+    {
       "source": "corridor_connect_566",
       "target": "corridor_connect_579",
       "weight": 28.284271247461902,
@@ -13875,6 +13941,12 @@
       "target": "corridor_connect_590",
       "weight": 20.0,
       "distance": 20.0
+    },
+    {
+      "source": "corridor_connect_578",
+      "target": "corridor_connect_593",
+      "weight": 28.284271247461902,
+      "distance": 28.284271247461902
     },
     {
       "source": "corridor_connect_579",
@@ -14064,15 +14136,27 @@
     },
     {
       "source": "corridor_connect_605",
-      "target": "corridor_connect_627",
-      "weight": 28.284271247461902,
-      "distance": 28.284271247461902
+      "target": "corridor_connect_606",
+      "weight": 20.0,
+      "distance": 20.0
+    },
+    {
+      "source": "corridor_connect_606",
+      "target": "corridor_connect_607",
+      "weight": 20.0,
+      "distance": 20.0
     },
     {
       "source": "corridor_connect_606",
       "target": "corridor_connect_626",
       "weight": 28.284271247461902,
       "distance": 28.284271247461902
+    },
+    {
+      "source": "corridor_connect_607",
+      "target": "corridor_connect_608",
+      "weight": 20.0,
+      "distance": 20.0
     },
     {
       "source": "corridor_connect_607",
@@ -14208,21 +14292,9 @@
     },
     {
       "source": "corridor_connect_627",
-      "target": "corridor_connect_628",
-      "weight": 20.0,
-      "distance": 20.0
-    },
-    {
-      "source": "corridor_connect_627",
       "target": "corridor_connect_645",
       "weight": 28.284271247461902,
       "distance": 28.284271247461902
-    },
-    {
-      "source": "corridor_connect_628",
-      "target": "corridor_connect_629",
-      "weight": 20.0,
-      "distance": 20.0
     },
     {
       "source": "corridor_connect_628",
