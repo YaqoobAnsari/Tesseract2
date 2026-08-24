@@ -59,6 +59,48 @@ def route_lengths(G):
     return {r: dist[r] for r in rooms if r in dist}
 
 
+
+def plot_density(rows, stem):
+    """Density trade-off figure. Route-error annotations sit at the top of
+    the chart, drawn last so they stay above the lines."""
+    import matplotlib
+    matplotlib.use('Agg')
+    import matplotlib.pyplot as plt
+
+    rows = sorted(rows, key=lambda r: int(r['spacing']))
+    sp = [int(r['spacing']) for r in rows]
+    nodes = [int(r['nodes']) for r in rows]
+    comp = [float(r['completeness']) for r in rows]
+    err = [float(r['mean_route_rel_err_vs_ref']) * 100 for r in rows]
+
+    fig, ax1 = plt.subplots(figsize=(8.5, 4.6))
+    ax1.plot(sp, comp, marker='o', markersize=8, linewidth=2.2,
+             color='#0072B2', label='completeness', zorder=3)
+    ax1.set_xlabel('corridor grid spacing (px)', fontsize=15)
+    ax1.set_ylabel('pairwise room completeness', color='#0072B2', fontsize=15)
+    ax1.tick_params(labelsize=13)
+    ax1.set_ylim(0, 1.18)
+    ax1.set_yticks([0, 0.2, 0.4, 0.6, 0.8, 1.0])
+    ax1.grid(alpha=0.3)
+    ax2 = ax1.twinx()
+    ax2.plot(sp, nodes, marker='s', markersize=8, linewidth=2.2,
+             color='#D55E00', label='graph nodes', zorder=3)
+    ax2.set_ylabel('post-pruning graph nodes', color='#D55E00', fontsize=15)
+    ax2.tick_params(labelsize=13)
+    for s, e in zip(sp, err):
+        label = f"{e:.1f}%" if e < 100 else f"{e:.0f}%"
+        ax1.annotate(label, (s, 1.10), ha='center', fontsize=13,
+                     color='black', zorder=10, annotation_clip=False,
+                     bbox=dict(boxstyle='round,pad=0.22', facecolor='white',
+                               edgecolor='#999999', linewidth=0.6))
+    ax1.annotate('route error vs 20 px reference', (min(sp), 1.10),
+                 xytext=(-6, 16), textcoords='offset points',
+                 fontsize=12, color='black', zorder=10, annotation_clip=False)
+    fig.tight_layout()
+    fig.savefig(os.path.join(OUT_DIR, f"density_{stem}.png"), dpi=170,
+                bbox_inches='tight')
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument('--image', default="FF part 1upE.png")
@@ -128,6 +170,7 @@ def main():
         wr = csv.DictWriter(f, fieldnames=list(rows[0].keys()))
         wr.writeheader()
         wr.writerows(rows)
+    plot_density(rows, stem)
     print("\n" + "\n".join(lines))
     print(f"\nSaved to: {OUT_DIR}")
 

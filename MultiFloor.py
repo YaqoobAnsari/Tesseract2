@@ -996,7 +996,7 @@ def plot_timing_bar_chart(timing_info, floor_info, output_path):
         ax.text(bar.get_width() + 0.5, bar.get_y() + bar.get_height()/2,
                 f'{val:.2f}s', va='center', fontsize=9, fontweight='medium')
     
-    ax.set_xlabel('Time (seconds)', fontsize=12, fontweight='bold')
+    ax.set_xlabel('Time (seconds)', fontsize=15, fontweight='bold')
     ax.set_title('Multi-Floor Processing Time Breakdown\n(Ascending Order)', 
                  fontsize=14, fontweight='bold', pad=15)
     
@@ -1030,14 +1030,12 @@ def plot_stacked_floors(merged_graph, floor_graphs, floor_image_map, connection_
     
     # Assign unique colors to each transition pair
     n_pairs = len(connection_details)
-    # Use a vibrant color palette (Set3 for distinct colors)
-    pair_colors = plt.cm.Set3(np.linspace(0, 1, max(n_pairs, 1)))
-    # Convert to hex for consistency
+    # Colorblind-safe palette (Okabe-Ito), cycled per transition pair
+    OKABE_ITO = ['#0072B2', '#D55E00', '#009E73', '#CC79A7', '#E69F00', '#56B4E9']
     pair_color_map = {}
     for i, conn in enumerate(connection_details):
-        # Create a unique key for this pair
         pair_key = (conn['src'], conn['tgt'])
-        pair_color_map[pair_key] = mcolors.rgb2hex(pair_colors[i])
+        pair_color_map[pair_key] = OKABE_ITO[i % len(OKABE_ITO)]
     
     # Load floor images
     floor_images = {}
@@ -1137,8 +1135,9 @@ def plot_stacked_floors(merged_graph, floor_graphs, floor_image_map, connection_
                    markersize=15, label=label)
         )
     
-    axes[0].legend(handles=legend_elements, loc='upper right', fontsize=20,
-                   framealpha=0.9, markerscale=1.8)
+    fig.legend(handles=legend_elements, loc='lower center',
+               ncol=len(legend_elements), fontsize=18, framealpha=0.95,
+               markerscale=1.6, bbox_to_anchor=(0.5, -0.03))
     
     plt.suptitle('Multi-Floor Building Graph (color-coded transition pairs)',
                  fontsize=26, fontweight='bold', y=1.02)
@@ -1378,10 +1377,10 @@ def plot_connectivity_matrix(merged_graph, floor_image_map, output_path):
             val = connectivity[i, j]
             color = 'white' if val < 0.5 else 'black'
             ax.text(j, i, f'{val:.0%}', ha='center', va='center', 
-                   color=color, fontsize=12, fontweight='bold')
+                   color=color, fontsize=15, fontweight='bold')
     
-    ax.set_xlabel('Target Floor', fontsize=12, fontweight='bold')
-    ax.set_ylabel('Source Floor', fontsize=12, fontweight='bold')
+    ax.set_xlabel('Target Floor', fontsize=15, fontweight='bold')
+    ax.set_ylabel('Source Floor', fontsize=15, fontweight='bold')
     ax.set_title('Floor-to-Floor Connectivity Matrix\n(Percentage of Reachable Paths)', 
                 fontsize=14, fontweight='bold', pad=15)
     
@@ -1437,8 +1436,8 @@ def plot_node_distribution(merged_graph, floor_image_map, output_path):
                 ax.text(bar.get_x() + bar.get_width()/2, bar.get_height() + 5,
                        str(val), ha='center', va='bottom', fontsize=8)
     
-    ax.set_xlabel('Floor', fontsize=12, fontweight='bold')
-    ax.set_ylabel('Number of Nodes', fontsize=12, fontweight='bold')
+    ax.set_xlabel('Floor', fontsize=15, fontweight='bold')
+    ax.set_ylabel('Number of Nodes', fontsize=15, fontweight='bold')
     ax.set_title('Node Distribution by Type and Floor', fontsize=14, fontweight='bold', pad=15)
     ax.set_xticks(x)
     ax.set_xticklabels([f'Floor {f}\n({get_floor_display_name(f)})' for f in floors])
@@ -1564,9 +1563,9 @@ def plot_pre_post_pruning_comparison(graph_info, floor_image_map, output_path):
                 transform=ax1.transAxes, fontsize=14)
     else:
         bars1 = ax1.bar(x - width/2, pre_nodes, width, label='Before Pruning', 
-                        color=ACADEMIC_COLORS['floor_1'], alpha=0.85, edgecolor='black', linewidth=1)
+                        color='#0072B2', alpha=0.9, edgecolor='black', linewidth=1)
         bars2 = ax1.bar(x + width/2, post_nodes, width, label='After Pruning',
-                        color=ACADEMIC_COLORS['floor_2'], alpha=0.85, edgecolor='black', linewidth=1)
+                        color='#009E73', alpha=0.9, edgecolor='black', linewidth=1)
         
         # Add value labels on bars
         for bars in [bars1, bars2]:
@@ -1574,14 +1573,14 @@ def plot_pre_post_pruning_comparison(graph_info, floor_image_map, output_path):
                 height = bar.get_height()
                 if height > 0:
                     ax1.text(bar.get_x() + bar.get_width()/2, height,
-                            f'{int(height)}', ha='center', va='bottom', fontsize=9, fontweight='bold')
+                            f'{int(height)}', ha='center', va='bottom', fontsize=11, fontweight='bold')
     
-    ax1.set_xlabel('Floor', fontsize=12, fontweight='bold')
-    ax1.set_ylabel('Number of Nodes', fontsize=12, fontweight='bold')
-    ax1.set_title('Node Count: Pre vs Post Pruning', fontsize=13, fontweight='bold')
+    ax1.set_xlabel('Floor', fontsize=15, fontweight='bold')
+    ax1.set_ylabel('Number of Nodes', fontsize=15, fontweight='bold')
+    ax1.set_title('Node Count: Pre vs Post Pruning', fontsize=16, fontweight='bold')
     ax1.set_xticks(x)
     ax1.set_xticklabels(floor_labels)
-    ax1.legend(fontsize=10)
+    ax1.legend(fontsize=13)
     ax1.grid(axis='y', alpha=0.3)
     
     # Set y-axis to show all data
@@ -1595,7 +1594,7 @@ def plot_pre_post_pruning_comparison(graph_info, floor_image_map, output_path):
             reduction = (pre - post) / pre * 100
             max_height = max(pre, post)
             ax1.text(i, max_height + max_height * 0.05, f'-{reduction:.0f}%', 
-                    ha='center', fontsize=9, color='red', fontweight='bold')
+                    ha='center', fontsize=12, color='#D55E00', fontweight='bold')
     
     # Edges comparison
     if not pre_edges or all(v == 0 for v in pre_edges):
@@ -1604,9 +1603,9 @@ def plot_pre_post_pruning_comparison(graph_info, floor_image_map, output_path):
                 transform=ax2.transAxes, fontsize=14)
     else:
         bars3 = ax2.bar(x - width/2, pre_edges, width, label='Before Pruning',
-                        color=ACADEMIC_COLORS['floor_1'], alpha=0.85, edgecolor='black', linewidth=1)
+                        color='#0072B2', alpha=0.9, edgecolor='black', linewidth=1)
         bars4 = ax2.bar(x + width/2, post_edges, width, label='After Pruning',
-                        color=ACADEMIC_COLORS['floor_2'], alpha=0.85, edgecolor='black', linewidth=1)
+                        color='#009E73', alpha=0.9, edgecolor='black', linewidth=1)
         
         # Add value labels on bars
         for bars in [bars3, bars4]:
@@ -1614,14 +1613,14 @@ def plot_pre_post_pruning_comparison(graph_info, floor_image_map, output_path):
                 height = bar.get_height()
                 if height > 0:
                     ax2.text(bar.get_x() + bar.get_width()/2, height,
-                            f'{int(height)}', ha='center', va='bottom', fontsize=9, fontweight='bold')
+                            f'{int(height)}', ha='center', va='bottom', fontsize=11, fontweight='bold')
     
-    ax2.set_xlabel('Floor', fontsize=12, fontweight='bold')
-    ax2.set_ylabel('Number of Edges', fontsize=12, fontweight='bold')
-    ax2.set_title('Edge Count: Pre vs Post Pruning', fontsize=13, fontweight='bold')
+    ax2.set_xlabel('Floor', fontsize=15, fontweight='bold')
+    ax2.set_ylabel('Number of Edges', fontsize=15, fontweight='bold')
+    ax2.set_title('Edge Count: Pre vs Post Pruning', fontsize=16, fontweight='bold')
     ax2.set_xticks(x)
     ax2.set_xticklabels(floor_labels)
-    ax2.legend(fontsize=10)
+    ax2.legend(fontsize=13)
     ax2.grid(axis='y', alpha=0.3)
     
     # Set y-axis to show all data
@@ -1635,7 +1634,7 @@ def plot_pre_post_pruning_comparison(graph_info, floor_image_map, output_path):
             reduction = (pre - post) / pre * 100
             max_height = max(pre, post)
             ax2.text(i, max_height + max_height * 0.05, f'-{reduction:.0f}%',
-                    ha='center', fontsize=9, color='red', fontweight='bold')
+                    ha='center', fontsize=12, color='#D55E00', fontweight='bold')
     
     plt.suptitle('Graph Pruning Impact Analysis', fontsize=15, fontweight='bold', y=1.02)
     plt.tight_layout()

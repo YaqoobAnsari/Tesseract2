@@ -482,19 +482,19 @@ The evaluation uses annotated sections of a university building together with te
 
 \begin{figure}[!htbp]
 \centering
-\begin{subfigure}{0.55\textwidth}
+\begin{subfigure}{0.56\textwidth}
 \includegraphics[width=\linewidth]{figures/dataset_ff.png}
 \Description{Annotated first-floor drawing with room, hall, stairs, and elevator labels.}
-\caption{First-floor section, $1946 \times 1574$ pixels.}
+\caption{First-floor section A.}
 \end{subfigure}
 \hfill
 \begin{subfigure}{0.40\textwidth}
-\includegraphics[width=\linewidth]{figures/dataset_gf.png}
-\Description{Annotated ground-floor drawing with room, hall, stairs, and elevator labels.}
-\caption{Ground-floor section, $1182 \times 1105$ pixels.}
+\includegraphics[width=\linewidth]{figures/dataset_ff_crop.png}
+\Description{Enlarged detail of the drawing showing labels, door symbols, and walls.}
+\caption{Detail view of the annotation conventions.}
 \end{subfigure}
 \Description{Two annotated evaluation floor plans.}
-\caption{\rone{Representative evaluation drawings. Rooms carry numeric labels, corridors carry hall labels, outdoor regions carry na labels, and stairs and elevators are labeled at their shafts. Walls are dark strokes and doors use standard arc symbols.}}
+\caption{\rone{A representative evaluation drawing and a detail view. Rooms carry numeric labels, corridors carry hall labels, outdoor regions carry na labels, and stairs and elevators are labeled at their shafts. Walls are dark strokes and doors use standard arc symbols.}}
 \label{fig:dataset}
 \end{figure}
 
@@ -763,7 +763,7 @@ Wall masks for registration are downsampled to 400 pixels on the long side, and 
 \section{Additional Visualizations}
 \label{app:visualizations}
 
-Figures~\ref{fig:app_ff} and~\ref{fig:app_gf} reproduce the evaluation drawings of Figure~\ref{fig:dataset} at full page width so that labels, door symbols, and wall conventions are legible.
+Figures~\ref{fig:app_ff} and~\ref{fig:app_gf} reproduce the two evaluation drawings at full page width so that labels, door symbols, and wall conventions are legible.
 
 \begin{figure}[!htbp]
 \centering

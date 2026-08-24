@@ -129,7 +129,8 @@ def main():
     colors = {'random-all': '#555555', 'r2c-only': '#0072B2',
               'c2c-only': '#D55E00'}
     fig, axes = plt.subplots(len(floors), 2,
-                             figsize=(11, 3.4 * len(floors)), squeeze=False)
+                             figsize=(16, 4.6 * len(floors)), squeeze=False)
+    handles = None
     for fi, stem in enumerate(floors):
         rows = all_rows[stem]
         for mi, metric in enumerate(['completeness', 'exit_reachability']):
@@ -142,16 +143,21 @@ def main():
                 stds = [np.std([r[metric] for r in got if r['fraction'] == f])
                         for f in LEVELS]
                 ax.errorbar([f * 100 for f in LEVELS], means, yerr=stds,
-                            marker='o', capsize=3, label=cat,
-                            color=colors[cat])
-            ax.set_title(f"{stem} - {metric.replace('_', ' ')}")
-            ax.set_xlabel('doors deleted (%)')
+                            marker='o', markersize=7, linewidth=2, capsize=4,
+                            label=cat, color=colors[cat])
+            ax.set_title(f"{stem}, {metric.replace('_', ' ')}", fontsize=17)
+            ax.set_xlabel('doors deleted (%)', fontsize=15)
+            ax.set_ylabel(metric.replace('_', ' '), fontsize=15)
+            ax.tick_params(labelsize=13)
             ax.set_ylim(-0.05, 1.05)
             ax.grid(alpha=0.3)
-    axes[0][0].legend(fontsize=8)
-    fig.tight_layout()
+            if handles is None:
+                handles, labels = ax.get_legend_handles_labels()
+    fig.legend(handles, labels, loc='lower center', ncol=len(CATEGORIES),
+               fontsize=16, framealpha=0.95, bbox_to_anchor=(0.5, -0.015))
+    fig.tight_layout(rect=(0, 0.03, 1, 1))
     plot_path = os.path.join(OUT_DIR, "knockout_curves.png")
-    fig.savefig(plot_path, dpi=150)
+    fig.savefig(plot_path, dpi=150, bbox_inches='tight')
 
     with open(os.path.join(OUT_DIR, "summary.txt"), 'w') as f:
         f.write("Door-knockout experiment (pre-pruning graphs, "
