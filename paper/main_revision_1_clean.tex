@@ -1,4 +1,4 @@
-%% Tesseract++: Journal Extension (ACM TSAS) - REVISION 1, clean copy (no colors)
+%% Tesseract: Journal Extension (ACM TSAS) - REVISION 1, clean copy (no colors)
 %% Extended from: "Tesseract: Unfolding Navigable Graph Representations from Low-Semantic Floor Plans"
 %%
 %% Colour code (see revision_macros.tex and paper/README.md):
@@ -37,7 +37,7 @@
 \setcounter{totalnumber}{5}
 
 % Custom commands
-\newcommand{\tesseract}{\textsc{Tesseract++}}
+\newcommand{\tesseract}{\textsc{Tesseract}}
 \newcommand{\eg}{\textit{e.g.}}
 \newcommand{\ie}{\textit{i.e.}}
 \newcommand{\etal}{\textit{et al.}}
@@ -47,8 +47,8 @@
 % ==============================================================================
 % TITLE
 % ==============================================================================
-\title[Tesseract++: Multi-Floor Navigable Graphs from Annotated Floorplans]{%
-Tesseract++: End-to-End Extraction of Multi-Floor Navigable Graph Representations from Annotated Building Floorplans}
+\title[Tesseract: Indoor Graph Maps from Low-Semantic Floor Plans]{%
+Tesseract: Generating Indoor Graph Maps from Large-Scale Low-Semantic Floor Plans}
 
 % ==============================================================================
 % AUTHORS
@@ -530,7 +530,7 @@ Ten smaller plans & various & 2--6 each & 0--6 each & 0 \\
 
 \begin{figure}[!htbp]
 \centering
-\includegraphics[width=\textwidth,height=0.52\textheight,keepaspectratio]{figures/knockout_curves.png}
+\includegraphics[width=\textwidth]{figures/knockout_curves.png}
 \Description{Completeness and exit reachability curves under door deletion for three floor sections.}
 \caption{\rall{Connectivity under door deletion for three floor sections. Random deletion and room-to-corridor deletion degrade completeness steadily because each room is single-homed through one access door. Corridor-to-corridor deletion barely moves two of the floors and bites on the third, which motivates the per-door analysis.}}
 \label{fig:knockout}
@@ -566,7 +566,7 @@ One node per room & 680 & 918 & 1.000 & 1.135 & 0.35 \\
 
 \begin{figure}[!htbp]
 \centering
-\includegraphics[width=0.8\textwidth]{figures/pruning_comparison.png}
+\includegraphics[width=\textwidth]{figures/pruning_comparison.png}
 \Description{Bar chart of node and edge counts before and after pruning.}
 \caption{Pre-pruning and post-pruning graph sizes on the two-floor merge.}
 \label{fig:prune}
@@ -629,7 +629,7 @@ B & \tesseract{} & 712 & 928 & 1.000 & 1.231 & 0.36 \\
 
 \begin{figure}[!htbp]
 \centering
-\includegraphics[width=0.95\textwidth]{figures/matcher_eval.png}
+\includegraphics[width=\textwidth]{figures/matcher_eval.png}
 \Description{Matching accuracy panels for five perturbation sweeps.}
 \caption{\rall{Matching accuracy under synthetic perturbation for the rotation, scale, twin-separation, and shaft-deletion sweeps. The assignment matcher holds 1.000 throughout while the nearest-neighbor baseline degrades as twin shafts approach. The translation sweep behaves identically, and its recovery error appears in Figure~\ref{fig:regerr}.}}
 \label{fig:matcher}
@@ -637,7 +637,7 @@ B & \tesseract{} & 712 & 928 & 1.000 & 1.231 & 0.36 \\
 
 \begin{figure}[!htbp]
 \centering
-\includegraphics[width=0.85\textwidth]{figures/registration_error.png}
+\includegraphics[width=\textwidth]{figures/registration_error.png}
 \Description{Median registration recovery error with interquartile bands for three sweeps.}
 \caption{\rall{Registration recovery error against known perturbations, shown as median with interquartile band.}}
 \label{fig:regerr}

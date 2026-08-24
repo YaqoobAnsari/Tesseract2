@@ -5,5 +5,5 @@ Connected Components: 1
 Largest Component: 1753 nodes
 
 Floor-wise Connectivity:
-  Floor 2: 15 connected, 0 disconnected
   Floor 1: 15 connected, 0 disconnected
+  Floor 2: 15 connected, 0 disconnected

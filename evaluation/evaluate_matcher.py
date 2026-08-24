@@ -216,6 +216,74 @@ def run_trial(floor1, json_path, image_path, scale, rot, shift, jitter,
             reg, reg_err)
 
 
+
+def plot_matcher_accuracy(rows):
+    """Two-by-two accuracy grid at paper width. The translation sweep is
+    omitted because both methods are flat there; its recovery error
+    appears in the registration-error figure."""
+    from utils.figstyle import use_paper_style, TEXT_WIDTH_IN, save_paper_figure
+    use_paper_style()
+    fig, axes = plt.subplots(2, 2, figsize=(TEXT_WIDTH_IN, 3.7))
+    for ax, sweep in zip(axes.flat, ['rotation_deg', 'scale',
+                                     'twin_separation_px', 'termination']):
+        got = [r for r in rows if r['sweep'] == sweep]
+        levels = sorted({r['level'] for r in got},
+                        key=lambda v: (isinstance(v, str), v))
+        for method, color, label in [('matcher_acc', '#0072B2',
+                                      'Assignment + registration'),
+                                     ('nn_acc', '#D55E00',
+                                      'Nearest neighbour')]:
+            means = [np.mean([r[method] for r in got if r['level'] == lv])
+                     for lv in levels]
+            stds = [np.std([r[method] for r in got if r['level'] == lv])
+                    for lv in levels]
+            ax.errorbar(range(len(levels)), means, yerr=stds, marker='o',
+                        capsize=2.5, color=color, label=label)
+        ax.set_xticks(range(len(levels)))
+        ax.set_xticklabels([str(lv) for lv in levels],
+                           rotation=25 if sweep == 'termination' else 0)
+        ax.set_title(sweep.replace('_', ' '))
+        ax.set_ylim(-0.05, 1.08)
+        ax.set_yticks([0, 0.5, 1.0])
+        ax.set_ylabel('accuracy')
+        ax.grid(alpha=0.3)
+    handles, labels = axes.flat[0].get_legend_handles_labels()
+    fig.legend(handles, labels, loc='lower center', ncol=2,
+               bbox_to_anchor=(0.5, -0.045))
+    fig.tight_layout()
+    save_paper_figure(fig, os.path.join(OUT_DIR, "matcher_eval.png"))
+
+
+def plot_registration_error(rows):
+    """Registration recovery error per sweep, authored at paper width."""
+    from utils.figstyle import use_paper_style, TEXT_WIDTH_IN, save_paper_figure
+    use_paper_style()
+    fig, axes = plt.subplots(1, 3, figsize=(TEXT_WIDTH_IN, 2.0))
+    titles = {'translation_px': 'translation (px)',
+              'rotation_deg': 'rotation (deg)', 'scale': 'scale factor'}
+    for ax, sweep in zip(axes, ['translation_px', 'rotation_deg', 'scale']):
+        got = [r for r in rows if r['sweep'] == sweep
+               and r.get('reg_error_px') is not None]
+        levels = sorted({r['level'] for r in got})
+        med = [np.median([r['reg_error_px'] for r in got if r['level'] == lv])
+               for lv in levels]
+        q1 = [np.percentile([r['reg_error_px'] for r in got if r['level'] == lv], 25)
+              for lv in levels]
+        q3 = [np.percentile([r['reg_error_px'] for r in got if r['level'] == lv], 75)
+              for lv in levels]
+        x = range(len(levels))
+        ax.plot(x, med, marker='o', color='#0072B2')
+        ax.fill_between(x, q1, q3, color='#0072B2', alpha=0.2)
+        ax.set_xticks(list(x))
+        ax.set_xticklabels([str(lv) for lv in levels], rotation=45)
+        ax.set_xlabel(titles[sweep])
+        ax.set_yscale('symlog', linthresh=1.0)
+        ax.grid(alpha=0.3)
+    axes[0].set_ylabel('error (px)')
+    fig.tight_layout()
+    save_paper_figure(fig, os.path.join(OUT_DIR, "registration_error.png"))
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument('--image', default="FF part 1upE.png")
@@ -329,68 +397,8 @@ def main():
         wr.writeheader()
         wr.writerows(rows)
 
-    fig, axes = plt.subplots(2, 2, figsize=(12, 9.5))
-    plot_sweeps = ['rotation_deg', 'scale', 'twin_separation_px',
-                   'termination']   # translation omitted: recovery shown in the
-                                    # registration-error figure
-    for ax, sweep in zip(axes.flat, plot_sweeps):
-        got = [r for r in rows if r['sweep'] == sweep]
-        levels = sorted({r['level'] for r in got},
-                        key=lambda v: (isinstance(v, str), v))
-        for method, color, label in [('matcher_acc', '#0072B2',
-                                      'Assignment + registration'),
-                                     ('nn_acc', '#D55E00',
-                                      'Nearest neighbour')]:
-            means = [np.mean([r[method] for r in got if r['level'] == lv])
-                     for lv in levels]
-            stds = [np.std([r[method] for r in got if r['level'] == lv])
-                    for lv in levels]
-            x = range(len(levels))
-            ax.errorbar(x, means, yerr=stds, marker='o', markersize=7,
-                        linewidth=2, color=color, label=label, capsize=4)
-        ax.set_xticks(range(len(levels)))
-        ax.set_xticklabels([str(lv) for lv in levels],
-                           rotation=30 if sweep == 'termination' else 0,
-                           fontsize=14)
-        ax.tick_params(axis='y', labelsize=14)
-        ax.set_title(sweep.replace('_', ' '), fontsize=18)
-        ax.set_ylim(-0.05, 1.05)
-        ax.set_ylabel('correspondence accuracy', fontsize=16)
-        ax.grid(alpha=0.3)
-    axes.flat[0].legend(fontsize=13)
-    fig.suptitle(f"Transition matching under synthetic perturbation "
-                 f"(jitter {args.jitter}px, {args.trials} trials/level)",
-                 fontsize=18)
-    fig.tight_layout()
-    plot_path = os.path.join(OUT_DIR, "matcher_eval.png")
-    fig.savefig(plot_path, dpi=150)
-
-    # Registration recovery error (task B deliverable): estimated transform
-    # vs known ground-truth perturbation.
-    fig2, axes2 = plt.subplots(1, 3, figsize=(13, 4))
-    for ax, sweep in zip(axes2, ['translation_px', 'rotation_deg', 'scale']):
-        got = [r for r in rows if r['sweep'] == sweep]
-        levels = sorted({r['level'] for r in got})
-        med = [np.median([r['reg_error_px'] for r in got if r['level'] == lv])
-               for lv in levels]
-        q1 = [np.percentile([r['reg_error_px'] for r in got if r['level'] == lv], 25)
-              for lv in levels]
-        q3 = [np.percentile([r['reg_error_px'] for r in got if r['level'] == lv], 75)
-              for lv in levels]
-        x = range(len(levels))
-        ax.plot(x, med, marker='o', color='#0072B2')
-        ax.fill_between(x, q1, q3, color='#0072B2', alpha=0.2)
-        ax.set_xticks(range(len(levels)))
-        ax.set_xticklabels([str(lv) for lv in levels], fontsize=8)
-        ax.set_title(sweep.replace('_', ' '))
-        ax.set_ylabel('registration error (px, corner displacement)')
-        ax.set_yscale('symlog', linthresh=1.0)
-        ax.grid(alpha=0.3)
-    fig2.suptitle("Registration recovery error vs known perturbation "
-                  f"(jitter {args.jitter}px)")
-    fig2.tight_layout()
-    reg_plot_path = os.path.join(OUT_DIR, "registration_error.png")
-    fig2.savefig(reg_plot_path, dpi=150)
+    plot_matcher_accuracy(rows)
+    plot_registration_error(rows)
 
     summary_path = os.path.join(OUT_DIR, "summary.txt")
     with open(summary_path, 'w') as f:

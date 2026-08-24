@@ -69,6 +69,8 @@ def plot_density(rows, stem):
     import matplotlib
     matplotlib.use('Agg')
     import matplotlib.pyplot as plt
+    from utils.figstyle import use_paper_style, TEXT_WIDTH_IN, save_paper_figure
+    use_paper_style()
 
     rows = sorted(rows, key=lambda r: int(r['spacing']))
     sp = [int(r['spacing']) for r in rows]
@@ -78,44 +80,45 @@ def plot_density(rows, stem):
     err = [float(r['mean_route_rel_err_vs_ref']) * 100 for r in rows]
     ref = route[0]
 
-    fig, (ax1, ax3) = plt.subplots(1, 2, figsize=(14, 5))
+    fig, (ax1, ax3) = plt.subplots(1, 2, figsize=(TEXT_WIDTH_IN - 0.35, 2.4))
 
-    ax1.plot(sp, comp, marker='o', markersize=9, linewidth=2.4,
+    ax1.plot(sp, comp, marker='o', markersize=4.5,
              color='#0072B2', label='completeness')
-    ax1.set_xlabel('corridor grid spacing (px)', fontsize=16)
-    ax1.set_ylabel('pairwise room completeness', color='#0072B2', fontsize=16)
-    ax1.tick_params(labelsize=14)
+    ax1.set_xlabel('corridor grid spacing (px)', )
+    ax1.set_ylabel('pairwise room completeness', color='#0072B2', )
+    
     ax1.set_ylim(0, 1.05)
     ax1.grid(alpha=0.3)
     ax2 = ax1.twinx()
-    ax2.plot(sp, nodes, marker='s', markersize=9, linewidth=2.4,
+    ax2.plot(sp, nodes, marker='s', markersize=4.5,
              color='#D55E00', label='graph nodes')
-    ax2.set_ylabel('post-pruning graph nodes', color='#D55E00', fontsize=16)
-    ax2.tick_params(labelsize=14)
-    ax1.set_title('Connectivity and graph size', fontsize=17)
+    ax2.set_ylabel('post-pruning graph nodes', color='#D55E00', )
+    
+    ax1.set_title('Connectivity and graph size', )
 
     bars = ax3.bar([str(s) for s in sp], route, color='#0072B2',
-                   edgecolor='black', linewidth=1)
+                   edgecolor='black', linewidth=0.7)
     bars[-1].set_color('#D55E00')
     bars[-1].set_edgecolor('black')
-    ax3.axhline(ref, color='#555555', linestyle='--', linewidth=1.5,
-                label='20 px reference route length')
-    ax3.legend(loc='upper left', fontsize=13, framealpha=0.95)
-    for bar, e in zip(bars, err):
+    ax3.axhline(ref, color='#555555', linestyle='--', linewidth=1.2,
+                label='20 px reference')
+    ax3.legend(loc='upper left', framealpha=0.95)
+    # Labels alternate height so neighboring labels never collide.
+    for i, (bar, e) in enumerate(zip(bars, err)):
+        dy = 3 if i % 2 == 0 else 13
         ax3.annotate(f'+{e:.1f}%' if e < 100 else f'+{e:.0f}%',
                      (bar.get_x() + bar.get_width() / 2, bar.get_height()),
-                     xytext=(0, 5), textcoords='offset points',
-                     ha='center', fontsize=14, fontweight='bold', zorder=10)
-    ax3.set_xlabel('corridor grid spacing (px)', fontsize=16)
-    ax3.set_ylabel('mean room-to-exit route length (px)', fontsize=16)
-    ax3.tick_params(labelsize=14)
-    ax3.set_ylim(0, max(route) * 1.14)
-    ax3.set_title('Route length vs the 20 px reference', fontsize=17)
+                     xytext=(0, dy), textcoords='offset points',
+                     ha='center', fontsize=9, fontweight='bold', zorder=10)
+    ax3.set_xlabel('corridor grid spacing (px)', )
+    ax3.set_ylabel('mean room-to-exit route length (px)', )
+    
+    ax3.set_ylim(0, max(route) * 1.38)
+    ax3.set_title('Route length vs the 20 px reference', )
     ax3.grid(alpha=0.3, axis='y')
 
     fig.tight_layout()
-    fig.savefig(os.path.join(OUT_DIR, f"density_{stem}.png"), dpi=170,
-                bbox_inches='tight')
+    save_paper_figure(fig, os.path.join(OUT_DIR, f"density_{stem}.png"))
 
 
 def main():

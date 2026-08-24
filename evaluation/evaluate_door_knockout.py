@@ -60,6 +60,48 @@ def knock(G, remove):
     return H
 
 
+
+def plot_knockout(all_rows, floors, colors):
+    """Connectivity-under-deletion grid, authored at paper width so all
+    labels render at body-text size."""
+    from utils.figstyle import use_paper_style, TEXT_WIDTH_IN, save_paper_figure
+    use_paper_style()
+    fig, axes = plt.subplots(len(floors), 2,
+                             figsize=(TEXT_WIDTH_IN, 1.4 * len(floors) + 0.5),
+                             squeeze=False)
+    handles = labels = None
+    for fi, stem in enumerate(floors):
+        rows = all_rows[stem]
+        for mi, metric in enumerate(['completeness', 'exit_reachability']):
+            ax = axes[fi][mi]
+            for cat in CATEGORIES:
+                got = [r for r in rows if r['category'] == cat
+                       and r[metric] is not None]
+                means = [np.mean([r[metric] for r in got if r['fraction'] == f])
+                         for f in LEVELS]
+                stds = [np.std([r[metric] for r in got if r['fraction'] == f])
+                        for f in LEVELS]
+                ax.errorbar([f * 100 for f in LEVELS], means, yerr=stds,
+                            marker='o', capsize=2.5, label=cat,
+                            color=colors[cat])
+            ax.set_title(f"{stem}, {metric.replace('_', ' ')}")
+            ax.set_ylim(-0.05, 1.05)
+            ax.set_yticks([0, 0.5, 1.0])
+            ax.grid(alpha=0.3)
+            if fi == len(floors) - 1:
+                ax.set_xlabel('doors deleted (%)')
+            if mi == 0:
+                ax.set_ylabel('completeness')
+            else:
+                ax.set_ylabel('exit reachability')
+            if handles is None:
+                handles, labels = ax.get_legend_handles_labels()
+    fig.legend(handles, labels, loc='lower center', ncol=3,
+               bbox_to_anchor=(0.5, -0.055))
+    fig.tight_layout()
+    save_paper_figure(fig, os.path.join(OUT_DIR, "knockout_curves.png"))
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument('--floors', default="FF part 1upE,FF part 2up,FF part 3up")
@@ -128,36 +170,7 @@ def main():
     # ---- figure: one row per floor, completeness + exit reachability ----
     colors = {'random-all': '#555555', 'r2c-only': '#0072B2',
               'c2c-only': '#D55E00'}
-    fig, axes = plt.subplots(len(floors), 2,
-                             figsize=(16, 4.6 * len(floors)), squeeze=False)
-    handles = None
-    for fi, stem in enumerate(floors):
-        rows = all_rows[stem]
-        for mi, metric in enumerate(['completeness', 'exit_reachability']):
-            ax = axes[fi][mi]
-            for cat in CATEGORIES:
-                got = [r for r in rows if r['category'] == cat
-                       and r[metric] is not None]
-                means = [np.mean([r[metric] for r in got if r['fraction'] == f])
-                         for f in LEVELS]
-                stds = [np.std([r[metric] for r in got if r['fraction'] == f])
-                        for f in LEVELS]
-                ax.errorbar([f * 100 for f in LEVELS], means, yerr=stds,
-                            marker='o', markersize=7, linewidth=2, capsize=4,
-                            label=cat, color=colors[cat])
-            ax.set_title(f"{stem}, {metric.replace('_', ' ')}", fontsize=17)
-            ax.set_xlabel('doors deleted (%)', fontsize=15)
-            ax.set_ylabel(metric.replace('_', ' '), fontsize=15)
-            ax.tick_params(labelsize=13)
-            ax.set_ylim(-0.05, 1.05)
-            ax.grid(alpha=0.3)
-            if handles is None:
-                handles, labels = ax.get_legend_handles_labels()
-    fig.legend(handles, labels, loc='lower center', ncol=len(CATEGORIES),
-               fontsize=16, framealpha=0.95, bbox_to_anchor=(0.5, -0.015))
-    fig.tight_layout(rect=(0, 0.03, 1, 1))
-    plot_path = os.path.join(OUT_DIR, "knockout_curves.png")
-    fig.savefig(plot_path, dpi=150, bbox_inches='tight')
+    plot_knockout(all_rows, floors, colors)
 
     with open(os.path.join(OUT_DIR, "summary.txt"), 'w') as f:
         f.write("Door-knockout experiment (pre-pruning graphs, "
