@@ -61,8 +61,11 @@ def route_lengths(G):
 
 
 def plot_density(rows, stem):
-    """Density trade-off figure. Route-error annotations sit at the top of
-    the chart, drawn last so they stay above the lines."""
+    """Density trade-off figure, two panels. Left panel shows completeness
+    and graph size versus spacing. Right panel shows the mean room-to-exit
+    route length per spacing as bars, each labeled with its percentage
+    change against the 20-pixel reference, so the route-quality cost of
+    sparser sampling is explicit."""
     import matplotlib
     matplotlib.use('Agg')
     import matplotlib.pyplot as plt
@@ -71,31 +74,45 @@ def plot_density(rows, stem):
     sp = [int(r['spacing']) for r in rows]
     nodes = [int(r['nodes']) for r in rows]
     comp = [float(r['completeness']) for r in rows]
+    route = [float(r['mean_route_px']) for r in rows]
     err = [float(r['mean_route_rel_err_vs_ref']) * 100 for r in rows]
+    ref = route[0]
 
-    fig, ax1 = plt.subplots(figsize=(8.5, 4.6))
-    ax1.plot(sp, comp, marker='o', markersize=8, linewidth=2.2,
-             color='#0072B2', label='completeness', zorder=3)
-    ax1.set_xlabel('corridor grid spacing (px)', fontsize=15)
-    ax1.set_ylabel('pairwise room completeness', color='#0072B2', fontsize=15)
-    ax1.tick_params(labelsize=13)
-    ax1.set_ylim(0, 1.18)
-    ax1.set_yticks([0, 0.2, 0.4, 0.6, 0.8, 1.0])
+    fig, (ax1, ax3) = plt.subplots(1, 2, figsize=(14, 5))
+
+    ax1.plot(sp, comp, marker='o', markersize=9, linewidth=2.4,
+             color='#0072B2', label='completeness')
+    ax1.set_xlabel('corridor grid spacing (px)', fontsize=16)
+    ax1.set_ylabel('pairwise room completeness', color='#0072B2', fontsize=16)
+    ax1.tick_params(labelsize=14)
+    ax1.set_ylim(0, 1.05)
     ax1.grid(alpha=0.3)
     ax2 = ax1.twinx()
-    ax2.plot(sp, nodes, marker='s', markersize=8, linewidth=2.2,
-             color='#D55E00', label='graph nodes', zorder=3)
-    ax2.set_ylabel('post-pruning graph nodes', color='#D55E00', fontsize=15)
-    ax2.tick_params(labelsize=13)
-    for s, e in zip(sp, err):
-        label = f"{e:.1f}%" if e < 100 else f"{e:.0f}%"
-        ax1.annotate(label, (s, 1.10), ha='center', fontsize=13,
-                     color='black', zorder=10, annotation_clip=False,
-                     bbox=dict(boxstyle='round,pad=0.22', facecolor='white',
-                               edgecolor='#999999', linewidth=0.6))
-    ax1.annotate('route error vs 20 px reference', (min(sp), 1.10),
-                 xytext=(-6, 16), textcoords='offset points',
-                 fontsize=12, color='black', zorder=10, annotation_clip=False)
+    ax2.plot(sp, nodes, marker='s', markersize=9, linewidth=2.4,
+             color='#D55E00', label='graph nodes')
+    ax2.set_ylabel('post-pruning graph nodes', color='#D55E00', fontsize=16)
+    ax2.tick_params(labelsize=14)
+    ax1.set_title('Connectivity and graph size', fontsize=17)
+
+    bars = ax3.bar([str(s) for s in sp], route, color='#0072B2',
+                   edgecolor='black', linewidth=1)
+    bars[-1].set_color('#D55E00')
+    bars[-1].set_edgecolor('black')
+    ax3.axhline(ref, color='#555555', linestyle='--', linewidth=1.5,
+                label='20 px reference route length')
+    ax3.legend(loc='upper left', fontsize=13, framealpha=0.95)
+    for bar, e in zip(bars, err):
+        ax3.annotate(f'+{e:.1f}%' if e < 100 else f'+{e:.0f}%',
+                     (bar.get_x() + bar.get_width() / 2, bar.get_height()),
+                     xytext=(0, 5), textcoords='offset points',
+                     ha='center', fontsize=14, fontweight='bold', zorder=10)
+    ax3.set_xlabel('corridor grid spacing (px)', fontsize=16)
+    ax3.set_ylabel('mean room-to-exit route length (px)', fontsize=16)
+    ax3.tick_params(labelsize=14)
+    ax3.set_ylim(0, max(route) * 1.14)
+    ax3.set_title('Route length vs the 20 px reference', fontsize=17)
+    ax3.grid(alpha=0.3, axis='y')
+
     fig.tight_layout()
     fig.savefig(os.path.join(OUT_DIR, f"density_{stem}.png"), dpi=170,
                 bbox_inches='tight')

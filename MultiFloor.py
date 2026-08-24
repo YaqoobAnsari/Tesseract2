@@ -1580,7 +1580,6 @@ def plot_pre_post_pruning_comparison(graph_info, floor_image_map, output_path):
     ax1.set_title('Node Count: Pre vs Post Pruning', fontsize=16, fontweight='bold')
     ax1.set_xticks(x)
     ax1.set_xticklabels(floor_labels)
-    ax1.legend(fontsize=13)
     ax1.grid(axis='y', alpha=0.3)
     
     # Set y-axis to show all data
@@ -1620,7 +1619,10 @@ def plot_pre_post_pruning_comparison(graph_info, floor_image_map, output_path):
     ax2.set_title('Edge Count: Pre vs Post Pruning', fontsize=16, fontweight='bold')
     ax2.set_xticks(x)
     ax2.set_xticklabels(floor_labels)
-    ax2.legend(fontsize=13)
+    handles, labels = ax2.get_legend_handles_labels()
+    fig.legend(handles, labels, loc='lower center', ncol=2,
+               fontsize=15, framealpha=0.95,
+               bbox_to_anchor=(0.5, -0.04))
     ax2.grid(axis='y', alpha=0.3)
     
     # Set y-axis to show all data
