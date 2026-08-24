@@ -329,9 +329,11 @@ def main():
         wr.writeheader()
         wr.writerows(rows)
 
-    fig, axes = plt.subplots(1, 5, figsize=(22, 4))
-    for ax, sweep in zip(axes, ['translation_px', 'rotation_deg', 'scale',
-                                'twin_separation_px', 'termination']):
+    fig, axes = plt.subplots(2, 2, figsize=(12, 9.5))
+    plot_sweeps = ['rotation_deg', 'scale', 'twin_separation_px',
+                   'termination']   # translation omitted: recovery shown in the
+                                    # registration-error figure
+    for ax, sweep in zip(axes.flat, plot_sweeps):
         got = [r for r in rows if r['sweep'] == sweep]
         levels = sorted({r['level'] for r in got},
                         key=lambda v: (isinstance(v, str), v))
@@ -344,19 +346,21 @@ def main():
             stds = [np.std([r[method] for r in got if r['level'] == lv])
                     for lv in levels]
             x = range(len(levels))
-            ax.errorbar(x, means, yerr=stds, marker='o', color=color,
-                        label=label, capsize=3)
+            ax.errorbar(x, means, yerr=stds, marker='o', markersize=7,
+                        linewidth=2, color=color, label=label, capsize=4)
         ax.set_xticks(range(len(levels)))
-        ax.set_xticklabels([str(lv) for lv in levels], rotation=45 if
-                           sweep == 'termination' else 0, fontsize=8)
-        ax.set_title(sweep.replace('_', ' '))
+        ax.set_xticklabels([str(lv) for lv in levels],
+                           rotation=30 if sweep == 'termination' else 0,
+                           fontsize=14)
+        ax.tick_params(axis='y', labelsize=14)
+        ax.set_title(sweep.replace('_', ' '), fontsize=18)
         ax.set_ylim(-0.05, 1.05)
-        ax.set_ylabel('correspondence accuracy')
+        ax.set_ylabel('correspondence accuracy', fontsize=16)
         ax.grid(alpha=0.3)
-    axes[0].legend(fontsize=8)
-    fig.suptitle(f"Transition matching under synthetic perturbation - "
-                 f"{args.image} (jitter {args.jitter}px, "
-                 f"{args.trials} trials/level)")
+    axes.flat[0].legend(fontsize=13)
+    fig.suptitle(f"Transition matching under synthetic perturbation "
+                 f"(jitter {args.jitter}px, {args.trials} trials/level)",
+                 fontsize=18)
     fig.tight_layout()
     plot_path = os.path.join(OUT_DIR, "matcher_eval.png")
     fig.savefig(plot_path, dpi=150)

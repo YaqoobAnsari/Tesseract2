@@ -1022,7 +1022,7 @@ def plot_timing_bar_chart(timing_info, floor_info, output_path):
 def plot_stacked_floors(merged_graph, floor_graphs, floor_image_map, connection_details, 
                        input_images_dir, output_path):
     """
-    Create a stacked floor visualization showing all floors vertically aligned.
+    Create a floor visualization showing all floors side by side.
     Each transition pair gets a unique color for easy identification.
     """
     floors = sorted(set(floor_image_map.values()))
@@ -1056,7 +1056,7 @@ def plot_stacked_floors(merged_graph, floor_graphs, floor_image_map, connection_
     max_width = max(img.shape[1] for img in floor_images.values())
     
     # Create figure
-    fig, axes = plt.subplots(n_floors, 1, figsize=(14, 8 * n_floors))
+    fig, axes = plt.subplots(1, n_floors, figsize=(10 * n_floors, 9))
     if n_floors == 1:
         axes = [axes]
     
@@ -1112,7 +1112,7 @@ def plot_stacked_floors(merged_graph, floor_graphs, floor_image_map, connection_
                               zorder=10)
         
         floor_name = get_floor_display_name(floor_num)
-        ax.set_title(f'Floor {floor_num} ({floor_name})', fontsize=14, fontweight='bold')
+        ax.set_title(f'Floor {floor_num} ({floor_name})', fontsize=24, fontweight='bold')
         ax.axis('off')
     
     # Add legend to first subplot with transition pair colors
@@ -1137,10 +1137,11 @@ def plot_stacked_floors(merged_graph, floor_graphs, floor_image_map, connection_
                    markersize=15, label=label)
         )
     
-    axes[0].legend(handles=legend_elements, loc='upper right', fontsize=9, framealpha=0.9)
+    axes[0].legend(handles=legend_elements, loc='upper right', fontsize=20,
+                   framealpha=0.9, markerscale=1.8)
     
-    plt.suptitle('Multi-Floor Building Graph - Stacked View\n(Color-coded Transition Pairs)', 
-                 fontsize=16, fontweight='bold', y=1.02)
+    plt.suptitle('Multi-Floor Building Graph (color-coded transition pairs)',
+                 fontsize=26, fontweight='bold', y=1.02)
     plt.tight_layout()
     plt.savefig(output_path, dpi=200, bbox_inches='tight', facecolor='white')
     plt.close()

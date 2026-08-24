@@ -629,9 +629,9 @@ B & \tesseract{} & 712 & 928 & 1.000 & 1.231 & 0.36 \\
 
 \begin{figure}[!htbp]
 \centering
-\includegraphics[width=\textwidth]{figures/matcher_eval.png}
+\includegraphics[width=0.95\textwidth]{figures/matcher_eval.png}
 \Description{Matching accuracy panels for five perturbation sweeps.}
-\caption{\rall{Matching accuracy under synthetic perturbation. The assignment matcher holds 1.000 throughout while the nearest-neighbor baseline collapses as twin shafts approach.}}
+\caption{\rall{Matching accuracy under synthetic perturbation for the rotation, scale, twin-separation, and shaft-deletion sweeps. The assignment matcher holds 1.000 throughout while the nearest-neighbor baseline degrades as twin shafts approach. The translation sweep behaves identically, and its recovery error appears in Figure~\ref{fig:regerr}.}}
 \label{fig:matcher}
 \end{figure}
 
@@ -688,9 +688,9 @@ Figure~\ref{fig:stacked} visualizes a merged two-floor graph with its inter-floo
 
 \begin{figure}[!htbp]
 \centering
-\includegraphics[height=0.6\textheight,keepaspectratio]{figures/stacked_floors.png}
+\includegraphics[width=\textwidth]{figures/stacked_floors.png}
 \Description{Stacked visualization of a merged two-floor graph with inter-floor links.}
-\caption{Stacked visualization of a merged two-floor graph. Vertical links connect matched transition shafts.}
+\caption{Side-by-side visualization of a merged two-floor graph. Star markers in matching colors identify the matched transition shafts on each floor.}
 \label{fig:stacked}
 \end{figure}
 
